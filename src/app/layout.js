@@ -1,6 +1,12 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { Urbanist, Roboto } from "next/font/google";
+
 import "./globals.css";
 
+const urbanist = Urbanist({
+  variable: "--font-urbanist",
+  subsets: ["latin"],
+})
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
