@@ -1,10 +1,5 @@
 import { Urbanist, Roboto } from "next/font/google";
 
-import Header from './components/Header';
-import SubHeader from "./components/SubHeader";
-import Footer from './components/Footer';
-
-
 import "./globals.css";
 
 const urbanist = Urbanist({
@@ -26,12 +21,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${urbanist.className} ${roboto.className}`}>
-      <body className="min-h-screen flex flex-col">
-        <SubHeader />
-        <Header />
-        <main className="flex-grow">{children}</main>
-        <Footer />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

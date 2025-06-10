@@ -1,6 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 
-export default function Home() {
+export default function LandingPage() {
   return (
     <main>
       {/* Hero Banner */}
@@ -112,9 +113,12 @@ export default function Home() {
             </div>
           ))}
         </div>
+        <Link href="/product">
         <button className="mt-8 px-6 py-2 bg-gray-800 text-white hover:bg-gray-700 transition">
           VIEW ALL
         </button>
+        </Link>
+        
       </section>
     </main>
   );

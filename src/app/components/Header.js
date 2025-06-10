@@ -1,6 +1,7 @@
 "use client";
 
 import { Menu, Search, ShoppingCart, User } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function Header() {
@@ -27,13 +28,20 @@ export default function Header() {
         ) : (
           // Display Signup/Login buttons when not authorized
           <div className="flex items-center space-x-4">
-            <button className="text-primary font-medium hover:underline">
-              Signup
-            </button>
+
+            <Link href="/auth/signup">
+              <button className="text-primary font-medium hover:underline">
+                Signup
+              </button>
+            </Link>
+
             <div className="w-px h-6 bg-gray-300"></div>
-            <button className="text-secondary font-medium hover:underline">
-              Login
-            </button>
+
+            <Link href="/auth/login">
+              <button className="text-secondary font-medium hover:underline">
+                Login
+              </button>
+            </Link>
           </div>
         )}
       </div>
