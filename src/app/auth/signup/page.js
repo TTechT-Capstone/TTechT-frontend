@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 export default function SignUp() {
-  const [role, setRole] = useState("Customer"); 
+  const [role, setRole] = useState("Customer");
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [phonenumber, setPhoneNumber] = useState("");
@@ -33,7 +33,7 @@ export default function SignUp() {
     try {
       setSignUpError(""); // Clear previous errors
       // Simulate API call
-      window.location.href = "/auth/login"; 
+      window.location.href = "/auth/login";
     } catch (error) {
       console.error("Signup error:", error);
       setSignUpError(error.message || "Signup failed. Please try again.");
@@ -44,164 +44,180 @@ export default function SignUp() {
     <div className="h-screen w-screen grid grid-cols-1 md:grid-cols-2">
       <div className="flex flex-col justify-center items-center bg-white px-8">
         <form
-          className="w-full max-w-lg flex flex-col space-y-4"
+          className="w-full max-w-lg mx-auto flex flex-col space-y-6 p-6 border md:border-0 md:shadow-none shadow-lg rounded-2xl bg-white"
           onSubmit={handleSubmit}
         >
-          <Link href="/">
-            <h1 className="font-urbanist text-secondary text-xl font-bold cursor-pointer">
+          <Link href="/" aria-label="Home">
+            <h1 className="font-urbanist text-secondary text-2xl font-bold cursor-pointer text-center">
               Origity
             </h1>
           </Link>
 
-          <h1 className="font-urbanist font-bold text-2xl text-primary">
+          <h2 className="font-urbanist font-bold text-3xl text-primary text-center">
             Sign up
-          </h1>
+          </h2>
 
-          <div className="mt-2">
-            <label htmlFor="role">Role:</label>
+          <div>
+            <label htmlFor="role" className="block font-medium mb-2">
+              Role:
+            </label>
             <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                className={`py-2 px-4 rounded ${
-                  role === "Customer"
-                    ? "bg-secondary text-white"
-                    : "bg-gray-200 text-black"
-                }`}
-                onClick={() => setRole("Customer")}
-              >
-                Customer
-              </button>
-              <button
-                type="button"
-                className={`py-2 px-4 rounded ${
-                  role === "Seller"
-                    ? "bg-secondary text-white"
-                    : "bg-gray-200 text-black"
-                }`}
-                onClick={() => setRole("Seller")}
-              >
-                Seller
-              </button>
+              {["Customer", "Seller"].map((roleType) => (
+                <button
+                  key={roleType}
+                  type="button"
+                  className={`py-3 px-4 rounded-xl font-medium ${
+                    role === roleType
+                      ? "bg-secondary text-white shadow-lg"
+                      : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                  }`}
+                  onClick={() => setRole(roleType)}
+                  aria-pressed={role === roleType}
+                >
+                  {roleType}
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="firstname">First Name:</label>
+              <label htmlFor="firstname" className="block font-medium mb-2">
+                First Name:
+              </label>
               <input
                 type="text"
                 id="firstname"
                 value={firstname}
                 onChange={(e) => setFirstname(e.target.value)}
-                className="border rounded p-2 w-full"
-                placeholder="Enter your firstname"
+                className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+                placeholder="Enter your first name"
               />
             </div>
             <div>
-              <label htmlFor="lastname">Last Name:</label>
+              <label htmlFor="lastname" className="block font-medium mb-2">
+                Last Name:
+              </label>
               <input
                 type="text"
                 id="lastname"
                 value={lastname}
                 onChange={(e) => setLastname(e.target.value)}
-                className="border rounded p-2 w-full"
-                placeholder="Enter your lastname"
+                className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+                placeholder="Enter your last name"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="phonenumber">Phone Number:</label>
+              <label htmlFor="phonenumber" className="block font-medium mb-2">
+                Phone Number:
+              </label>
               <input
                 type="text"
                 id="phonenumber"
                 value={phonenumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-                className="border rounded p-2 w-full"
+                className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your phone number"
               />
             </div>
             <div>
-              <label htmlFor="address">Address:</label>
+              <label htmlFor="address" className="block font-medium mb-2">
+                Address:
+              </label>
               <input
                 type="text"
                 id="address"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className="border rounded p-2 w-full"
+                className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your address"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="username">Username:</label>
+              <label htmlFor="username" className="block font-medium mb-2">
+                Username:
+              </label>
               <input
                 type="text"
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="border rounded p-2 w-full"
+                className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your username"
               />
             </div>
             <div>
-              <label htmlFor="password">Password:</label>
+              <label htmlFor="password" className="block font-medium mb-2">
+                Password:
+              </label>
               <input
                 type="password"
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="border rounded p-2 w-full"
+                className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your password"
               />
             </div>
           </div>
 
           {role === "Seller" && (
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="storename">Store Name:</label>
+            <div>
+              <div className="mb-4">
+                <label htmlFor="storename" className="block font-medium mb-2">
+                  Store Name:
+                </label>
                 <input
                   type="text"
                   id="storename"
                   value={storeName}
                   onChange={(e) => setStoreName(e.target.value)}
-                  className="border rounded p-2 w-full"
+                  className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                   placeholder="Enter your store name"
                 />
               </div>
               <div>
-                <label htmlFor="storedescription">Store Description:</label>
+                <label
+                  htmlFor="storedescription"
+                  className="block font-medium mb-2"
+                >
+                  Store Description:
+                </label>
                 <textarea
                   id="storedescription"
                   value={storeDescription}
                   onChange={(e) => setStoreDescription(e.target.value)}
-                  className="border rounded p-2 w-full"
+                  className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                   placeholder="Enter your store description"
                 ></textarea>
               </div>
             </div>
           )}
 
-          {signUpError && <div className="text-red-500">{signUpError}</div>}
+          {signUpError && (
+            <div className="text-red-500 text-center font-medium">
+              {signUpError}
+            </div>
+          )}
 
-          <div>
-            <button
-              type="submit"
-              className="w-full py-2 px-4 rounded text-white bg-secondary hover:bg-gray-600 transition"
-            >
-              Create Account
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="w-full py-3 px-4 rounded-xl text-white bg-secondary hover:bg-secondary-dark transition shadow-lg"
+          >
+            Create Account
+          </button>
 
-          <p className="flex justify-center mt-2 font-roboto">
-            Already have an account?
+          <p className="text-center text-gray-600">
+            Already have an account?{" "}
             <Link
               href="/auth/login"
-              className="text-primary font-bold hover:underline ml-2"
+              className="text-primary font-bold hover:underline"
             >
               Login here
             </Link>

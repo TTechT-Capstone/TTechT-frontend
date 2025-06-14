@@ -16,9 +16,12 @@ export default function LandingPage() {
           <h1 className="text-3xl italic font-medium font-urbanist mb-4">
             Original. Protected. Trusted.
           </h1>
-          <button className="bg-white text-black font-urbanist px-6 py-2 hover:bg-gray-200 transition">
-            SHOP NOW
-          </button>
+
+          <Link href="/products">
+            <button className="bg-white text-black font-urbanist px-6 py-2 hover:bg-gray-200 transition">
+              SHOP NOW
+            </button>
+          </Link>
         </div>
       </section>
 
@@ -51,9 +54,7 @@ export default function LandingPage() {
             <h3 className="font-urbanist font-semibold mb-1">
               GUARANTEED ORIGINALITY
             </h3>
-            <p className="font-roboto">
-              Prove your image ownership anytime.
-            </p>
+            <p className="font-roboto">Prove your image ownership anytime.</p>
           </div>
         </div>
       </section>
@@ -63,13 +64,17 @@ export default function LandingPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {["Accessories", "Dresses", "Shoes", "Shirts"].map((category) => (
             <div key={category} className="relative group">
-              <Image
-                src={`/product.jpg`}
-                alt={category}
-                width={300}
-                height={300}
-                className="object-cover"
-              />
+              <div className="w-full h-[250px] overflow-hidden">
+                <Image
+                  src={`/product.jpg`}
+                  alt={category}
+                  layout="responsive"
+                  width={1}
+                  height={1}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
               <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
                 <h4 className="text-lg font-bold">{category}</h4>
                 <button className="text-sm mt-2 border border-white px-4 py-1">
@@ -84,8 +89,6 @@ export default function LandingPage() {
       {/* Divider */}
       <div className="my-6 border-t border-black opacity-20 mx-12"></div>
 
-
-
       {/* New Collection Section */}
       <section className="px-8 py-12 text-center">
         <h2 className="text-2xl font-semibold mb-8">NEW COLLECTION</h2>
@@ -96,29 +99,40 @@ export default function LandingPage() {
               price: "350,000 VND",
               img: "/product.jpg",
             },
-            { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
+            {
+              name: "White t-shirt",
+              price: "150,000 VND",
+              img: "/product.jpg",
+            },
             { name: "Summer hat", price: "80,000 VND", img: "/product.jpg" },
-            { name: "Summer glasses", price: "150,000 VND", img: "/product.jpg" },
+            {
+              name: "Summer glasses",
+              price: "150,000 VND",
+              img: "/product.jpg",
+            },
           ].map((item) => (
-            <div key={item.name}>
-              <Image
-                src={item.img}
-                alt={item.name}
-                width={300}
-                height={300}
-                className="object-cover"
-              />
+            <div key={item.name} className="text-center">
+              <div className="w-full h-[250px] overflow-hidden">
+                <Image
+                  src={item.img}
+                  alt={item.name}
+                  layout="responsive"
+                  width={1}
+                  height={1}
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <p className="mt-2 font-semibold">{item.name}</p>
               <p className="text-sm text-gray-600">{item.price}</p>
             </div>
           ))}
         </div>
-        <Link href="/product">
-        <button className="mt-8 px-6 py-2 bg-gray-800 text-white hover:bg-gray-700 transition">
-          VIEW ALL
-        </button>
+
+        <Link href="/products">
+          <button className="mt-8 px-6 py-2 bg-gray-800 text-white hover:bg-gray-700 transition">
+            VIEW ALL
+          </button>
         </Link>
-        
       </section>
     </main>
   );

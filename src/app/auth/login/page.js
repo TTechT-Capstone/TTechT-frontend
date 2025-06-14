@@ -16,11 +16,11 @@ export default function Login() {
     }
 
     try {
-      setLoginError(""); 
-      window.location.href = "/dashboard"; 
+      setLoginError("");
+      window.location.href = "/dashboard";
     } catch (error) {
       console.error("Login error:", error);
-      setLoginError(error.message || "Login failed. Please try again."); 
+      setLoginError(error.message || "Login failed. Please try again.");
     }
   };
 
@@ -28,60 +28,64 @@ export default function Login() {
     <div className="h-screen w-screen grid grid-cols-1 md:grid-cols-2">
       <div className="flex flex-col justify-center items-center bg-white px-8">
         <form
-          className="w-full max-w-lg flex flex-col space-y-4"
+          className="w-full max-w-lg mx-auto flex flex-col space-y-6 p-6 border md:border-0 md:shadow-none shadow-lg rounded-2xl bg-white"
           onSubmit={handleSubmit}
         >
-          <Link href="/">
-            <h1 className="font-urbanist text-secondary text-xl font-bold cursor-pointer">
+          <Link href="/" aria-label="Home">
+            <h1 className="font-urbanist text-secondary text-2xl font-bold cursor-pointer text-center">
               Origity
             </h1>
           </Link>
 
-          <h1 className="font-urbanist font-bold text-2xl text-primary">
+          <h2 className="font-urbanist font-bold text-3xl text-primary text-center">
             Welcome back
-          </h1>
+          </h2>
 
-          <div className="font-roboto text-primary">
+          <div className="font-roboto text-primary space-y-4">
             <div>
-              <label htmlFor="username">Username:</label>
+              <label htmlFor="username" className="block font-medium mb-2">
+                Username:
+              </label>
               <input
                 type="text"
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="border rounded p-2 w-full"
-                placeholder= "Enter your username"
+                className="border rounded-lg p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+                placeholder="Enter your username"
               />
             </div>
 
-            <div className="mt-2">
-              <label htmlFor="password">Password:</label>
+            <div>
+              <label htmlFor="password" className="block font-medium mb-2">
+                Password:
+              </label>
               <input
                 type="password"
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="border rounded p-2 w-full"
-                placeholder= "Enter your password"
+                className="border rounded-lg p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+                placeholder="Enter your password"
               />
             </div>
           </div>
 
           {loginError && (
-            <div className="text-red-500">{loginError}</div>
+            <div className="text-red-500 text-center font-medium">
+              {loginError}
+            </div>
           )}
 
-          <div className="font-roboto font-bold">
-            <button
-              type="submit"
-              className="w-full py-2 px-4 rounded text-white bg-secondary hover:bg-gray-600 transition"
-            >
-              Login
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="w-full py-3 px-4 rounded-lg text-white bg-secondary hover:bg-secondary-dark transition shadow-lg font-bold"
+          >
+            Login
+          </button>
 
-          <p className="flex justify-center mt-4 font-roboto">
-            Don't have an account?
+          <p className="flex justify-center mt-4 font-roboto text-gray-600">
+            Don’t have an account?{" "}
             <Link
               href="/auth/signup"
               className="text-primary font-bold hover:underline ml-2"
