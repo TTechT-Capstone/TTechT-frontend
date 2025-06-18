@@ -7,6 +7,7 @@ export default function AdminHeader() {
   const [isAuthorized, setAuthorized] = useState(false);
 
   return (
+    {/* Header Container */}
     <header className="relative flex items-center px-6 py-4 bg-[F4F4F4] text-secondary font-urbanist">
       {/* Title */}
       <h1 className="text-4xl font-bold font-urbanist mx-auto">Origity</h1>
@@ -30,5 +31,6 @@ export default function AdminHeader() {
         )}
       </div>
     </header>
+
   );
 }
