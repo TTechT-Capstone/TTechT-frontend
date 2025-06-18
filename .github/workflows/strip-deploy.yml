@@ -1,0 +1,45 @@
+# name: Build & Deploy
+
+# on:
+#   push:
+#     branches:
+#       - main
+#   workflow_dispatch:
+
+# env:
+#   WORKING_DIR: ./
+
+# permissions:
+#   contents: read
+
+# jobs:
+#   build:
+#     name: Build
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout repo
+#         uses: actions/checkout@v3
+
+#       - name: Setup Node
+#         uses: actions/setup-node@v3
+
+#       - name: Install dependencies
+#         working-directory: ${{ env.WORKING_DIR }}
+#         run: npm install
+
+#       - name: Set up env
+#         working-directory: ${{ env.WORKING_DIR }}
+#         run: |
+#           touch .env
+#           echo "VITE_TEST_KEY=${{ secrets.DEV_STRIPE_PUBLIC_KEY }}" >> .env
+
+#       - name: Build project
+#         working-directory: ${{ env.WORKING_DIR }}
+#         run: npm run build
+
+#       - name: Upload production-ready build files
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: production-files
+#           path: "${{ env.WORKING_DIR }}/dist"
