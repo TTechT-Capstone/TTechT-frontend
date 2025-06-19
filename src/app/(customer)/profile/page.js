@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import LeftSideProfile from './LeftSideProfile';
-import RightSideProfile from './RightSideProfile';
+import React, { useState } from "react";
+import LeftSideProfile from "./LeftSideProfile";
+import RightSideProfile from "./RightSideProfile";
 
 export default function ProfilePage() {
   const [activeSection, setActiveSection] = useState(1);
@@ -20,12 +20,15 @@ export default function ProfilePage() {
       <div className="flex flex-row items-start max-w-screen-lg mx-auto mt-4">
         {/* Left Side */}
         <div className="w-1/4">
-          <LeftSideProfile setActiveSection={setActiveSection} />
+          <LeftSideProfile
+            activeSection={activeSection}
+            setActiveSection={setActiveSection}
+          />
         </div>
 
         {/* Right Side */}
         <div className="w-3/4 ml-6">
-          <RightSideProfile setActiveSection={setActiveSection} />
+          <RightSideProfile activeSection={activeSection} />
         </div>
       </div>
     </div>

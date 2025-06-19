@@ -1,12 +1,13 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
+import { Package, User } from "lucide-react";
 
 // import { getProfileDetailAPI } from '../../../apis/profile.api.js';
 // import useAuth from '../../../hooks/useAuth.js';
 
-export default function LeftSideProfile({ setActiveSection }) {
+export default function LeftSideProfile({ activeSection, setActiveSection }) {
   const [username, setUsername] = useState();
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -17,16 +18,16 @@ export default function LeftSideProfile({ setActiveSection }) {
   useEffect(() => {
     async function fetchUserProfile() {
       setLoading(true);
-    //   setError(null);
-    //   try {
-    //     const userProfile = await getProfileDetailAPI();
-    //     setUsername(userProfile.userName || 'User');
-    //   } catch (err) {
-    //     setError('Failed to load user profile.');
-    //     console.error(err);
-    //   } finally {
-    //     setLoading(false);
-    //   }
+      //   setError(null);
+      //   try {
+      //     const userProfile = await getProfileDetailAPI();
+      //     setUsername(userProfile.userName || 'User');
+      //   } catch (err) {
+      //     setError('Failed to load user profile.');
+      //     console.error(err);
+      //   } finally {
+      //     setLoading(false);
+      //   }
     }
     fetchUserProfile();
   }, []);
@@ -38,7 +39,7 @@ export default function LeftSideProfile({ setActiveSection }) {
     //     .forEach(k => localStorage.removeItem(k));
     //   router.push('/');
     //   window.location.reload();
-    }
+  };
 
   return (
     <div className="left-side flex flex-col space-y-6 p-4">
@@ -46,42 +47,48 @@ export default function LeftSideProfile({ setActiveSection }) {
         <div>
           <p className="font-roboto text-lg text-gray-500">Hi,</p>
           <h1 className="font-urbanist font-bold text-2xl text-gray-800">
-            {loading ? 'Loading...' : username}
+            {loading ? "Loading..." : username}
           </h1>
         </div>
       </div>
 
-      <div className="navigation flex flex-col space-y-4">
-        <div
+      <button className="navigation flex flex-col space-y-4">
+        <button
           onClick={() => setActiveSection(1)}
-          className="nav-item rounded-sm flex items-center space-x-4 p-4 px-6 bg-white shadow hover:bg-gray-100 cursor-pointer"
+          className={`nav-item rounded-sm flex items-center space-x-4 p-4 px-6 w-full text-left transition-all duration-300 cursor-pointer 
+      ${
+        activeSection === 1
+          ? "bg-[#4A5A64] text-white font-bold"
+          : "bg-white text-secondary hover:bg-[#8E9BA4] hover:text-white font-bold"
+      }`}
         >
-          {/* SVG and label */}
-          <p className="font-urbanist font-bold text-lg text-secondary">My Personal Information</p>
-        </div>
+          <User className="w-6 h-6 stroke-[2]" />
+          <p className="font-urbanist text-lg">My Personal Information</p>
+        </button>
 
-        {/*
-        userRole && userRole !== 'admin' && 
-          <div
-            onClick={() => setActiveSection(2)}
-            className="nav-item rounded-sm flex items-center space-x-4 p-4 px-6 bg-white shadow hover:bg-gray-100 cursor-pointer"
-          >
-
-            <p className="font-intel text-lg text-gray-700">My Orders</p>
-          </div>
-        */}
-        
-      </div>
+        <button
+          onClick={() => setActiveSection(2)}
+          className={`nav-item rounded-sm flex items-center space-x-4 p-4 px-6 w-full text-left transition-all duration-300 cursor-pointer 
+      ${
+        activeSection === 2
+          ? "bg-[#4A5A64] text-white font-bold"
+          : "bg-white text-secondary hover:bg-[#8E9BA4] hover:text-white font-bold"
+      }`}
+        >
+          <Package className="w-6 h-6 stroke-[2]" />
+          <p className="font-urbanist text-lg">My Orders</p>
+        </button>
+      </button>
 
       <div className="flex justify-center items-center">
         <button
           onClick={handleLogout}
           disabled={isLoading}
-          className={`nav-item w-full p-4 text-gray-700 bg-gray-100 rounded-sm font-intel shadow ${
-            isLoading ? 'bg-gray-300 cursor-not-allowed' : 'hover:bg-gray-200'
+          className={`nav-item w-full p-4 text-secondary bg-[#F7F7F7] rounded-sm font-roboto shadow ${
+            isLoading ? "bg-gray-300 cursor-not-allowed" : "hover:bg-gray-200"
           }`}
         >
-          {isLoading ? 'Logging out...' : 'Logout'}
+          {isLoading ? "Logging out..." : "Logout"}
         </button>
       </div>
 

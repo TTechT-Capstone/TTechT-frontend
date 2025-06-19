@@ -17,7 +17,7 @@ export default function Header() {
   };
 
   return (
-    <header className="relative flex items-center justify-between px-6 py-4 bg-white text-secondary font-urbanist">
+    <header className="relative flex items-center justify-between px-6 py-4 bg-white text-secondary font-urbanist border-b border-gray-200">
       {/* Title */}
       <h1 className="text-4xl font-bold font-urbanist">
         <Link href="/" className="hover:text-primary transition-colors">
