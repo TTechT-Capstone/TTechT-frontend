@@ -135,7 +135,7 @@ export default function ProductPage() {
       {/* Divider */}
       <div className="my-4 border-t border-black opacity-80 mx-8"></div>
 
-      <section className="flex flex-row px-8 py-12 items-start">
+      <section className="flex flex-row px-8 py-4 items-start">
         {/* Filter sidebar */}
 
         <div className="hidden md:block w-1/3">
