@@ -13,7 +13,7 @@ export default function ProductCard({ name, price, img }) {
           className="w-full h-full object-cover"
         />
       </div>
-      <p className="mt-2 text-secondary font-semibold">{name}</p>
+      <p className="mt-2 text-primary font-semibold">{name}</p>
       <p className="text-sm text-gray-600">{price}</p>
     </div>
   );
