@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { X, ChevronDown, ChevronRight, Funnel } from "lucide-react";
 import Image from "next/image";
-import FilterSidebar from "../../components/FilterSidebar";
-import ProductCard from "../../components/ProductCard";
+import FilterSidebar from "../../components/filter/FilterSidebar";
+import ProductCard from "../../components/product/ProductCard";
+import BestSellerCard from "@/app/components/product/BestSellerCard";
 
 export default function ProductPage() {
   const [isSidebarVisible, setSidebarVisible] = useState(false);
@@ -31,7 +32,18 @@ export default function ProductPage() {
     };
   }, []);
 
-    const filters = [
+  const bestsellers = [
+    {
+      name: "Summer strapless dress",
+      price: "350,000 VND",
+      img: "/product.jpg",
+    },
+    { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
+    { name: "Summer hat", price: "80,000 VND", img: "/product.jpg" },
+    { name: "Summer glasses", price: "150,000 VND", img: "/product.jpg" },
+  ];
+
+  const filters = [
     { name: "CATEGORY", options: ["Dresses", "T-Shirts", "Accessories"] },
     {
       name: "PRICE RANGE",
@@ -56,33 +68,32 @@ export default function ProductPage() {
     { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
   ];
 
-
   return (
     <>
       {/* Header Section */}
-      <section className="flex py-4 items-center justify-center bg-secondary font-urbanist text-white">
+      {/* <section className="flex py-4 items-center justify-center bg-secondary font-urbanist text-white">
         <h1 className="font-semibold text-2xl">NEW COLLECTION</h1>
-      </section>
+      </section> */}
 
       {/* Best Seller Section */}
-      <section className="py-8 px-4">
+      <section className="px-8 py-12">
         <h1 className="font-urbanist text-gray-800 font-extrabold text-3xl mb-8">
           BEST SELLER
         </h1>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <ProductCard
-              key={product.name}
-              name={product.name}
-              price={product.price}
-              img={product.img}
+          {bestsellers.map((bestseller) => (
+            <BestSellerCard
+              key={bestseller.name}
+              name={bestseller.name}
+              price={bestseller.price}
+              img={bestseller.img}
             />
           ))}
         </div>
       </section>
 
       {/* Filter and Sort Section */}
-      <section className="flex justify-between items-center px-4 py-4 rounded-lg">
+      <section className="flex justify-between items-center px-8 py-2 rounded-lg">
         <div
           className={`flex items-center space-x-4 font-urbanist font-bold text-gray-700 
       hover:text-primary transition-colors ${
@@ -106,7 +117,7 @@ export default function ProductPage() {
           </div>
 
           {isDropdownOpen && (
-            <div className="absolute z-10 right-0 bg-white shadow-md mt-2 border font-roboto font-semibold">
+            <div className="absolute z-10 right-0 bg-white shadow-md mt-2 border border-[#EDEDED] font-roboto font-semibold">
               <button className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left">
                 Recommend
               </button>
@@ -122,9 +133,9 @@ export default function ProductPage() {
       </section>
 
       {/* Divider */}
-      <div className="my-4 border-t border-black opacity-80 mx-4"></div>
+      <div className="my-4 border-t border-black opacity-80 mx-8"></div>
 
-      <section className="flex flex-row">
+      <section className="flex flex-row px-8 py-12 items-start">
         {/* Filter sidebar */}
 
         <div className="hidden md:block w-1/3">
@@ -153,7 +164,7 @@ export default function ProductPage() {
         )}
 
         {/* Product Grid */}
-        <div className="p-4">
+        <div className="">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {products.map((product) => (
               <ProductCard

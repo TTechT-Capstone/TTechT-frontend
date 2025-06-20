@@ -1,5 +1,5 @@
-import AdminHeader from "../components/AdminHeader";
-import SellerSidebar from "../components/SellerSideBar";
+import AdminHeader from "../components/admin/AdminHeader";
+import SellerSidebar from "../components/seller/SellerSideBar";
 import "../globals.css";
 
 export default function SellerLayout({ children }) {

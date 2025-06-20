@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 // import useAuth from '../../hooks/useAuth';
 import Link from 'next/link';
 
-import ProductCard from "../../../components/ProductCard";
+import ProductCard from "../../../components/product/ProductCard";
 
 export default function ProductDetail(){
   const router = useRouter();
