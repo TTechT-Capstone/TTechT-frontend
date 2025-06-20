@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# ORIGITY: Simplified E-Commerce System with Watermark Alogrithm (TTechT-frontend)
 
-## Getting Started
+## 🌐 Hosted Link:
 
-First, run the development server:
+- **Hosted Domain URL**: [https://origity.vercel.app/](https://origity.vercel.app/)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
+## 🛒 Introduction (chinh lai)
+*ORIGITY** is a cloud-based e-commerce web application designed to meet the growing demand for a modern, scalable, and efficient retail platform.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The system allows:
+- **Customers** to browse products, manage their carts, and make purchases easily.
+- **Shop managers** to control inventory and process orders.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Built using a **microservices architecture** and deployed on **AWS-managed services**, EASYSTORE delivers:
+- High availability
+- Seamless scalability
+- Operational efficiency with minimal human involvement
+  
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📚 Project Information
 
-## Learn More
+- **Assignment**: Assignment 3 (Group Project)  
+- **Course**: Project Capstone
+- **Course Code**: 
+- **Supervisors**: Mr. Hou Chong Ling
+  
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 👥 Group Members
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Ton Nu Ngoc Khanh** - S3932105  
+- **Tran Nhat Tien** - S3919657  
+- **Tran Vu Quang Anh** - S3916566
+- **Truong Hoang Tuan Kiet** - S3926873
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
+## 🚀 How to Use
+1. **Install dependencies**
+  - Run npm install to install required packages.
+  - 
+2. **Start the application**
+  - Start the application: Use npm run dev to start the development server.
 
-## Deploy on Vercel
+3. **Access the app**
+  - Open your browser and navigate to http://localhost:3000.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
