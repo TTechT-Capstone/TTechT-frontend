@@ -13,7 +13,7 @@ export default function NewCollectionCard({ name, price, img }) {
           className="w-full h-full object-cover"
         />
       </div>
-      <p className="mt-2 font-semibold">{name}</p>
+      <p className="mt-2 text-secondary font-semibold">{name}</p>
       <p className="text-sm text-gray-600">{price}</p>
     </div>
   );

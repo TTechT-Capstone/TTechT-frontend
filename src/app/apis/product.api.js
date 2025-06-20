@@ -1,7 +1,8 @@
+// product.api.js
+
 import axios from 'axios';
 
-const API_BASE_URL = '';
-
+const API_BASE_URL = 'http://localhost:8080/api'; 
 
 /**
  * Helper function to get the auth headers.
@@ -18,205 +19,163 @@ const getAuthHeaders = () => {
 };
 
 /**
- * Processes payment for the cart.
- * @param {string} cartId - The ID of the cart.
- * @returns {Promise<Object>} - Returns the client secret for Stripe payment.
+ * 1. Get all products with pagination
+ * http://localhost:8080/api/products
  */
-export const getPayDataAPI = async (cartId) => {
+export const getAllProductsAPI = async (page = 1, limit = 10) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/carts/${cartId}/pay`, {}, {
+    const response = await axios.get(`${API_BASE_URL}/products?page=${page}&limit=${limit}`, {
       headers: getAuthHeaders(),
     });
     return response.data;
   } catch (error) {
-    // Log the error for debugging
-    console.error(`Error getting payment's data for cartId: ${cartId}:`, error.response?.data || error.message || error);
-
-    // Check if the error response contains specific information
-    if (error.response && error.response.status === 400) {
-      const errorMessage = error.response.data?.msg || 'An error occurred';
-      
-      // Handle specific error case
-      if (errorMessage === 'Cart has been submitted') {
-        // Optionally, you can delete the cartId or perform other actions here
-        console.warn(`Cart ID ${cartId} has been submitted. Deleting cart ID.`);
-        // deleteCartId(cartId); // Uncomment and implement this function if needed
-      }
-    }
-
-    // Throw a generic error message to the caller
-    throw new Error("Unable to get payment's data. Please try again.");
+    console.error('Error fetching products:', error);
+    throw error;
   }
 };
 
-
-export const getPaymentAPI = async (cartId, sessionId) => {
+/**
+ * 2. Get product by ID
+ * http://localhost:8080/api/products/2
+ */
+export const getProductByIdAPI = async (productId) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/carts/${cartId}/pay`, {
+    const response = await axios.get(`${API_BASE_URL}/products/${productId}`, {
       headers: getAuthHeaders(),
-      params: { sessionId }, 
     });
     return response.data;
   } catch (error) {
-    console.error(`Error getting payment's for cartId: ${cartId}:`, error.response?.data || error.message || error);
-    throw new Error("Unable to get payment. Please try again.");
+    console.error(`Error fetching product ${productId}:`, error);
+    throw error;
   }
 };
 
 /**
- * Get cart.
- * @returns {Promise<Object>} - API response data containing cart details.
+ * 3. Create Product
+ * http://localhost:8080/api/products
  */
-export const getCartAPI = async (cartId) => {
+export const createProductAPI = async (productData) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/carts/${cartId}`, { headers: getAuthHeaders() });
-    return response.data; 
-  } catch (error) {
-    console.error('Error fetching cart data:', error);
-    throw error;  // Rethrow the error to be handled by Redux Thunk or wherever it's used
-  }
-};
-
-/**
- * Creates a new cart.
- * @returns {Promise<Object>} - API response data containing cart details.
- */
-export const createCart = async () => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/carts`, {}, { headers: getAuthHeaders() });
-
-    // Log the entire response data to inspect its structure
-    //console.log('API Response:', response.data);
-
-    // Extract the cartId from the response (using `id` as cartId)
-    const cartId = response.data.id;
-
-    if (cartId) {
-      // Ensure cartId is a string before saving it to localStorage
-      const cartIdString = String(cartId);
-
-      // Store the cartId in localStorage
-      localStorage.setItem('cartId', cartIdString);
-    } else {
-      console.error('Error: cartId is missing or not in the expected format');
-    }
-
+    const response = await axios.post(`${API_BASE_URL}/products`, productData, {
+      headers: getAuthHeaders(),
+    });
     return response.data;
   } catch (error) {
-    console.error('Error creating cart:', error.response || error.message || error);
-    throw new Error('Unable to create cart. Please try again.');
+    console.error('Error creating product:', error);
+    throw error;
   }
 };
 
 /**
- * Adds a new item to the cart. If the cart doesn't exist, it creates a new cart first.
- * @param {string|null} cartId - The ID of the cart. Pass `null` if cart ID is unknown.
- * @param {Object} newItem - The item details to add to the cart.
- * @returns {Promise<Object>} - API response data.
+ * 4. Update existing product
+ * http://localhost:8080/api/products/2
  */
-export const addItemToCartAPI = async (cartId, newItem) => {
+export const updateProductAPI = async (productId, updatedData) => {
   try {
-    // Check if cartId exists in localStorage
-    cartId = localStorage.getItem('cartId');
-    if (!cartId) {
-      console.log('Cart does not exist. Creating a new cart...');
-      const newCart = await createCart(); // Create a new cart if cartId doesn't exist
-      cartId = newCart.id;  // Set the new cartId
-      console.log('New cart created with ID:', cartId);
-    }
-
-    // Add item to the cart using the API
-    const response = await axios.post(
-      `${API_BASE_URL}/carts/${cartId}/addItem`,
-      {
-        skuId: newItem.skuId,
-        productName: newItem.name,
-        stockCode: newItem.stockCode,
-        quantity: newItem.quantity,
-        productPrice: newItem.price,
-      },
-      { headers: getAuthHeaders() }
-    );
-    // Check if response.data is defined
-    if (!response.data) {
-      throw new Error('No data returned from API');
-    }
-
-    // If necessary, update the cartId in localStorage
-    if (response.data.cartId) {
-      localStorage.setItem('cartId', response.data.cartId);
-    }
-
-    return response.data; // Return the response data if needed
-
-  } catch (error) {
-    console.error('Error adding item to cart:', error.response?.data || error.message || error);
-    throw new Error('Unable to add item to the cart. Please try again.');
-  }
-};
-
-/**
- * Removes an item from the cart.
- * @param {string} cartId - The ID of the cart.
- * @param {string} itemId - The SKU ID of the item to remove.
- * @returns {Promise<Object>} - API response data.
- */
-export const removeItemFromCartAPI = async (cartId, itemId) => {
-  try {
-    const response = await axios.post(
-      `${API_BASE_URL}/carts/${cartId}/removeItem`,
-      { skuId: itemId }, 
-      { headers: getAuthHeaders() } 
-    );
-    return response.data.cartItems; 
-  } catch (error) {
-    console.error(`Error removing item from cart (cartId: ${cartId}, itemId: ${itemId}):`, error.response || error.message || error);
-    throw new Error('Unable to remove item from cart. Please try again.');
-  }
-};
-/**
- * Updates the quantity of an item in the cart.
- * @param {string} cartId - The ID of the cart.
- * @param {string} skuId - The SKU ID of the item to update.
- * @param {number} quantity - The quantity change (+/-).
- * @param {number} discountPrice - The discount price to apply.
- * @returns {Promise<Object>} - API response data.
- */
-export const updateItemQuantityAPI = async (cartId, skuId, quantity, discountPrice) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/carts/${cartId}/updateItem`, {
-      skuId,
-      quantity,
-      discountPrice
-    }, { headers: getAuthHeaders() });
+    const response = await axios.put(`${API_BASE_URL}/products/${productId}`, updatedData, {
+      headers: getAuthHeaders(),
+    });
     return response.data;
   } catch (error) {
-    console.error(`Error updating item quantity (cartId: ${cartId}, skuId: ${skuId}):`, error.response || error.message || error);
-    throw new Error('Unable to update item quantity. Please try again.');
+    console.error(`Error updating product ${productId}:`, error);
+    throw error;
   }
 };
+
 /**
- * Submits the cart for processing.
- * @param {string} cartId - The ID of the cart.
- * @returns {Promise<Object>} - API response data.
+ * 5. Delete product
+ * http://localhost:8080/api/products/2
  */
-export const submitCartAPI = async (cartId, { contactName, email, address, contactPhone, promotionCode }) => {
+export const deleteProductAPI = async (productId) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/carts/${cartId}/submit`, {
-      contactName, 
-      contactEmail: email, 
-      deliveryAddress: address,
-      contactPhone:  contactPhone,
-      promotionCode: promotionCode === '' ? null : promotionCode
+    const response = await axios.delete(`${API_BASE_URL}/products/${productId}`, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting product ${productId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * 6. Get products by category
+ * http://localhost:8080/api/products/category/3
+ */
+export const getProductsByCategoryAPI = async (category) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/products/category/${category}`, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching products by category ${category}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * 7. Search products by name
+ * http://localhost:8080/api/products/search
+ */
+export const searchProductsByNameAPI = async (name) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/products/search?name=${encodeURIComponent(name)}`, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error searching products with name "${name}":`, error);
+    throw error;
+  }
+};
+
+/**
+ * 8. Get products by price range
+ * http://localhost:8080/api/products/category/3
+ */
+export const getProductsByPriceRangeAPI = async (min, max) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/products/price?min=${min}&max=${max}`, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching products by price range ${min}-${max}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * 9. Get products by store name
+ * http://localhost:8080/api/products/search
+ */
+export const getProductsByStoreNameAPI = async (storeName) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/products/store/${storeName}`, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching products by store "${storeName}":`, error);
+    throw error;
+  }
+};
+
+/**
+ * 10. Update product stock quantity (PATCH)
+ * http://localhost:8080/api/products/store/Tien
+ */
+export const updateProductStockAPI = async (productId, stock) => {
+  try {
+    const response = await axios.patch(`${API_BASE_URL}/products/${productId}/stock`, {
+      stock: stock,
     }, {
       headers: getAuthHeaders(),
     });
-
-    //console.log("promotionCode=" +promotionCode);
-    localStorage.removeItem('cartId');
-    return response.data; // Return the response data
+    return response.data;
   } catch (error) {
-    console.error(`Error submitting cart for cartId: ${cartId}:`, error.response || error.message || error);
-    throw new Error('Unable to submit cart. Please try again.');
+    console.error(`Error updating stock for product ${productId}:`, error);
+    throw error;
   }
 };

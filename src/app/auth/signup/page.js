@@ -47,7 +47,7 @@ export default function SignUp() {
 
   return (
     <div className="h-screen w-screen grid grid-cols-1 md:grid-cols-2">
-      <div className="flex flex-col justify-center items-center bg-white px-8">
+      <div className="flex flex-col justify-center items-center bg-white text-secondary px-8">
         <form
           className="w-full max-w-lg mx-auto flex flex-col space-y-6 p-6 border md:border-0 md:shadow-none shadow-lg rounded-2xl bg-white"
           onSubmit={handleSubmit}

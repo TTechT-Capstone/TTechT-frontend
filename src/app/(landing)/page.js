@@ -20,7 +20,7 @@ const collections = [
 
 export default function LandingPage() {
   return (
-    <main>
+    <main className="bg-white">
       {/* Hero Banner */}
       <section className="relative h-[600px]">
         <Image
@@ -98,7 +98,7 @@ export default function LandingPage() {
       <div className="my-3 border-t border-black opacity-20 mx-12"></div>
 
       {/* New Collection Section */}
-      <section className="px-8 py-12 text-center">
+      <section className="px-8 py-12 text-center text-secondary">
         <h2 className="text-2xl font-semibold mb-8">NEW COLLECTION</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {collections.map((collection) => (

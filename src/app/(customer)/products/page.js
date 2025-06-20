@@ -69,7 +69,7 @@ export default function ProductPage() {
   ];
 
   return (
-    <>
+    <main className="bg-white">
       {/* Header Section */}
       {/* <section className="flex py-4 items-center justify-center bg-secondary font-urbanist text-white">
         <h1 className="font-semibold text-2xl">NEW COLLECTION</h1>
@@ -201,6 +201,6 @@ export default function ProductPage() {
           <ChevronRight className="h-5 w-5" />
         </button>
       </section>
-    </>
+    </main>
   );
 }
