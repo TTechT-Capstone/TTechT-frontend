@@ -52,3 +52,7 @@ body {
 .font-roboto {
   font-family: var(--font-roboto);
 }
+
+.input-field {
+  @apply w-full px-4 py-2 border border-gray-300 rounded-md bg-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300;
+}
