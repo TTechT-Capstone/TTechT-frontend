@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export default function ProductCard({ name, price, img }) {
+export default function BestSellerCard({ name, price, img }) {
   return (
     <div className="text-center ">
       <div className="w-full md:h-[250px] h-[400px] overflow-hidden">
@@ -13,7 +13,7 @@ export default function ProductCard({ name, price, img }) {
           className="w-full h-full object-cover"
         />
       </div>
-      <p className="mt-2 font-semibold">{name}</p>
+      <p className="mt-2 text-primary font-semibold">{name}</p>
       <p className="text-sm text-gray-600">{price}</p>
     </div>
   );

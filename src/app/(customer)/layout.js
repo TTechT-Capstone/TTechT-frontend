@@ -1,6 +1,6 @@
-import Header from "../components/Header";
-import SubHeader from "../components/SubHeader";
-import Footer from '../components/Footer';
+import Header from "../components/common/Header";
+import SubHeader from "../components/common/SubHeader";
+import Footer from '../components/common/Footer';
 
 
 import "../globals.css";

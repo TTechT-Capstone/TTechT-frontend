@@ -1,9 +1,26 @@
 import Image from "next/image";
 import Link from "next/link";
+import NewCollectionCard from "../components/product/NewCollectionCard";
+import CategoryCard from "../components/product/CategoryCard";
+
+const categories = [
+  { name: "Accessories", img: "/product.jpg" },
+  { name: "Dresses", img: "/product.jpg" },
+  { name: "Shoes", img: "/product.jpg" },
+  { name: "Shirts", img: "/product.jpg" },
+];
+
+const collections = [
+    { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
+    { name: "Summer hat", price: "80,000 VND", img: "/product.jpg" },
+    { name: "Summer glasses", price: "150,000 VND", img: "/product.jpg" },
+    { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
+
+  ];
 
 export default function LandingPage() {
   return (
-    <main>
+    <main className="bg-white">
       {/* Hero Banner */}
       <section className="relative h-[600px]">
         <Image
@@ -25,106 +42,72 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="bg-secondary text-white px-8 py-12">
-        <h2 className="text-2xl font-bold mb-2">
-          How Origity Protects Your Products
-        </h2>
-        <p className="font-roboto mb-6">
-          Every image on Origity includes a secure digital watermark. This
-          invisible signature ensures authenticity and traceability.
+      <section className="bg-secondary text-white px-4 sm:px-8 md:px-16 py-12">
+  <div className="max-w-7xl mx-auto">
+    <h2 className="text-2xl font-bold mb-4 text-center md:text-left">
+      How Origity Protects Your Products
+    </h2>
+    <p className="font-roboto mb-10 text-center md:text-left max-w-3xl mx-auto md:mx-0">
+      Every image on Origity includes a secure digital watermark. This
+      invisible signature ensures authenticity and traceability.
+    </p>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div>
+        <h3 className="font-urbanist font-semibold mb-2 text-lg">
+          TAMPER-PROOF PROTECTION
+        </h3>
+        <p className="font-roboto">
+          Your watermark cannot be removed or altered.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-          <div>
-            <h3 className="font-urbanist font-semibold mb-1">
-              TAMPER-PROOF PROTECTION
-            </h3>
-            <p className="font-roboto">
-              Your watermark cannot be removed or altered.
-            </p>
-          </div>
-          <div>
-            <h3 className="font-urbanist font-semibold mb-1">
-              ONLINE TRACKING CAPABILITIES
-            </h3>
-            <p className="font-roboto">
-              Know when and where your images are used online.
-            </p>
-          </div>
-          <div>
-            <h3 className="font-urbanist font-semibold mb-1">
-              GUARANTEED ORIGINALITY
-            </h3>
-            <p className="font-roboto">Prove your image ownership anytime.</p>
-          </div>
-        </div>
-      </section>
+      </div>
+      <div>
+        <h3 className="font-urbanist font-semibold mb-2 text-lg">
+          ONLINE TRACKING CAPABILITIES
+        </h3>
+        <p className="font-roboto">
+          Know when and where your images are used online.
+        </p>
+      </div>
+      <div>
+        <h3 className="font-urbanist font-semibold mb-2 text-lg">
+          GUARANTEED ORIGINALITY
+        </h3>
+        <p className="font-roboto">
+          Prove your image ownership anytime.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
 
       {/* Category Tiles Section */}
       <section className="px-8 py-12 bg-white">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {["Accessories", "Dresses", "Shoes", "Shirts"].map((category) => (
-            <div key={category} className="relative group">
-              <div className="w-full h-[250px] overflow-hidden">
-                <Image
-                  src={`/product.jpg`}
-                  alt={category}
-                  layout="responsive"
-                  width={1}
-                  height={1}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-                <h4 className="text-lg font-bold">{category}</h4>
-                <button className="text-sm mt-2 border border-white px-4 py-1">
-                  SHOP
-                </button>
-              </div>
-            </div>
+          {categories.map((category) => (
+            <CategoryCard 
+              key={category.name}
+              title={category.name}
+              img={category.img}
+              />
           ))}
         </div>
       </section>
 
       {/* Divider */}
-      <div className="my-6 border-t border-black opacity-20 mx-12"></div>
+      <div className="my-3 border-t border-black opacity-20 mx-12"></div>
 
       {/* New Collection Section */}
-      <section className="px-8 py-12 text-center">
+      <section className="px-8 py-12 text-center text-secondary">
         <h2 className="text-2xl font-semibold mb-8">NEW COLLECTION</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[
-            {
-              name: "Summer strapless dress",
-              price: "350,000 VND",
-              img: "/product.jpg",
-            },
-            {
-              name: "White t-shirt",
-              price: "150,000 VND",
-              img: "/product.jpg",
-            },
-            { name: "Summer hat", price: "80,000 VND", img: "/product.jpg" },
-            {
-              name: "Summer glasses",
-              price: "150,000 VND",
-              img: "/product.jpg",
-            },
-          ].map((item) => (
-            <div key={item.name} className="text-center">
-              <div className="w-full h-[250px] overflow-hidden">
-                <Image
-                  src={item.img}
-                  alt={item.name}
-                  layout="responsive"
-                  width={1}
-                  height={1}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <p className="mt-2 font-semibold">{item.name}</p>
-              <p className="text-sm text-gray-600">{item.price}</p>
-            </div>
+          {collections.map((collection) => (
+            <NewCollectionCard
+              key={collection.name}
+                name={collection.name}
+                price={collection.price}
+                img={collection.img}
+            />
           ))}
         </div>
 

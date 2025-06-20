@@ -53,9 +53,9 @@ export default function ShoppingCartPage() {
   );
 
   return (
-    <div className="min-h-screen w-full bg-[#f5f5f5] py-10 px-4 font-roboto">
+    <div className="min-h-screen w-full bg-[#f5f5f5] text-primary py-10 px-4 font-roboto">
       {/* Heading */}
-      <h1 className="text-3xl font-bold font-urbanist text-center py-6 ">
+      <h1 className="text-secondary text-3xl font-bold font-urbanist text-center py-6 ">
         Shopping Cart
       </h1>
 

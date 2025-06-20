@@ -1,18 +1,23 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { Eye, EyeClosed } from "lucide-react";
 
 export default function SignUp() {
   const [role, setRole] = useState("Customer");
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [phonenumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [storeName, setStoreName] = useState("");
   const [storeDescription, setStoreDescription] = useState("");
   const [signUpError, setSignUpError] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,7 +47,7 @@ export default function SignUp() {
 
   return (
     <div className="h-screen w-screen grid grid-cols-1 md:grid-cols-2">
-      <div className="flex flex-col justify-center items-center bg-white px-8">
+      <div className="flex flex-col justify-center items-center bg-white text-secondary px-8">
         <form
           className="w-full max-w-lg mx-auto flex flex-col space-y-6 p-6 border md:border-0 md:shadow-none shadow-lg rounded-2xl bg-white"
           onSubmit={handleSubmit}
@@ -123,6 +128,7 @@ export default function SignUp() {
                 placeholder="Enter your phone number"
               />
             </div>
+
             <div>
               <label htmlFor="address" className="block font-medium mb-2">
                 Address:
@@ -140,6 +146,20 @@ export default function SignUp() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
+              <label htmlFor="email" className="block font-medium mb-2">
+                Email:
+              </label>
+              <input
+                type="text"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <div>
               <label htmlFor="username" className="block font-medium mb-2">
                 Username:
               </label>
@@ -152,18 +172,58 @@ export default function SignUp() {
                 placeholder="Enter your username"
               />
             </div>
-            <div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="relative">
               <label htmlFor="password" className="block font-medium mb-2">
                 Password:
               </label>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+                className="border rounded-lg p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary pr-10"
                 placeholder="Enter your password"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-[46px] text-sm text-gray-500 hover:text-primary focus:outline-none"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeClosed /> : <Eye />}
+              </button>
+            </div>
+
+            <div className="relative">
+              <label
+                htmlFor="confirmPassword"
+                className="block font-medium mb-2"
+              >
+                Confirm Password:
+              </label>
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="border rounded-lg p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary pr-10"
+                placeholder="Re-enter your password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-[46px] text-sm text-gray-500 hover:text-primary focus:outline-none"
+                aria-label={
+                  showConfirmPassword
+                    ? "Hide confirm password"
+                    : "Show confirm password"
+                }
+              >
+                {showConfirmPassword ? <EyeClosed /> : <Eye />}
+              </button>
             </div>
           </div>
 

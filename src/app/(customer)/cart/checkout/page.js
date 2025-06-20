@@ -28,9 +28,9 @@ export default function CheckoutPage() {
   );
 
   return (
-    <div className="min-h-screen w-full bg-[#f5f5f5] py-10 px-4 font-roboto">
+    <div className="min-h-screen w-full bg-[#f5f5f5] text-primary py-10 px-4 font-roboto">
       {/* Heading */}
-      <h1 className="text-3xl font-bold font-urbanist text-center mb-10">
+      <h1 className="text-3xl text-secondary font-bold font-urbanist text-center mb-10">
         CHECKOUT
       </h1>
 

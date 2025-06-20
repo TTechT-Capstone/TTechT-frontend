@@ -7,8 +7,14 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
   --color-primary: #293238;
+  --color-primary-light: #3d4a54;
+  --color-primary-dark: #1c2429;
+
   --color-secondary: #4A5A64;
+  --color-secondary-light: #5d6c78;
+  --color-secondary-dark: #37434b;
 
   --font-urbanist: 'Urbanist', sans-serif;
   --font-roboto: 'Roboto', sans-serif;
@@ -33,8 +39,25 @@ body {
   background-color: var(--color-primary);
 }
 
+.bg-primary-light {
+  background-color: var(--color-primary-light);
+}
+
+.bg-primary-dark {
+  background-color: var(--color-primary-dark);
+}
+
+
 .bg-secondary {
   background-color: var(--color-secondary);
+}
+
+.bg-secondary-light {
+  background-color: var(--color-secondary-light);
+}
+
+.bg-secondary-dark {
+  background-color: var(--color-secondary-dark);
 }
 
 .text-primary {
