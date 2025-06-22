@@ -1,29 +1,68 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
+import { login } from "@/app/apis/auth.api";
 
 export default function Login() {
+  const [errors, setErrors] = useState({});
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!username || !password) {
-      setLoginError("Please enter both username and password.");
+    const newErrors = {};
+    if (!username.trim()) newErrors.username = "Username is required.";
+    if (!password.trim()) newErrors.password = "Password is required.";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      //setLoginError("Please correct the errors above.");
       return;
     }
 
     try {
+      setErrors({});
       setLoginError("");
-      // Replace this with real login logic
-      window.location.href = "/dashboard";
+
+      const res = await login({ username, password });
+      const { token, role, authenticated } = res?.result || {};
+
+      if (!token || !authenticated) {
+        setLoginError(
+          "Login failed. Invalid credentials or no token received."
+        );
+        return;
+      }
+
+      localStorage.setItem("idToken", token);
+      localStorage.setItem("userRole", role || "");
+
+      switch (role) {
+        case "CUSTOMER":
+          router.push("/");
+          break;
+        case "SELLER":
+          router.push("/seller/dashboard");
+          break;
+        case "ADMIN":
+          router.push("/admin/dashboard");
+          break;
+        default:
+          setLoginError("Unknown user role. Cannot redirect.");
+      }
     } catch (error) {
       console.error("Login error:", error);
-      setLoginError(error.message || "Login failed. Please try again.");
+      const errorMsg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Login failed. Please try again.";
+      setLoginError(errorMsg);
     }
   };
 
@@ -61,6 +100,9 @@ export default function Login() {
                 className="border rounded-lg p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your username"
               />
+              {errors.username && (
+                <p className="text-red-500 text-sm mt-1">{errors.username}</p>
+              )}
             </div>
 
             <div className="relative">
@@ -81,8 +123,13 @@ export default function Login() {
                 className="absolute right-3 top-[46px] text-sm text-gray-500 hover:text-primary focus:outline-none"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ?  <EyeClosed/>: <Eye/>}
+                {showPassword ? <EyeClosed /> : <Eye />}
               </button>
+              
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              )}
+
               <div className="text-right mt-2">
                 <Link
                   href="/auth/forgot-password"
@@ -104,7 +151,7 @@ export default function Login() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full py-3 px-4 rounded-lg text-white bg-secondary hover:bg-secondary transition shadow-lg font-bold"
+            className="w-full py-3 px-4 rounded-lg text-white bg-secondary hover:bg-[#6C7A84] transition shadow-lg font-bold"
           >
             Login
           </button>

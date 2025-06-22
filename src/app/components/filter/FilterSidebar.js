@@ -26,9 +26,9 @@ const FilterSidebar = ({ filters, onClear }) => {
               {filter.name}
             </h3>
             {openFilters[filter.name] ? (
-              <ChevronUp className="h-5 w-5" />
+              <ChevronUp className="text-secondary h-5 w-5" />
             ) : (
-              <ChevronDown className="h-5 w-5" />
+              <ChevronDown className="text-secondary h-5 w-5" />
             )}
           </div>
 

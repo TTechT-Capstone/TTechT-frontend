@@ -4,8 +4,8 @@ import { User } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
-export default function AdminHeader() {
-  const [isAuthorized, setAuthorized] = useState(false); 
+export default function SellerHeader() {
+  const [isAuthorized, setAuthorized] = useState(true); // true for testing
 
   return (
     <header className="flex justify-between items-center px-6 py-4 bg-[#F4F4F4] text-secondary font-urbanist border-b border-gray-300">
@@ -19,7 +19,7 @@ export default function AdminHeader() {
 
           {/* Dropdown shown on hover */}
           <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 font-bold rounded-lg shadow-md z-50 opacity-0 group-hover:opacity-100 group-hover:visible invisible transition-all duration-200">
-            <Link href="/admin/profile">
+            <Link href="/seller/profile">
               <button className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100">
                 My Profile
               </button>
