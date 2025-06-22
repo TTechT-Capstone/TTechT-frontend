@@ -1,8 +1,6 @@
-// product.api.js
-
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api'; 
+const API_BASE_URL = 'http://localhost:8082/api'; 
 
 /**
  * Helper function to get the auth headers.
@@ -20,9 +18,10 @@ const getAuthHeaders = () => {
 
 /**
  * 1. Get all products with pagination
- * http://localhost:8080/api/products
+ * http://localhost:8082/api/products
+}
  */
-export const getAllProductsAPI = async (page = 1, limit = 10) => {
+export const getAllProductsAPI = async (page = 0, limit = 10) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/products?page=${page}&limit=${limit}`, {
       headers: getAuthHeaders(),
@@ -36,7 +35,7 @@ export const getAllProductsAPI = async (page = 1, limit = 10) => {
 
 /**
  * 2. Get product by ID
- * http://localhost:8080/api/products/2
+ * http://localhost:8082/api/products/2
  */
 export const getProductByIdAPI = async (productId) => {
   try {
@@ -52,7 +51,7 @@ export const getProductByIdAPI = async (productId) => {
 
 /**
  * 3. Create Product
- * http://localhost:8080/api/products
+ * http://localhost:8082/api/products
  */
 export const createProductAPI = async (productData) => {
   try {
@@ -68,7 +67,7 @@ export const createProductAPI = async (productData) => {
 
 /**
  * 4. Update existing product
- * http://localhost:8080/api/products/2
+ * http://localhost:8082/api/products/2
  */
 export const updateProductAPI = async (productId, updatedData) => {
   try {
@@ -84,7 +83,7 @@ export const updateProductAPI = async (productId, updatedData) => {
 
 /**
  * 5. Delete product
- * http://localhost:8080/api/products/2
+ * http://localhost:8082/api/products/2
  */
 export const deleteProductAPI = async (productId) => {
   try {
@@ -100,7 +99,7 @@ export const deleteProductAPI = async (productId) => {
 
 /**
  * 6. Get products by category
- * http://localhost:8080/api/products/category/3
+ * http://localhost:8082/api/products/category/3
  */
 export const getProductsByCategoryAPI = async (category) => {
   try {
@@ -116,7 +115,7 @@ export const getProductsByCategoryAPI = async (category) => {
 
 /**
  * 7. Search products by name
- * http://localhost:8080/api/products/search
+ * http://localhost:8082/api/products/search
  */
 export const searchProductsByNameAPI = async (name) => {
   try {
@@ -132,7 +131,7 @@ export const searchProductsByNameAPI = async (name) => {
 
 /**
  * 8. Get products by price range
- * http://localhost:8080/api/products/category/3
+ * http://localhost:8082/api/products/price
  */
 export const getProductsByPriceRangeAPI = async (min, max) => {
   try {
@@ -148,7 +147,7 @@ export const getProductsByPriceRangeAPI = async (min, max) => {
 
 /**
  * 9. Get products by store name
- * http://localhost:8080/api/products/search
+ * http://localhost:8082/api/products/store
  */
 export const getProductsByStoreNameAPI = async (storeName) => {
   try {
@@ -164,7 +163,7 @@ export const getProductsByStoreNameAPI = async (storeName) => {
 
 /**
  * 10. Update product stock quantity (PATCH)
- * http://localhost:8080/api/products/store/Tien
+ * http://localhost:8082/api/products/store/Tien
  */
 export const updateProductStockAPI = async (productId, stock) => {
   try {

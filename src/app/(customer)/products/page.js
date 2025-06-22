@@ -1,16 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { X, ChevronDown, ChevronRight, Funnel } from "lucide-react";
 import Image from "next/image";
 import FilterSidebar from "../../components/filter/FilterSidebar";
 import ProductCard from "../../components/product/ProductCard";
 import BestSellerCard from "@/app/components/product/BestSellerCard";
+import { getAllProductsAPI } from "@/app/apis/product.api";
 
 export default function ProductPage() {
+  const router = useRouter();
+  const [products, setProducts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+
   const [isSidebarVisible, setSidebarVisible] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-
   const toggleSidebar = () => setSidebarVisible(!isSidebarVisible);
   const toggleDropdown = () => setDropdownOpen(!isDropdownOpen);
   const closeSidebar = () => setSidebarVisible(false);
@@ -53,20 +59,46 @@ export default function ProductPage() {
     { name: "BRANDS", options: ["Brand A", "Brand B", "Brand C"] },
   ];
 
-  const products = [
-    {
-      name: "Summer strapless dress",
-      price: "350,000 VND",
-      img: "/product.jpg",
-    },
-    { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
-    { name: "Summer hat", price: "80,000 VND", img: "/product.jpg" },
-    { name: "Summer glasses", price: "150,000 VND", img: "/product.jpg" },
-    { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
-    { name: "Summer hat", price: "80,000 VND", img: "/product.jpg" },
-    { name: "Summer glasses", price: "150,000 VND", img: "/product.jpg" },
-    { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
-  ];
+  // const products = [
+  //   {
+  //     name: "Summer strapless dress",
+  //     price: "350,000 VND",
+  //     img: "/product.jpg",
+  //   },
+  //   { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
+  //   { name: "Summer hat", price: "80,000 VND", img: "/product.jpg" },
+  //   { name: "Summer glasses", price: "150,000 VND", img: "/product.jpg" },
+  //   { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
+  //   { name: "Summer hat", price: "80,000 VND", img: "/product.jpg" },
+  //   { name: "Summer glasses", price: "150,000 VND", img: "/product.jpg" },
+  //   { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
+  // ];
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const data = await getAllProductsAPI(page, 10); // limit = 10
+        setProducts(data.content);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [page]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage > 0 && newPage <= 5) {
+      setPage(newPage);
+    }
+  };
+
+  const handleProductClick = (id) => {
+    router.push(`/products/${id}`);
+  };
 
   return (
     <main className="bg-white">
@@ -166,14 +198,21 @@ export default function ProductPage() {
         {/* Product Grid */}
         <div className="">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-            {products.map((product) => (
-              <ProductCard
-                key={product.name}
-                name={product.name}
-                price={product.price}
-                img={product.img}
-              />
-            ))}
+            {loading ? (
+              <p>Loading...</p>
+            ) : products.length === 0 ? (
+              <p className="text-secondary font-roboto">No products found.</p>
+            ) : (
+              products.map((product) => (
+                <ProductCard
+                  key={product.id || product.name}
+                  name={product.name}
+                  price={product.price}
+                  img={product.img || "/placeholder.jpg"}
+                  onClick={() => handleProductClick(product.id)}
+                />
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -183,6 +222,7 @@ export default function ProductPage() {
         {Array.from({ length: 5 }, (_, i) => (
           <button
             key={i}
+            onClick={() => handlePageChange(i + 1)}
             aria-current={i === 0 ? "page" : undefined}
             className={`px-4 py-2 rounded ${
               i === 0
