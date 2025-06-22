@@ -11,7 +11,7 @@ export default function useAuth() {
     try {
       setLoading(true);
 
-      const token = localStorage.getItem("accessToken");
+      const token = localStorage.getItem("idToken");
       if (!token) {
         setIsAuthenticated(false);
         setUser(null);
@@ -31,8 +31,7 @@ export default function useAuth() {
   };
 
   const logout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("idToken");
     setIsAuthenticated(false);
     setUser(null);
     window.location.href = "/"; // Redirect to home page

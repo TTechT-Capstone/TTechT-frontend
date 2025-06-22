@@ -1,15 +1,18 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Eye, EyeClosed } from "lucide-react";
+import { register } from "@/app/apis/auth.api";
 
 export default function SignUp() {
+  const [errors, setErrors] = useState({});
   const [role, setRole] = useState("Customer");
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [phonenumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
+  //const [address, setAddress] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [storeName, setStoreName] = useState("");
@@ -18,30 +21,89 @@ export default function SignUp() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const route = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !firstname ||
-      !lastname ||
-      !phonenumber ||
-      !address ||
-      !username ||
-      !password ||
-      (role === "Seller" && (!storeName || !storeDescription))
-    ) {
-      setSignUpError("Please fill in all the required fields.");
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\d{10,15}$/;
+
+    const newErrors = {};
+
+    if (!firstname.trim()) newErrors.firstname = "First name is required.";
+    if (!lastname.trim()) newErrors.lastname = "Last name is required.";
+
+    if (!phonenumber.trim()) {
+      newErrors.phonenumber = "Phone number is required.";
+    } else if (!phoneRegex.test(phonenumber.trim())) {
+      newErrors.phonenumber = "Invalid phone number format.";
+    }
+
+    if (!email.trim()) {
+      newErrors.email = "Email is required.";
+    } else if (!emailRegex.test(email.trim())) {
+      newErrors.email = "Invalid email format.";
+    }
+
+    if (!username.trim()) newErrors.username = "Username is required.";
+    if (!password.trim()) newErrors.password = "Password is required.";
+    if (!confirmPassword.trim())
+      newErrors.confirmPassword = "Confirm password is required.";
+
+    if (role === "Seller" && !storeName.trim()) {
+      newErrors.storeName = "Store name is required.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters.";
+    }
+
+    if (password !== confirmPassword) {
+      setErrors((prev) => ({
+        ...prev,
+        confirmPassword: "Passwords do not match.",
+      }));
       return;
     }
 
     try {
-      setSignUpError(""); // Clear previous errors
-      // Simulate API call
-      window.location.href = "/auth/login";
+      setErrors({}); // Clear field-level errors
+      setSignUpError(""); // Clear general errors
+
+      const payload = {
+        firstname,
+        lastname,
+        phonenumber,
+        email,
+        username,
+        password,
+        role: role.toUpperCase(), // "CUSTOMER" or "SELLER"
+        ...(role === "Seller"
+          ? {
+              storeName,
+              storeDescription,
+            }
+          : {}),
+      };
+
+      const res = await register(payload);
+
+      route.push("/auth/login");
     } catch (error) {
       console.error("Signup error:", error);
-      setSignUpError(error.message || "Signup failed. Please try again.");
+
+      const errorMsg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Signup failed. Please try again.";
+
+      setSignUpError(errorMsg);
     }
   };
 
@@ -98,6 +160,9 @@ export default function SignUp() {
                 className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your first name"
               />
+              {errors.firstname && (
+                <p className="text-red-500 text-sm mt-1">{errors.firstname}</p>
+              )}
             </div>
             <div>
               <label htmlFor="lastname" className="block font-medium mb-2">
@@ -111,6 +176,9 @@ export default function SignUp() {
                 className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your last name"
               />
+              {errors.lastname && (
+                <p className="text-red-500 text-sm mt-1">{errors.lastname}</p>
+              )}
             </div>
           </div>
 
@@ -127,9 +195,14 @@ export default function SignUp() {
                 className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your phone number"
               />
+              {errors.phonenumber && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.phonenumber}
+                </p>
+              )}
             </div>
 
-            <div>
+            {/* <div>
               <label htmlFor="address" className="block font-medium mb-2">
                 Address:
               </label>
@@ -141,10 +214,8 @@ export default function SignUp() {
                 className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your address"
               />
-            </div>
-          </div>
+            </div> */}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label htmlFor="email" className="block font-medium mb-2">
                 Email:
@@ -157,8 +228,13 @@ export default function SignUp() {
                 className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your email"
               />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
+          </div>
 
+          <div className="">
             <div>
               <label htmlFor="username" className="block font-medium mb-2">
                 Username:
@@ -168,13 +244,16 @@ export default function SignUp() {
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+                className="w-full border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your username"
               />
+              {errors.username && (
+                <p className="text-red-500 text-sm mt-1">{errors.username}</p>
+              )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="">
             <div className="relative">
               <label htmlFor="password" className="block font-medium mb-2">
                 Password:
@@ -184,7 +263,7 @@ export default function SignUp() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="border rounded-lg p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary pr-10"
+                className="w-full border rounded-lg p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary pr-10"
                 placeholder="Enter your password"
               />
               <button
@@ -195,8 +274,13 @@ export default function SignUp() {
               >
                 {showPassword ? <EyeClosed /> : <Eye />}
               </button>
+              {errors.password && (
+                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              )}
             </div>
+          </div>
 
+          <div>
             <div className="relative">
               <label
                 htmlFor="confirmPassword"
@@ -224,6 +308,11 @@ export default function SignUp() {
               >
                 {showConfirmPassword ? <EyeClosed /> : <Eye />}
               </button>
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.confirmPassword}
+                </p>
+              )}
             </div>
           </div>
 
@@ -241,6 +330,11 @@ export default function SignUp() {
                   className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                   placeholder="Enter your store name"
                 />
+                {errors.storeName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.storeName}
+                  </p>
+                )}
               </div>
               <div>
                 <label
@@ -268,7 +362,7 @@ export default function SignUp() {
 
           <button
             type="submit"
-            className="w-full py-3 px-4 rounded-xl text-white bg-secondary hover:bg-secondary-dark transition shadow-lg"
+            className="w-full py-3 px-4 rounded-xl text-white bg-secondary hover:bg-[#6C7A84] transition shadow-lg"
           >
             Create Account
           </button>
