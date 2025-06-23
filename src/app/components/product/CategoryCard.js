@@ -16,9 +16,9 @@ export default function CategoryCard({ title, img }) {
 
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition flex flex-col items-center justify-center text-white">
-        <h4 className="text-lg font-bold">{title}</h4>
+        <h4 className="text-lg font-bold font-urbanist">{title}</h4>
         <Link href={`/products?category=${title.toLowerCase()}`}>
-          <button className="text-sm mt-2 border border-white px-4 py-1 hover:bg-white hover:text-black transition">
+          <button className="font-roboto text-sm mt-2 border border-white px-4 py-1 hover:bg-white hover:text-black transition">
             SHOP
           </button>
         </Link>
