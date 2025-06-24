@@ -42,9 +42,10 @@ export default function Login() {
 
       localStorage.setItem("idToken", token);
       localStorage.setItem("userRole", role || "");
+      console.log(role);
 
       switch (role) {
-        case "CUSTOMER":
+        case "USER":
           router.push("/");
           break;
         case "SELLER":
