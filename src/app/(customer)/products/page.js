@@ -15,7 +15,7 @@ export default function ProductPage() {
   const [products, setProducts] = useState([]);
 
   const searchParams = useSearchParams();
-  const currentPage = parseInt(searchParams.get("page") || "1", 10); // 1-based for frontend
+  const currentPage = parseInt(searchParams.get("page") || "1", 10); 
   const backendPage = currentPage - 1;
   const [totalPages, setTotalPages] = useState(1);
 
@@ -162,7 +162,7 @@ export default function ProductPage() {
       <section className="flex flex-row px-8 py-4 items-start">
         {/* Filter sidebar */}
 
-        <div className="hidden md:block w-1/3">
+        <div className="hidden md:block w-[20%]">
           <FilterSidebar filters={filters} onClear={handleClearFilters} />
         </div>
 
@@ -197,11 +197,11 @@ export default function ProductPage() {
             ) : (
               products.map((product) => (
                 <ProductCard
-                  key={product.id || product.name}
+                  key={product.productId || product.name}
                   name={product.name}
                   price={product.price}
                   img={product.img || "/placeholder.jpg"}
-                  onClick={() => handleProductClick(product.id)}
+                  onClick={() => handleProductClick(product.productId)}
                 />
               ))
             )}
@@ -209,7 +209,6 @@ export default function ProductPage() {
         </div>
       </section>
 
-      {/* Pagination Section */}
       {/* Pagination Section */}
       <section className="flex justify-center space-x-2 items-center py-4">
         {Array.from({ length: totalPages }, (_, i) => (
