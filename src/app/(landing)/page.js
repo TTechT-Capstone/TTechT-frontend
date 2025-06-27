@@ -1,24 +1,42 @@
+"use client";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import NewCollectionCard from "../components/product/NewCollectionCard";
+
+import { getAllCategoriesAPI } from "@/app/apis/category.api";
 import CategoryCard from "../components/product/CategoryCard";
 
-const categories = [
-  { name: "Accessories", img: "/product.jpg" },
-  { name: "Dresses", img: "/product.jpg" },
-  { name: "Shoes", img: "/product.jpg" },
-  { name: "Shirts", img: "/product.jpg" },
+const collections = [
+  { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
+  { name: "Summer hat", price: "80,000 VND", img: "/product.jpg" },
+  { name: "Summer glasses", price: "150,000 VND", img: "/product.jpg" },
+  { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
 ];
 
-const collections = [
-    { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
-    { name: "Summer hat", price: "80,000 VND", img: "/product.jpg" },
-    { name: "Summer glasses", price: "150,000 VND", img: "/product.jpg" },
-    { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
-
-  ];
-
 export default function LandingPage() {
+  const [randomCategories, setRandomCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getAllCategoriesAPI(0, 100); // fetch all, or adjust limit
+        //const allCategories = res?.content ?? [];
+        console.log("Fetched categories:", res);
+
+        // Random pick 4 categories
+        const shuffled = res.sort(() => 0.5 - Math.random());
+        const selected = shuffled.slice(0, 4);
+
+        setRandomCategories(selected);
+      } catch (err) {
+        console.error("Failed to load categories", err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   return (
     <main className="bg-white">
       {/* Hero Banner */}
@@ -43,53 +61,50 @@ export default function LandingPage() {
       </section>
 
       <section className="bg-secondary text-white px-4 sm:px-8 md:px-16 py-12">
-  <div className="max-w-7xl mx-auto">
-    <h2 className="text-2xl font-bold mb-4 text-center md:text-left">
-      How Origity Protects Your Products
-    </h2>
-    <p className="font-roboto mb-10 text-center md:text-left max-w-3xl mx-auto md:mx-0">
-      Every image on Origity includes a secure digital watermark. This
-      invisible signature ensures authenticity and traceability.
-    </p>
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-      <div>
-        <h3 className="font-urbanist font-semibold mb-2 text-lg">
-          TAMPER-PROOF PROTECTION
-        </h3>
-        <p className="font-roboto">
-          Your watermark cannot be removed or altered.
-        </p>
-      </div>
-      <div>
-        <h3 className="font-urbanist font-semibold mb-2 text-lg">
-          ONLINE TRACKING CAPABILITIES
-        </h3>
-        <p className="font-roboto">
-          Know when and where your images are used online.
-        </p>
-      </div>
-      <div>
-        <h3 className="font-urbanist font-semibold mb-2 text-lg">
-          GUARANTEED ORIGINALITY
-        </h3>
-        <p className="font-roboto">
-          Prove your image ownership anytime.
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-2xl font-bold mb-4 text-center md:text-left">
+            How Origity Protects Your Products
+          </h2>
+          <p className="font-roboto mb-10 text-center md:text-left max-w-3xl mx-auto md:mx-0">
+            Every image on Origity includes a secure digital watermark. This
+            invisible signature ensures authenticity and traceability.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div>
+              <h3 className="font-urbanist font-semibold mb-2 text-lg">
+                TAMPER-PROOF PROTECTION
+              </h3>
+              <p className="font-roboto">
+                Your watermark cannot be removed or altered.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-urbanist font-semibold mb-2 text-lg">
+                ONLINE TRACKING CAPABILITIES
+              </h3>
+              <p className="font-roboto">
+                Know when and where your images are used online.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-urbanist font-semibold mb-2 text-lg">
+                GUARANTEED ORIGINALITY
+              </h3>
+              <p className="font-roboto">Prove your image ownership anytime.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Category Tiles Section */}
       <section className="px-8 py-12 bg-white">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {categories.map((category) => (
-            <CategoryCard 
+          {randomCategories.map((category) => (
+            <CategoryCard
               key={category.name}
               title={category.name}
               img={category.img}
-              />
+            />
           ))}
         </div>
       </section>
@@ -104,9 +119,9 @@ export default function LandingPage() {
           {collections.map((collection) => (
             <NewCollectionCard
               key={collection.name}
-                name={collection.name}
-                price={collection.price}
-                img={collection.img}
+              name={collection.name}
+              price={collection.price}
+              img={collection.img}
             />
           ))}
         </div>

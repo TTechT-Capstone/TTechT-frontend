@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
-// import useAuth from '../../../hooks/useAuth.js';
+import useAuth from "@/app/hooks/useAuth";
 // import { listOrdersAPI, cancelOrderAPI, getOrderDetailAPI } from '../../../apis/order.api.js';
-// import { getProfileDetailAPI, updateProfileAPI } from '../../../apis/profile.api.js';
 
 export default function RightSide({ activeSection }) {
-  //const { idToken, accessToken } = useAuth(); // Ensure accessToken is available
+  const { user, isAuthenticated, loading } = useAuth();
   const [profile, setProfile] = useState({
-    customerId: "",
     firstName: "",
     lastName: "",
     email: "",
+    phoneNumber: "",
     userName: "",
     oldPassword: "", // Initialize oldPassword
     newPassword: "", // Initialize newPassword
@@ -63,26 +62,18 @@ export default function RightSide({ activeSection }) {
   };
 
   useEffect(() => {
-    // const fetchProfile = async () => {
-    //     setLoadingProfile(true);
-    //     setError(null);
-    //     try {
-    //         const profileData = await getProfileDetailAPI();
-    //         setProfile({
-    //             customerId: profileData.customerId,
-    //             firstName: profileData.firstName,
-    //             lastName: profileData.lastName,
-    //             email: profileData.email,
-    //             userName: profileData.userName,
-    //         });
-    //     } catch (err) {
-    //         setError(err.message);
-    //     } finally {
-    //         setLoadingProfile(false);
-    //     }
-    // };
-    //fetchProfile();
-  }, []);
+    if (user) {
+      setProfile((prev) => ({
+        ...prev,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        userName: user.username,
+      }));
+      setLoadingProfile(false);
+    }
+  }, [user]);
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
@@ -229,30 +220,11 @@ export default function RightSide({ activeSection }) {
         My Personal Information
       </h1>
       {loadingProfile ? (
-        <p className="font-roboto text-lg text-gray-600 text-center">Loading profile...</p>
+        <p className="font-roboto text-lg text-gray-600 text-center">
+          Loading profile...
+        </p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Username */}
-          <div>
-            <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Username
-            </label>
-            <input
-              type="text"
-              id="userName"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-              placeholder="Enter your username"
-              value={profile.userName}
-              onChange={(e) =>
-                setProfile({ ...profile, userName: e.target.value })
-              }
-              readOnly
-            />
-          </div>
-
           {/* Firstname and Lastname */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -265,7 +237,7 @@ export default function RightSide({ activeSection }) {
               <input
                 type="text"
                 id="firstName"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 transition"
                 placeholder="Enter your firstname"
                 value={profile.firstName}
                 onChange={(e) =>
@@ -284,7 +256,7 @@ export default function RightSide({ activeSection }) {
               <input
                 type="text"
                 id="lastName"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue- 500 transition"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 transition"
                 placeholder="Enter your lastname"
                 value={profile.lastName}
                 onChange={(e) =>
@@ -294,23 +266,65 @@ export default function RightSide({ activeSection }) {
             </div>
           </div>
 
-          {/* Email */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Email */}
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2  transition"
+                placeholder="Enter your email"
+                value={profile.email}
+                onChange={(e) =>
+                  setProfile({ ...profile, email: e.target.value })
+                }
+              />
+            </div>
+            {/* Phone Number */}
+            <div>
+              <label
+                htmlFor="phoneNumber"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                id="phoneNumber"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 transition"
+                placeholder="Enter your phone number"
+                value={profile.phoneNumber}
+                onChange={(e) =>
+                  setProfile({ ...profile, phoneNumber: e.target.value })
+                }
+              />
+              </div>
+          </div>
+
+                    {/* Username */}
           <div>
             <label
-              htmlFor="email"
+              htmlFor="username"
               className="block text-sm font-medium text-gray-700"
             >
-              Email
+              Username
             </label>
             <input
-              type="email"
-              id="email"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-              placeholder="Enter your email"
-              value={profile.email}
+              type="text"
+              id="userName"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 transition"
+              placeholder="Enter your username"
+              value={profile.userName}
               onChange={(e) =>
-                setProfile({ ...profile, email: e.target.value })
+                setProfile({ ...profile, userName: e.target.value })
               }
+              readOnly
             />
           </div>
 
@@ -318,7 +332,7 @@ export default function RightSide({ activeSection }) {
           <div className="flex">
             <button
               type="submit"
-              className="w-full py-3 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition duration-200"
+              className="w-full py-3 font-semibold text-white bg-[#6C7A84] rounded-lg hover:bg-[#4A5A64] transition duration-200"
             >
               Update Profile
             </button>
@@ -345,7 +359,7 @@ export default function RightSide({ activeSection }) {
           <input
             type="password"
             id="oldPassword"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 transition"
             placeholder="Enter your old password"
             value={profile.oldPassword}
             onChange={(e) => {
@@ -366,7 +380,7 @@ export default function RightSide({ activeSection }) {
           <input
             type="password"
             id="newPassword"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 transition"
             placeholder="Enter your new password"
             value={profile.newPassword}
             onChange={(e) => {
@@ -401,7 +415,9 @@ export default function RightSide({ activeSection }) {
         {renderOrderFilter()}
       </div>
       {loadingOrders ? (
-        <p className="font-roboto text-lg text-gray-600 text-center">Loading orders...</p>
+        <p className="font-roboto text-lg text-gray-600 text-center">
+          Loading orders...
+        </p>
       ) : filteredOrders().length > 0 ? (
         <div className="space-y-4">
           {filteredOrders().map((order) => (
@@ -519,16 +535,14 @@ export default function RightSide({ activeSection }) {
   );
 
   return (
-    <div className="p-4 max-w-6xl mx-auto">
+    <div className="p-4 mb-8 max-w-6xl mx-auto">
       {activeSection === 1 && (
         <>
           {renderPersonalInfo()}
           {renderChangePassword()}
         </>
       )}
-      {
-        activeSection === 2 && renderOrders()
-      }
+      {activeSection === 2 && renderOrders()}
       {isCancelModalOpen && renderCancelModal()}
     </div>
   );

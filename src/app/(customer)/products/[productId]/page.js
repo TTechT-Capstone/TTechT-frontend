@@ -1,27 +1,42 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import ProductCard from "../../../components/product/ProductCard";
+import { getProductByIdAPI } from "@/app/apis/product.api";
 
 export default function ProductDetail() {
+  const params = useParams();
+  const productId = params?.productId?.toString();
   const [product, setProduct] = useState(null);
   const [mainImage, setMainImage] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const mockProduct = {
-    name: "Summer Strapless Dress",
-    price: 350000,
-    description:
-      "A comfortable and stylish strapless dress perfect for summer outings. Made from high-quality fabric with a light texture for breathability.",
-    imageUrls: ["/product.jpg", "/product2.jpg", "/product3.jpg"],
-    storeName: "Origity Store",
-  };
-
   useEffect(() => {
-    setProduct(mockProduct);
-    setMainImage(mockProduct.imageUrls[0]);
-  }, []);
+    if (!productId) return;
+
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const productData = await getProductByIdAPI(productId);
+
+        setMainImage(productData.imageUrls?.[0] || "");
+        setProduct({
+              ...productData,
+            imageUrls: productData.imageUrls || [],
+        });
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      } finally {
+        setLoading(false);
+        setIsModalOpen(false);
+      }
+    };
+
+    fetchProduct();
+  }, [productId]);
 
   const handleAddToCart = () => {
     setIsModalOpen(true);
@@ -44,7 +59,7 @@ export default function ProductDetail() {
 
           {/* Thumbnails */}
           <div className="flex lg:flex-col gap-2">
-            {product.imageUrls.map((url, index) => (
+            {product.imageUrls?.map((url, index) => (
               <img
                 key={index}
                 src={url}
@@ -56,8 +71,6 @@ export default function ProductDetail() {
               />
             ))}
           </div>
-
-          
         </div>
 
         {/* Product Info */}
@@ -119,10 +132,26 @@ export default function ProductDetail() {
           You May Also Like
         </h2>
         <div className="py-2 grid grid-cols-2 md:grid-cols-4 gap-6">
-          <ProductCard name="White T-Shirt" price="150,000 VND" img="/product.jpg" />
-          <ProductCard name="Summer Hat" price="80,000 VND" img="/product2.jpg" />
-          <ProductCard name="Summer Glasses" price="150,000 VND" img="/product3.jpg" />
-          <ProductCard name="Casual Jeans" price="290,000 VND" img="/product.jpg" />
+          <ProductCard
+            name="White T-Shirt"
+            price="150,000 VND"
+            img="/product.jpg"
+          />
+          <ProductCard
+            name="Summer Hat"
+            price="80,000 VND"
+            img="/product2.jpg"
+          />
+          <ProductCard
+            name="Summer Glasses"
+            price="150,000 VND"
+            img="/product3.jpg"
+          />
+          <ProductCard
+            name="Casual Jeans"
+            price="290,000 VND"
+            img="/product.jpg"
+          />
         </div>
 
         <div className="flex justify-center mt-6">
@@ -160,7 +189,7 @@ export default function ProductDetail() {
             </p>
             <div className="flex justify-center">
               <Link href="/login">
-                <button className="bg-primary text-white px-4 py-2 rounded hover:bg-[#B55E5E] transition">
+                <button className="bg-primary text-white px-4 py-2 rounded hover:bg-[#6C7A84] transition">
                   Log In
                 </button>
               </Link>

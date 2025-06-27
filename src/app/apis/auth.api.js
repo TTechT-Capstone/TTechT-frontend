@@ -23,7 +23,7 @@ const getAuthHeaders = () => {
  */
 export const login = async (credentials) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/auth/login`, credentials);
+    const response = await axios.post(`${API_BASE_URL}/auth/token`, credentials);
     return response.data;
   } catch (error) {
     console.error('Login failed:', error);
@@ -52,8 +52,9 @@ export const loginAsAdmin = async (credentials) => {
  * @returns {Promise<Object>} - API response data.
  */
 export const register = async (userInfo) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/auth/register`, userInfo);
+  try {   
+    console.log('Registering user with info:', userInfo);
+    const response = await axios.post(`${API_BASE_URL}/users`, userInfo);
     return response.data;
   } catch (error) {
     console.error('Registration failed:', error);

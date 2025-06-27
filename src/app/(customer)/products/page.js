@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { X, ChevronDown, ChevronRight, Funnel } from "lucide-react";
 import Image from "next/image";
@@ -12,7 +13,12 @@ import { getAllProductsAPI } from "@/app/apis/product.api";
 export default function ProductPage() {
   const router = useRouter();
   const [products, setProducts] = useState([]);
-  const [page, setPage] = useState(1);
+
+  const searchParams = useSearchParams();
+  const currentPage = parseInt(searchParams.get("page") || "1", 10); 
+  const backendPage = currentPage - 1;
+  const [totalPages, setTotalPages] = useState(1);
+
   const [loading, setLoading] = useState(false);
 
   const [isSidebarVisible, setSidebarVisible] = useState(false);
@@ -59,27 +65,15 @@ export default function ProductPage() {
     { name: "BRANDS", options: ["Brand A", "Brand B", "Brand C"] },
   ];
 
-  // const products = [
-  //   {
-  //     name: "Summer strapless dress",
-  //     price: "350,000 VND",
-  //     img: "/product.jpg",
-  //   },
-  //   { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
-  //   { name: "Summer hat", price: "80,000 VND", img: "/product.jpg" },
-  //   { name: "Summer glasses", price: "150,000 VND", img: "/product.jpg" },
-  //   { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
-  //   { name: "Summer hat", price: "80,000 VND", img: "/product.jpg" },
-  //   { name: "Summer glasses", price: "150,000 VND", img: "/product.jpg" },
-  //   { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
-  // ];
-
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const data = await getAllProductsAPI(page, 10); // limit = 10
+        const data = await getAllProductsAPI(backendPage, 10); // limit = 10
+        console.log("Fetched product data:", data);
+
         setProducts(data.content);
+        setTotalPages(data.totalPages);
       } catch (error) {
         console.error("Failed to fetch products:", error);
       } finally {
@@ -88,12 +82,10 @@ export default function ProductPage() {
     };
 
     fetchProducts();
-  }, [page]);
+  }, [backendPage]);
 
   const handlePageChange = (newPage) => {
-    if (newPage > 0 && newPage <= 5) {
-      setPage(newPage);
-    }
+    router.push(`/products?page=${newPage}`);
   };
 
   const handleProductClick = (id) => {
@@ -170,7 +162,7 @@ export default function ProductPage() {
       <section className="flex flex-row px-8 py-4 items-start">
         {/* Filter sidebar */}
 
-        <div className="hidden md:block w-1/3">
+        <div className="hidden md:block w-[20%]">
           <FilterSidebar filters={filters} onClear={handleClearFilters} />
         </div>
 
@@ -205,11 +197,11 @@ export default function ProductPage() {
             ) : (
               products.map((product) => (
                 <ProductCard
-                  key={product.id || product.name}
+                  key={product.productId || product.name}
                   name={product.name}
                   price={product.price}
                   img={product.img || "/placeholder.jpg"}
-                  onClick={() => handleProductClick(product.id)}
+                  onClick={() => handleProductClick(product.productId)}
                 />
               ))
             )}
@@ -219,13 +211,12 @@ export default function ProductPage() {
 
       {/* Pagination Section */}
       <section className="flex justify-center space-x-2 items-center py-4">
-        {Array.from({ length: 5 }, (_, i) => (
+        {Array.from({ length: totalPages }, (_, i) => (
           <button
             key={i}
             onClick={() => handlePageChange(i + 1)}
-            aria-current={i === 0 ? "page" : undefined}
             className={`px-4 py-2 rounded ${
-              i === 0
+              i + 1 === currentPage
                 ? "bg-primary text-white"
                 : "text-primary hover:bg-gray-200"
             }`}
@@ -233,13 +224,19 @@ export default function ProductPage() {
             {i + 1}
           </button>
         ))}
-        <span>...</span>
-        <button
-          aria-label="Next page"
-          className="px-4 py-2 rounded text-primary hover:bg-gray-200"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </button>
+
+        {totalPages > 1 && currentPage < totalPages && (
+          <>
+            <span>...</span>
+            <button
+              aria-label="Next page"
+              onClick={() => handlePageChange(currentPage + 1)}
+              className="px-4 py-2 rounded text-primary hover:bg-gray-200"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </>
+        )}
       </section>
     </main>
   );

@@ -1,50 +1,23 @@
-// hooks/useAuth.js
-import { useEffect, useState } from "react";
-import { getProfileDetailAPI } from "../apis/profile.api"; 
+// /app/hooks/useAuth.js
+import { useEffect } from "react";
+import useUserStore from "../stores/userStore";
 
-export default function useAuth() {
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  const fetchUser = async () => {
-    try {
-      setLoading(true);
-
-      const token = localStorage.getItem("idToken");
-      if (!token) {
-        setIsAuthenticated(false);
-        setUser(null);
-        return;
-      }
-
-      const userData = await getProfileDetailAPI();
-      setUser(userData);
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error("Auth error:", error);
-      setIsAuthenticated(false);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const logout = () => {
-    localStorage.removeItem("idToken");
-    setIsAuthenticated(false);
-    setUser(null);
-    window.location.href = "/"; // Redirect to home page
-  };
+const useAuth = () => {
+  const { user, fetchUser, loading, logout } = useUserStore();
 
   useEffect(() => {
-    fetchUser();
-  }, []);
+    if (!user) fetchUser(); // fetch if not already loaded
+  }, [user, fetchUser]);
 
   return {
     user,
-    isAuthenticated,
+    username: user?.username || "Unknown",
+    fullName: `${user?.firstName || ""} ${user?.lastName || ""}`.trim(),
+    userRole: user?.roles?.[0]?.name || "Unknown",
+    isAuthenticated: !!user,
     loading,
     logout,
   };
-}
+};
+
+export default useAuth;

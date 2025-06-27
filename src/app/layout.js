@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${urbanist.className} ${roboto.className}`}>
       <head>
-        <link rel="icon" href="/logo/favicon.png" /> //New updated favicon
+        <link rel="icon" href="/logo/favicon.png" />
       </head>
       <body>{children}</body>
     </html>

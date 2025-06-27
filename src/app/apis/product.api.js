@@ -1,15 +1,15 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = 'http://localhost:8082/api'; 
+const API_BASE_URL = "http://localhost:8082/api";
 
 /**
  * Helper function to get the auth headers.
  * @returns {Object} - Authorization headers
  */
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('idToken');
+  const token = localStorage.getItem("idToken");
   if (!token) {
-    throw new Error('Authorization token is missing');
+    throw new Error("Authorization token is missing");
   }
   return {
     Authorization: `Bearer ${token}`,
@@ -23,12 +23,12 @@ const getAuthHeaders = () => {
  */
 export const getAllProductsAPI = async (page = 0, limit = 10) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/products?page=${page}&limit=${limit}`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.get(
+      `${API_BASE_URL}/products?page=${page}&limit=${limit}`
+    );
     return response.data;
   } catch (error) {
-    console.error('Error fetching products:', error);
+    console.error("Error fetching products:", error);
     throw error;
   }
 };
@@ -39,9 +39,7 @@ export const getAllProductsAPI = async (page = 0, limit = 10) => {
  */
 export const getProductByIdAPI = async (productId) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/products/${productId}`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.get(`${API_BASE_URL}/products/${productId}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching product ${productId}:`, error);
@@ -60,7 +58,7 @@ export const createProductAPI = async (productData) => {
     });
     return response.data;
   } catch (error) {
-    console.error('Error creating product:', error);
+    console.error("Error creating product:", error);
     throw error;
   }
 };
@@ -71,9 +69,13 @@ export const createProductAPI = async (productData) => {
  */
 export const updateProductAPI = async (productId, updatedData) => {
   try {
-    const response = await axios.put(`${API_BASE_URL}/products/${productId}`, updatedData, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.put(
+      `${API_BASE_URL}/products/${productId}`,
+      updatedData,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
     return response.data;
   } catch (error) {
     console.error(`Error updating product ${productId}:`, error);
@@ -87,9 +89,12 @@ export const updateProductAPI = async (productId, updatedData) => {
  */
 export const deleteProductAPI = async (productId) => {
   try {
-    const response = await axios.delete(`${API_BASE_URL}/products/${productId}`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.delete(
+      `${API_BASE_URL}/products/${productId}`,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
     return response.data;
   } catch (error) {
     console.error(`Error deleting product ${productId}:`, error);
@@ -103,9 +108,9 @@ export const deleteProductAPI = async (productId) => {
  */
 export const getProductsByCategoryAPI = async (category) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/products/category/${category}`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.get(
+      `${API_BASE_URL}/products/category/${category}`
+    );
     return response.data;
   } catch (error) {
     console.error(`Error fetching products by category ${category}:`, error);
@@ -119,9 +124,9 @@ export const getProductsByCategoryAPI = async (category) => {
  */
 export const searchProductsByNameAPI = async (name) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/products/search?name=${encodeURIComponent(name)}`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.get(
+      `${API_BASE_URL}/products/search?name=${encodeURIComponent(name)}`
+    );
     return response.data;
   } catch (error) {
     console.error(`Error searching products with name "${name}":`, error);
@@ -135,12 +140,15 @@ export const searchProductsByNameAPI = async (name) => {
  */
 export const getProductsByPriceRangeAPI = async (min, max) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/products/price?min=${min}&max=${max}`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.get(
+      `${API_BASE_URL}/products/price?min=${min}&max=${max}`
+    );
     return response.data;
   } catch (error) {
-    console.error(`Error fetching products by price range ${min}-${max}:`, error);
+    console.error(
+      `Error fetching products by price range ${min}-${max}:`,
+      error
+    );
     throw error;
   }
 };
@@ -151,9 +159,9 @@ export const getProductsByPriceRangeAPI = async (min, max) => {
  */
 export const getProductsByStoreNameAPI = async (storeName) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/products/store/${storeName}`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.get(
+      `${API_BASE_URL}/products/store/${storeName}`
+    );
     return response.data;
   } catch (error) {
     console.error(`Error fetching products by store "${storeName}":`, error);
@@ -167,14 +175,55 @@ export const getProductsByStoreNameAPI = async (storeName) => {
  */
 export const updateProductStockAPI = async (productId, stock) => {
   try {
-    const response = await axios.patch(`${API_BASE_URL}/products/${productId}/stock`, {
-      stock: stock,
-    }, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.patch(
+      `${API_BASE_URL}/products/${productId}/stock`,
+      {
+        stock: stock,
+      },
+      {
+        headers: getAuthHeaders(),
+      }
+    );
     return response.data;
   } catch (error) {
     console.error(`Error updating stock for product ${productId}:`, error);
     throw error;
   }
 };
+
+/**
+ * 11. Get best selling products
+ * http://localhost:8082/api/products/best-sellers?limit=10
+ */
+export const getBestSellingProductsAPI = async (limit = 10) => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/products/best-sellers?limit=${limit}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching best selling products:", error);
+    throw error;
+  }
+};
+
+/**
+ * 12. Get best sellers by category
+ * http://localhost:8082/api/products/best-sellers/category/1?limit=10
+ */
+
+export const getBestSellersByCategoryAPI = async (categoryId, limit = 10) => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/products/best-sellers/category/${categoryId}?limit=${limit}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      `Error fetching best sellers for category ${categoryId}:`,
+      error
+    );
+    throw error;
+  }
+};
+

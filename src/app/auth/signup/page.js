@@ -8,9 +8,9 @@ import { register } from "@/app/apis/auth.api";
 export default function SignUp() {
   const [errors, setErrors] = useState({});
   const [role, setRole] = useState("Customer");
-  const [firstname, setFirstname] = useState("");
-  const [lastname, setLastname] = useState("");
-  const [phonenumber, setPhoneNumber] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   //const [address, setAddress] = useState("");
   const [username, setUsername] = useState("");
@@ -31,13 +31,13 @@ export default function SignUp() {
 
     const newErrors = {};
 
-    if (!firstname.trim()) newErrors.firstname = "First name is required.";
-    if (!lastname.trim()) newErrors.lastname = "Last name is required.";
+    if (!firstName.trim()) newErrors.firstName = "First name is required.";
+    if (!lastName.trim()) newErrors.lastName = "Last name is required.";
 
-    if (!phonenumber.trim()) {
-      newErrors.phonenumber = "Phone number is required.";
-    } else if (!phoneRegex.test(phonenumber.trim())) {
-      newErrors.phonenumber = "Invalid phone number format.";
+    if (!phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone number is required.";
+    } else if (!phoneRegex.test(phoneNumber.trim())) {
+      newErrors.phoneNumber = "Invalid phone number format.";
     }
 
     if (!email.trim()) {
@@ -63,7 +63,7 @@ export default function SignUp() {
     if (password.length < 6) {
       newErrors.password = "Password must be at least 6 characters.";
     }
-
+   
     if (password !== confirmPassword) {
       setErrors((prev) => ({
         ...prev,
@@ -75,11 +75,13 @@ export default function SignUp() {
     try {
       setErrors({}); // Clear field-level errors
       setSignUpError(""); // Clear general errors
+      
 
+      console.log("Signup payload:");
       const payload = {
-        firstname,
-        lastname,
-        phonenumber,
+        firstName,
+        lastName,
+        phoneNumber,
         email,
         username,
         password,
@@ -91,6 +93,7 @@ export default function SignUp() {
             }
           : {}),
       };
+      console.log("Signup payload:", payload);
 
       const res = await register(payload);
 
@@ -149,14 +152,14 @@ export default function SignUp() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="firstname" className="block font-medium mb-2">
+              <label htmlFor="firstName" className="block font-medium mb-2">
                 First Name:
               </label>
               <input
                 type="text"
-                id="firstname"
-                value={firstname}
-                onChange={(e) => setFirstname(e.target.value)}
+                id="firstName"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
                 className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your first name"
               />
@@ -165,14 +168,14 @@ export default function SignUp() {
               )}
             </div>
             <div>
-              <label htmlFor="lastname" className="block font-medium mb-2">
+              <label htmlFor="lastName" className="block font-medium mb-2">
                 Last Name:
               </label>
               <input
                 type="text"
-                id="lastname"
-                value={lastname}
-                onChange={(e) => setLastname(e.target.value)}
+                id="lastName"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
                 className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your last name"
               />
@@ -184,13 +187,13 @@ export default function SignUp() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="phonenumber" className="block font-medium mb-2">
+              <label htmlFor="phoneNumber" className="block font-medium mb-2">
                 Phone Number:
               </label>
               <input
                 type="text"
-                id="phonenumber"
-                value={phonenumber}
+                id="phoneNumber"
+                value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your phone number"

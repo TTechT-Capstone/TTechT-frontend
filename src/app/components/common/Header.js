@@ -1,11 +1,12 @@
 "use client";
 
+import useAuth from "@/app/hooks/useAuth";
 import { Menu, Search, ShoppingCart, User, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
 export default function Header() {
-  const [isAuthorized, setAuthorized] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
   const [isSearchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -61,24 +62,26 @@ export default function Header() {
           <ShoppingCart className="h-6 w-6 cursor-pointer hover:text-primary transition-colors" />
         </Link>
 
-        {isAuthorized ? (
+        {isAuthenticated ? (
           <div className="relative group">
             <User className="h-6 w-6 cursor-pointer hover:text-primary transition-colors" />
 
             {/* Dropdown shown on hover */}
-          <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 font-bold rounded-lg shadow-md z-50 opacity-0 group-hover:opacity-100 group-hover:visible invisible transition-all duration-200">
-            <Link href="/profile">
-              <button className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100">
-                My Profile
-              </button>
-            </Link>
+            <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 font-bold rounded-lg shadow-md z-50 opacity-0 group-hover:opacity-100 group-hover:visible invisible transition-all duration-200">
+              <Link href="/profile">
+                <button className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100">
+                  My Profile
+                </button>
+              </Link>
 
-            <button className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100">
-              Logout
-            </button>
+              <button
+                onClick={logout}
+                className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
+              >
+                Logout
+              </button>
+            </div>
           </div>
-          </div>
-          
         ) : (
           <div className="flex items-center space-x-4">
             <Link href="/auth/signup">
