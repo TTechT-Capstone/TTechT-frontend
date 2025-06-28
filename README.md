@@ -24,7 +24,7 @@ Built using a **microservices architecture** and deployed on **AWS-managed servi
 - **Assignment**: Assignment 3 (Group Project)  
 - **Course**: Project Capstone
 - **Course Code**: 
-- **Supervisors**: Mr. Hou Chong Ling
+- **Supervisors**: Mr. Huo Chong Ling
   
 ---
 
