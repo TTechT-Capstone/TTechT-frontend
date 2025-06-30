@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 import Image from "next/image";
 import Link from "next/link";
 import NewCollectionCard from "../components/product/NewCollectionCard";
@@ -11,10 +13,11 @@ const collections = [
   { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
   { name: "Summer hat", price: "80,000 VND", img: "/product.jpg" },
   { name: "Summer glasses", price: "150,000 VND", img: "/product.jpg" },
-  { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
+  { name: "White t-shir ple", price: "150,000 VND", img: "/product.jpg" },
 ];
 
 export default function LandingPage() {
+  const router = useRouter();
   const [randomCategories, setRandomCategories] = useState([]);
 
   useEffect(() => {
@@ -36,6 +39,10 @@ export default function LandingPage() {
 
     fetchCategories();
   }, []);
+
+  const handleCategoryClick = (categoryId) => {
+    router.push(`/products/category/${categoryId}`);
+  };
 
   return (
     <main className="bg-white">
@@ -101,9 +108,11 @@ export default function LandingPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {randomCategories.map((category) => (
             <CategoryCard
-              key={category.name}
+              key={category.categoryId}
               title={category.name}
               img={category.img}
+              id={category.categoryId}
+              onClick={() => handleCategoryClick(category.categoryId)}
             />
           ))}
         </div>

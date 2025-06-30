@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { forgotPassword } from "@/app/apis/auth.api";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -17,16 +18,16 @@ export default function ForgotPasswordPage() {
 
     try {
       setError("");
-      // TODO: Call real API here
-      console.log("Reset password for:", email);
+      await forgotPassword({ email });
       setSent(true);
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      const message = err?.message || "Failed to send reset link.";
+      setError(message);
     }
   };
 
   return (
-    <div className="h-screen w-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="h-screen w-screen flex items-center justify-center bg-gray-50 text-primary px-4">
       <div className="w-full max-w-md bg-white p-8 shadow-md rounded-xl font-roboto">
         <Link href="/">
           <h1 className="font-urbanist text-secondary text-2xl font-bold text-center mb-4">

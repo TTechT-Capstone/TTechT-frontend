@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import useAuth from "@/app/hooks/useAuth";
+import { updatePassword, updateUser } from "@/app/apis/auth.api";
 // import { listOrdersAPI, cancelOrderAPI, getOrderDetailAPI } from '../../../apis/order.api.js';
 
 export default function RightSide({ activeSection }) {
@@ -8,6 +9,7 @@ export default function RightSide({ activeSection }) {
     firstName: "",
     lastName: "",
     email: "",
+    address: "",
     phoneNumber: "",
     userName: "",
     oldPassword: "", // Initialize oldPassword
@@ -68,6 +70,7 @@ export default function RightSide({ activeSection }) {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        address: user.address || "",
         phoneNumber: user.phoneNumber,
         userName: user.username,
       }));
@@ -86,7 +89,7 @@ export default function RightSide({ activeSection }) {
     }
 
     try {
-      await changePassword(
+      await updatePassword(
         accessToken,
         profile.oldPassword,
         profile.newPassword
@@ -115,10 +118,12 @@ export default function RightSide({ activeSection }) {
 
     try {
       // Update profile details
-      const updatedProfile = await updateProfileAPI({
+      const updatedProfile = await updateUser({
         firstName: profile.firstName,
         lastName: profile.lastName,
         email: profile.email,
+        address: profile.address,
+        phoneNumber: profile.phoneNumber,
       });
 
       // Update local state with the new profile data
@@ -127,6 +132,8 @@ export default function RightSide({ activeSection }) {
         firstName: updatedProfile.firstName || "Not Provided",
         lastName: updatedProfile.lastName || "Not Provided",
         email: updatedProfile.email || prevProfile.email,
+        address: updatedProfile.address || "Not Provided",
+        phoneNumber: updatedProfile.phoneNumber || "Not Provided",
       }));
       alert("Profile updated successfully!");
     } catch (error) {
@@ -304,10 +311,29 @@ export default function RightSide({ activeSection }) {
                   setProfile({ ...profile, phoneNumber: e.target.value })
                 }
               />
-              </div>
+            </div>
+          </div>
+          {/* Address */}
+          <div>
+            <label
+              htmlFor="address"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Address
+            </label>
+            <input
+              type="text"
+              id="address"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 transition"
+              placeholder="Enter your address"
+              value={profile.address}
+              onChange={(e) =>
+                setProfile({ ...profile, address: e.target.value })
+              }
+            />
           </div>
 
-                    {/* Username */}
+          {/* Username */}
           <div>
             <label
               htmlFor="username"

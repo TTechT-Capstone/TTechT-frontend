@@ -40,6 +40,7 @@ export const getAllProductsAPI = async (page = 0, limit = 10) => {
 export const getProductByIdAPI = async (productId) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/products/${productId}`);
+    console.log("Product data:", response.data);
     return response.data;
   } catch (error) {
     console.error(`Error fetching product ${productId}:`, error);
@@ -195,7 +196,7 @@ export const updateProductStockAPI = async (productId, stock) => {
  * 11. Get best selling products
  * http://localhost:8082/api/products/best-sellers?limit=10
  */
-export const getBestSellingProductsAPI = async (limit = 10) => {
+export const getBestSellingProductsAPI = async (limit = 4) => {
   try {
     const response = await axios.get(
       `${API_BASE_URL}/products/best-sellers?limit=${limit}`
@@ -212,7 +213,7 @@ export const getBestSellingProductsAPI = async (limit = 10) => {
  * http://localhost:8082/api/products/best-sellers/category/1?limit=10
  */
 
-export const getBestSellersByCategoryAPI = async (categoryId, limit = 10) => {
+export const getBestSellersByCategoryAPI = async (categoryId, limit = 4) => {
   try {
     const response = await axios.get(
       `${API_BASE_URL}/products/best-sellers/category/${categoryId}?limit=${limit}`

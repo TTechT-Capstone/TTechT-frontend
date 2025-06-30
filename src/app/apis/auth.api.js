@@ -105,17 +105,107 @@ export const getProfile = async () => {
 };
 
 /**
- * Update the profile of a user by ID.
- * @param {string|number} userId - ID of the user.
- * @param {Object} userInfo - Updated user data.
- * @returns {Promise<Object>} - API response data.
+ * Update information of a user by ID.
+ * @param {string|number} userId 
+ * @param {Object} userInfo 
  */
-export const updateProfile = async (userId, userInfo) => {
+export const updateUser = async (userId, userInfo) => {
   try {
-    const response = await axios.put(`${API_BASE_URL}/users/${userId}`, userInfo, { headers: getAuthHeaders() });
+    const response = await axios.put(`${API_BASE_URL}/users/${userId}`, userInfo, {
+      headers: getAuthHeaders(),
+    });
     return response.data;
   } catch (error) {
     console.error(`Failed to update profile for user ${userId}:`, error);
     throw error.response?.data || error;
   }
 };
+
+/**
+ * Refresh authentication token.
+ */
+export const refreshToken = async () => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to refresh token:', error);
+    throw error.response?.data || error;
+  }
+};
+
+/**
+ * Forgot password (send reset email).
+ * @param {Object} payload - e.g. { email: 'user@example.com' }
+ */
+export const forgotPassword = async (payload) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/auth/forgot-password`, payload);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to initiate forgot password:', error);
+    throw error.response?.data || error;
+  }
+};
+
+/**
+ * Redis connectivity check (test API).
+ */
+export const redisCheck = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/test/redis`, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to check Redis:', error);
+    throw error.response?.data || error;
+  }
+};
+/**
+ * Validate reset token.
+ * @param {string} token 
+ */
+export const validateToken = async (token) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/auth/validate-reset-token?token=${token}`);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to validate reset token:', error);
+    throw error.response?.data || error;
+  }
+};
+
+
+/**
+ * Change password for logged-in user.
+ * @param {Object} payload - e.g. { oldPassword, newPassword }
+ */
+export const updatePassword = async (payload) => {
+  try {
+    const response = await axios.put(`${API_BASE_URL}/users/update-password`, payload, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to update password:', error);
+    throw error.response?.data || error;
+  }
+};
+
+/**
+ * Reset password using token.
+ * @param {Object} payload - e.g. { token, newPassword }
+ */
+export const resetPassword = async (payload) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/auth/reset-password`, payload);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to reset password:', error);
+    throw error.response?.data || error;
+  }
+};
+

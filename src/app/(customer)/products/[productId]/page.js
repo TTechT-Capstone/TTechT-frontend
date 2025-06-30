@@ -24,8 +24,8 @@ export default function ProductDetail() {
 
         setMainImage(productData.imageUrls?.[0] || "");
         setProduct({
-              ...productData,
-            imageUrls: productData.imageUrls || [],
+          ...productData,
+          imageUrls: productData.imageUrls || [],
         });
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -88,6 +88,25 @@ export default function ProductDetail() {
             {product.price.toLocaleString()} VND
           </p>
 
+          {/* Conditional Fields */}
+          <div className="text-sm text-gray-700 flex flex-col gap-4">
+            {product.brand && (
+              <p>
+                <span className="font-medium">Brand:</span> {product.brand}
+              </p>
+            )}
+            {product.color && (
+              <p>
+                <span className="font-medium">Color:</span> {product.color}
+              </p>
+            )}
+            {product.size && (
+              <p>
+                <span className="font-medium">Size:</span> {product.size}
+              </p>
+            )}
+          </div>
+
           {/* Quantity Selector */}
           <div className="flex items-center gap-4">
             <span className="text-sm font-medium text-gray-700">Quantity:</span>
@@ -113,7 +132,7 @@ export default function ProductDetail() {
           {/* Add to Cart */}
           <button
             onClick={handleAddToCart}
-            className="bg-primary text-white py-3 px-6 rounded shadow hover:bg-[#6C7A84] transition duration-300"
+            className="bg-primary text-white py-3 px-6 shadow hover:bg-[#6C7A84] transition duration-300"
           >
             Add to Cart
           </button>
@@ -155,9 +174,11 @@ export default function ProductDetail() {
         </div>
 
         <div className="flex justify-center mt-6">
-          <button className="bg-primary text-white font-urbanist px-6 py-2 rounded-lg hover:bg-white hover:text-primary border border-primary transition">
-            VIEW MORE
-          </button>
+          <Link href="/products">
+            <button className="bg-primary text-white font-urbanist px-6 py-2 hover:bg-[#5d6c78] border border-primary transition">
+              VIEW MORE
+            </button>
+          </Link>
         </div>
       </section>
 

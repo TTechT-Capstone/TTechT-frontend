@@ -1,29 +1,26 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { X, ChevronDown, ChevronRight, Funnel } from "lucide-react";
 import Image from "next/image";
-import ProductContent from "@/app/components/product/ProductContent";
+import ProductCategoryContent from "@/app/components/product/ProductCategoryContent";
 import FilterSidebar from "@/app/components/filter/FilterSidebar";
-import ProductCard from "@/app/components/product/ProductCard";
 import BestSellerCard from "@/app/components/product/BestSellerCard";
-import {
-  getAllProductsAPI,
-  getBestSellingProductsAPI,
-} from "@/app/apis/product.api";
+import { getBestSellersByCategoryAPI } from "@/app/apis/product.api";
 
 export default function ProductPage() {
   const router = useRouter();
+  const [category, setCategory] = useState(null);
+  const [bestSellers, setBestSellers] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [isSidebarVisible, setSidebarVisible] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const toggleSidebar = () => setSidebarVisible(!isSidebarVisible);
   const toggleDropdown = () => setDropdownOpen(!isDropdownOpen);
   const closeSidebar = () => setSidebarVisible(false);
   const [isMdScreen, setIsMdScreen] = useState(false);
-  const [bestSellers, setBestSellers] = useState([]);
-  const [loading, setLoading] = useState(false);
 
   const handleClearFilters = () => {
     console.log("Filters cleared!");
@@ -41,6 +38,16 @@ export default function ProductPage() {
     };
   }, []);
 
+  const filters = [
+    { name: "CATEGORY", options: ["Dresses", "T-Shirts", "Accessories"] },
+    {
+      name: "PRICE RANGE",
+      options: ["Under 100,000 VND", "100,000-300,000 VND"],
+    },
+    { name: "COLOR", options: ["Red", "Blue", "Green"] },
+    { name: "BRANDS", options: ["Brand A", "Brand B", "Brand C"] },
+  ];
+
   const handleBestSellerProductClick = (id) => {
     router.push(`/products/${id}`);
   };
@@ -49,7 +56,7 @@ export default function ProductPage() {
     try {
       setLoading(true);
 
-      const data = await getBestSellingProductsAPI(4);
+      const data = await getBestSellersByCategoryAPI(4);
       setBestSellers(data);
     } catch (error) {
       console.error("Failed to fetch bestsellers:", error);
@@ -62,22 +69,14 @@ export default function ProductPage() {
     fetchBestSellers();
   }, []);
 
-  const filters = [
-    { name: "CATEGORY", options: ["Dresses", "T-Shirts", "Accessories"] },
-    {
-      name: "PRICE RANGE",
-      options: ["Under 100,000 VND", "100,000-300,000 VND"],
-    },
-    { name: "COLOR", options: ["Red", "Blue", "Green"] },
-    { name: "BRANDS", options: ["Brand A", "Brand B", "Brand C"] },
-  ];
-
   return (
     <main className="bg-white">
       {/* Header Section */}
-      {/* <section className="flex py-4 items-center justify-center bg-secondary font-urbanist text-white">
-        <h1 className="font-semibold text-2xl">NEW COLLECTION</h1>
-      </section> */}
+      <section className="flex py-4 items-center justify-center bg-secondary font-urbanist text-white">
+        <h1 className="font-semibold text-2xl">
+          {category?.name || "Products"}
+        </h1>
+      </section>
 
       {/* Best Seller Section */}
       <section className="px-8 py-12">
@@ -145,6 +144,7 @@ export default function ProductPage() {
 
         <div className="hidden md:block w-[20%]">
           <FilterSidebar filters={filters} onClear={handleClearFilters} />
+          <p>Bo category</p>
         </div>
 
         {/* Sidebar Dropdown for Smaller Screens */}
@@ -169,7 +169,7 @@ export default function ProductPage() {
         )}
 
         <Suspense fallback={<p>Loading products...</p>}>
-          <ProductContent />
+          <ProductCategoryContent setCategory={setCategory} />
         </Suspense>
       </section>
 
