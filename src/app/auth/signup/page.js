@@ -163,8 +163,8 @@ export default function SignUp() {
                 className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your first name"
               />
-              {errors.firstname && (
-                <p className="text-red-500 text-sm mt-1">{errors.firstname}</p>
+              {errors.firstName && (
+                <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
               )}
             </div>
             <div>
