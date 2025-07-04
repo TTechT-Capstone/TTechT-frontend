@@ -209,7 +209,7 @@ export default function ProductDetail() {
               You need to be logged in to add products to your cart.
             </p>
             <div className="flex justify-center">
-              <Link href="/login">
+              <Link href="/auth/login">
                 <button className="bg-primary text-white px-4 py-2 rounded hover:bg-[#6C7A84] transition">
                   Log In
                 </button>
