@@ -58,11 +58,14 @@ export default function Header() {
           </div>
         )}
 
-        <Link href="/cart">
+        
+
+        {isAuthenticated ? (
+          <>
+          <Link href="/cart">
           <ShoppingCart className="h-6 w-6 cursor-pointer hover:text-primary transition-colors" />
         </Link>
 
-        {isAuthenticated ? (
           <div className="relative group">
             <User className="h-6 w-6 cursor-pointer hover:text-primary transition-colors" />
 
@@ -82,6 +85,7 @@ export default function Header() {
               </button>
             </div>
           </div>
+          </>
         ) : (
           <div className="flex items-center space-x-4">
             <Link href="/auth/signup">

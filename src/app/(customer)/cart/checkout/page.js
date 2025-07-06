@@ -1,5 +1,8 @@
 "use client";
 import React, { useState } from "react";
+import { useStripe, useElements, Elements, EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js';
+import { loadStripe } from "@stripe/stripe-js";
+
 
 const mockSelectedCart = [
   {
@@ -22,6 +25,7 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [selectedCartItems, setSelectedCartItems] = useState(mockSelectedCart);
+  
 
   const [form, setForm] = useState({
     name: "",
