@@ -66,6 +66,7 @@ export const getPaymentAPI = async (cartId, sessionId) => {
 /**
  * Get cart.
  * @returns {Promise<Object>} - API response data containing cart details.
+ * https://ttecht-backend.onrender.com/api/v1/carts/2
  */
 export const getCartAPI = async (cartId) => {
   try {
@@ -80,8 +81,9 @@ export const getCartAPI = async (cartId) => {
 /**
  * Creates a new cart.
  * @returns {Promise<Object>} - API response data containing cart details.
+ * https://ttecht-backend.onrender.com/api/v1/carts/2
  */
-export const createCart = async () => {
+export const createNewCart = async () => {
   try {
     const response = await axios.post(`${API_BASE_URL}/carts`, {}, { headers: getAuthHeaders() });
 

@@ -7,18 +7,14 @@ import Link from "next/link";
 import NewCollectionCard from "../components/product/NewCollectionCard";
 
 import { getAllCategoriesAPI } from "@/app/apis/category.api";
+import { getBestNewArrivalsAPI } from "@/app/apis/product.api";
 import CategoryCard from "../components/product/CategoryCard";
 
-const collections = [
-  { name: "White t-shirt", price: "150,000 VND", img: "/product.jpg" },
-  { name: "Summer hat", price: "80,000 VND", img: "/product.jpg" },
-  { name: "Summer glasses", price: "150,000 VND", img: "/product.jpg" },
-  { name: "White t-shir ple", price: "150,000 VND", img: "/product.jpg" },
-];
 
 export default function LandingPage() {
   const router = useRouter();
   const [randomCategories, setRandomCategories] = useState([]);
+  const [newArrivalProduct, setNewArrivalProduct] = useState([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -39,6 +35,23 @@ export default function LandingPage() {
 
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    const fetchNewArrival = async () => {
+      try {
+        const data = await getBestNewArrivalsAPI(4); 
+        setNewArrivalProduct(data);
+      } catch (err) {
+        console.error("Failed to fetch new arrival products", err);
+      }
+    };
+
+    fetchNewArrival();
+  }, []);
+
+  const handleNewArrivalProductClick = (id) => {
+    router.push(`/products/${id}`);
+  };
 
   const handleCategoryClick = (categoryId) => {
     router.push(`/products/category/${categoryId}`);
@@ -123,14 +136,15 @@ export default function LandingPage() {
 
       {/* New Collection Section */}
       <section className="px-8 py-12 text-center text-secondary">
-        <h2 className="text-2xl font-semibold mb-8">NEW COLLECTION</h2>
+        <h2 className="text-2xl font-semibold mb-8 font-urbanist">NEW ARRIVAL</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {collections.map((collection) => (
+          {newArrivalProduct.map((collection) => (
             <NewCollectionCard
               key={collection.name}
               name={collection.name}
               price={collection.price}
               img={collection.img}
+              onClick={() => handleNewArrivalProductClick(collection.productId)}
             />
           ))}
         </div>
