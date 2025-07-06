@@ -19,7 +19,7 @@ export default function AdminSidebar() {
   };
 
   return (
-    <aside className="bg-[#F4F4F4] h-screen w-64 p-4 flex flex-col font-urbanist">
+    <aside className="bg-[#F4F4F4] min-h-screen w-64 p-4 flex flex-col font-urbanist">
       <h2 className="text-md text-secondary font-semibold mb-3">
         ADMIN DASHBOARD
       </h2>
