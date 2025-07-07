@@ -1,10 +1,11 @@
 "use client";
 import { useRouter, usePathname } from "next/navigation";
-import { Box, ShoppingCart } from "lucide-react";
+import { Box, ShoppingCart, Ticket } from "lucide-react";
 
 const sidebarItems = [
   { icon: <ShoppingCart />, label: "Product Management", path: "/seller/products" },
   { icon: <Box />, label: "Order Management", path: "/seller/orders" },
+  { icon: <Ticket />, label: "Promotion Codes", path: "/seller/promotion-codes" },
 ];
 
 export default function SellerSidebar() {
@@ -21,7 +22,8 @@ export default function SellerSidebar() {
 
       <nav className="flex flex-col gap-3">
         {sidebarItems.map((item) => {
-          const isActive = pathname === item.path;
+          const isActive = pathname.startsWith(item.path);
+          //const isActive = pathname === item.path;
 
           return (
             <div

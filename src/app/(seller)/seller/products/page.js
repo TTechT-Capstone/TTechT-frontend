@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown, Search, Pencil, Trash2, SquarePen } from "lucide-react";
+import Link from "next/link";
 
 const products = [
   { name: "Name", quantity: 1, price: "100.000₫", size: 20, color: "Red" },
@@ -15,10 +16,13 @@ export default function SellerProducts() {
       {/* Header */}
       <div className="flex flex-row justify-between mb-4">
         <h1 className="font-urbanist font-bold text-2xl">Product Management</h1>
-        <div className="flex flex-row items-center space-x-2 font-urbanist font-bold">
-          <span>SEARCH</span>
-          <Search className="h-5 w-5" />
-        </div>
+
+        <Link href="/seller/products/create">
+          <button className="bg-secondary text-white px-4 py-2 rounded-md font-urbanist font-bold">
+            Create new product
+          </button>
+        </Link>
+        
       </div>
 
       {/* Sort and Create */}
@@ -27,9 +31,11 @@ export default function SellerProducts() {
           <span>SORT BY</span>
           <ChevronDown className="h-5 w-5" />
         </div>
-        <button className="bg-secondary text-white px-4 py-2 rounded-md font-urbanist font-bold">
-          Create new product
-        </button>
+        
+        <div className="flex flex-row items-center space-x-2 font-urbanist font-bold">
+          <span>SEARCH</span>
+          <Search className="h-5 w-5" />
+        </div>
       </div>
 
       {/* Table Header */}

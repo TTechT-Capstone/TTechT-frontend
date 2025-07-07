@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown, Search, Pencil, Trash2, SquarePen } from "lucide-react";
+import Link from "next/link";
 
 const products = [
   { name: "Name", quantity: 1, price: "100.000₫", size: 20, color: "Red" },
@@ -27,9 +28,11 @@ export default function AdminProducts() {
           <span>SORT BY</span>
           <ChevronDown className="h-5 w-5" />
         </div>
-        <button className="bg-secondary text-white px-4 py-2 rounded-md font-urbanist font-bold">
-          Create new product
-        </button>
+        <Link href="/admin/products/create">
+          <button className="bg-secondary text-white px-4 py-2 rounded-md font-urbanist font-bold">
+            Create new product
+          </button>
+        </Link>
       </div>
 
       {/* Table Header */}
