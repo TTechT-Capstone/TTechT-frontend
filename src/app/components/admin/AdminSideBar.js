@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Aperture, Box, ShoppingCart, User } from "lucide-react";
+import { Aperture, Box, ShoppingCart, User, Ticket } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 
 const sidebarItems = [
@@ -8,6 +8,7 @@ const sidebarItems = [
   { icon: <Box />, label: "Order Management", path: "/admin/orders" },
   { icon: <User />, label: "User Management", path: "/admin/users" },
   { icon: <Aperture />, label: "Watermark Analysis", path: "/admin/watermark" },
+  { icon: <Ticket />, label: "Promotion Codes", path: "/admin/promotion-codes" },
 ];
 
 export default function AdminSidebar() {
@@ -19,14 +20,15 @@ export default function AdminSidebar() {
   };
 
   return (
-    <aside className="bg-[#F4F4F4] h-screen w-64 p-4 flex flex-col font-urbanist">
+    <aside className="bg-[#F4F4F4] min-h-screen w-64 p-4 flex flex-col font-urbanist">
       <h2 className="text-md text-secondary font-semibold mb-3">
         ADMIN DASHBOARD
       </h2>
 
       <nav className="flex flex-col gap-3">
         {sidebarItems.map((item) => {
-          const isActive = pathname === item.path;
+          //const isActive = pathname === item.path;
+          const isActive = pathname.startsWith(item.path);
 
           return (
             <div
