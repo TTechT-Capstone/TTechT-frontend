@@ -1,8 +1,8 @@
 import Image from "next/image";
 
-export default function NewCollectionCard({ name, price, img }) {
+export default function NewCollectionCard({ name, price, img, onClick }) {
   return (
-    <div className="text-center ">
+    <div className="text-center cursor-pointer" onClick={onClick}>
       <div className="w-full md:h-[250px] h-[400px] overflow-hidden">
         <Image
           src={img}
