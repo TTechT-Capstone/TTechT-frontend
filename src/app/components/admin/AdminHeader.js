@@ -10,7 +10,10 @@ export default function AdminHeader() {
   return (
     <header className="flex justify-between items-center px-6 py-4 bg-[#F4F4F4] text-secondary font-urbanist border-b border-gray-300">
       {/* Left Logo */}
+      <Link href="/admin">
       <h1 className="text-4xl font-bold">Origity</h1>
+      </Link>
+      
 
       {/* Right Icons */}
       {isAuthorized ? (

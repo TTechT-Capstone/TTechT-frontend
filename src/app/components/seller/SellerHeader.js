@@ -25,6 +25,12 @@ export default function SellerHeader() {
               </button>
             </Link>
 
+            <Link href="/seller/watermark">
+              <button className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100">
+                Watermark Image
+              </button>
+            </Link>
+
             <button className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100">
               Logout
             </button>
