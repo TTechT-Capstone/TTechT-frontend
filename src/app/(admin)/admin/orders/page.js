@@ -31,7 +31,7 @@ export default function AdminOrders() {
       </div>
 
       {/* Table Header */}
-      <div className="grid grid-cols-6 font-urbanist font-bold bg-gray-100 px-4 py-3 rounded-t-lg">
+      <div className="grid grid-cols-5 justify-items-center font-urbanist font-bold bg-gray-100 px-4 py-3 rounded-t-lg">
         <div>Order ID</div>
         <div>Quantity</div>
         <div>Order Date</div>
@@ -43,7 +43,7 @@ export default function AdminOrders() {
       {orders.map((order, index) => (
         <div
           key={index}
-          className={`grid grid-cols-6 items-center px-4 py-3 ${
+          className={`grid grid-cols-5 justify-items-center items-center px-4 py-3 ${
             index % 2 === 0 ? "bg-white" : "bg-gray-50"
           }`}
         >

@@ -16,10 +16,12 @@ export default function AdminProducts() {
       {/* Header */}
       <div className="flex flex-row justify-between mb-4">
         <h1 className="font-urbanist font-bold text-2xl">Product Management</h1>
-        <div className="flex flex-row items-center space-x-2 font-urbanist font-bold">
-          <span>SEARCH</span>
-          <Search className="h-5 w-5" />
-        </div>
+
+        <Link href="/admin/products/create">
+          <button className="bg-secondary text-white px-4 py-2 rounded-md font-urbanist font-bold">
+            Create new product
+          </button>
+        </Link>
       </div>
 
       {/* Sort and Create */}
@@ -28,15 +30,15 @@ export default function AdminProducts() {
           <span>SORT BY</span>
           <ChevronDown className="h-5 w-5" />
         </div>
-        <Link href="/admin/products/create">
-          <button className="bg-secondary text-white px-4 py-2 rounded-md font-urbanist font-bold">
-            Create new product
-          </button>
-        </Link>
+
+        <div className="flex flex-row items-center space-x-2 font-urbanist font-bold">
+          <span>SEARCH</span>
+          <Search className="h-5 w-5" />
+        </div>
       </div>
 
       {/* Table Header */}
-      <div className="grid grid-cols-6 font-urbanist font-bold bg-gray-100 px-4 py-3 rounded-t-lg">
+      <div className="grid grid-cols-6 justify-items-center font-urbanist font-bold bg-gray-100 px-4 py-3 rounded-t-lg">
         <div>Product</div>
         <div>Quantity</div>
         <div>Retail Price</div>
@@ -49,7 +51,7 @@ export default function AdminProducts() {
       {products.map((product, index) => (
         <div
           key={index}
-          className={`grid grid-cols-6 items-center px-4 py-3 ${
+          className={`grid grid-cols-6 justify-items-center items-center px-4 py-3 ${
             index % 2 === 0 ? "bg-white" : "bg-gray-50"
           }`}
         >

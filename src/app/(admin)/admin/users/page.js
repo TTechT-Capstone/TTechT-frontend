@@ -15,10 +15,10 @@ export default function AdminUsers() {
       {/* Header */}
       <div className="flex flex-row justify-between mb-4">
         <h1 className="font-urbanist font-bold text-2xl">User Management</h1>
-        <div className="flex flex-row items-center space-x-2 font-urbanist font-bold">
-          <span>SEARCH</span>
-          <Search className="h-5 w-5" />
-        </div>
+
+        <button className="bg-secondary text-white px-4 py-2 rounded-md font-urbanist font-bold">
+          Create new user
+        </button>
       </div>
 
       {/* Sort and Create */}
@@ -27,13 +27,15 @@ export default function AdminUsers() {
           <span>SORT BY</span>
           <ChevronDown className="h-5 w-5" />
         </div>
-        <button className="bg-secondary text-white px-4 py-2 rounded-md font-urbanist font-bold">
-          Create new user
-        </button>
+
+        <div className="flex flex-row items-center space-x-2 font-urbanist font-bold">
+          <span>SEARCH</span>
+          <Search className="h-5 w-5" />
+        </div>
       </div>
 
       {/* Table Header */}
-      <div className="grid grid-cols-6 font-urbanist font-bold bg-gray-100 px-4 py-3 rounded-t-lg">
+      <div className="grid grid-cols-4 justify-items-center font-urbanist font-bold bg-gray-100 px-4 py-3 rounded-t-lg">
         <div>User ID</div>
         <div>User name</div>
         <div>Role</div>
@@ -44,13 +46,13 @@ export default function AdminUsers() {
       {users.map((user, index) => (
         <div
           key={index}
-          className={`grid grid-cols-6 items-center px-4 py-3 ${
+          className={`grid grid-cols-4 justify-items-center items-center px-4 py-3 ${
             index % 2 === 0 ? "bg-white" : "bg-gray-50"
           }`}
         >
-            <div className="font-medium">{user.id}</div>
-            <div>{user.name}</div>
-            <div>{user.role}</div>
+          <div className="font-medium">{user.id}</div>
+          <div>{user.name}</div>
+          <div>{user.role}</div>
 
           <div className="flex space-x-3">
             <SquarePen className="text-gray-600 hover:text-primary cursor-pointer" />

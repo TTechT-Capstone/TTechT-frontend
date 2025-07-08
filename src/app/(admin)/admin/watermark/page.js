@@ -44,7 +44,7 @@ export default function AdminWatermarkAnalysis() {
       </div>
 
       {/* Table Header */}
-      <div className="grid grid-cols-5 font-urbanist font-bold bg-gray-100 px-4 py-3 rounded-t-lg">
+      <div className="grid grid-cols-5 justify-items-center font-urbanist font-bold bg-gray-100 px-4 py-3 rounded-t-lg">
         <div>Date</div>
         <div>Image ID</div>
         <div>Shop ID</div>
@@ -56,7 +56,7 @@ export default function AdminWatermarkAnalysis() {
       {watermarks.map((watermark, index) => (
         <div
           key={index}
-          className={`grid grid-cols-5 items-center px-4 py-3 ${
+          className={`grid grid-cols-5 justify-items-center items-center px-4 py-3 ${
             index % 2 === 0 ? "bg-white" : "bg-gray-50"
           }`}
         >

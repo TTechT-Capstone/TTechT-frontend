@@ -1,6 +1,6 @@
 "use client";
 
-import { SquarePen, Trash2 } from "lucide-react";
+import { ChevronDown, Search, SquarePen, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 const promotions = [
@@ -32,8 +32,21 @@ export default function AdminPromotionCodes() {
         </Link>
       </div>
 
+      {/* Sort and Create */}
+      <div className="flex flex-row justify-between mb-4">
+        <div className="flex flex-row items-center space-x-2 font-urbanist font-bold">
+          <span>SORT BY</span>
+          <ChevronDown className="h-5 w-5" />
+        </div>
+        <div className="flex flex-row items-center space-x-2 font-urbanist font-bold">
+          <span>SEARCH</span>
+          <Search className="h-5 w-5" />
+        </div>
+      </div>
+
+
       {/* Table Header */}
-      <div className="grid grid-cols-6 font-urbanist font-bold bg-gray-100 px-4 py-3 rounded-t-lg">
+      <div className="grid grid-cols-5 justify-items-center font-urbanist font-bold bg-gray-100 px-4 py-3 rounded-t-lg">
         <div>Code</div>
         <div>Discount</div>
         <div>Expires</div>
@@ -45,7 +58,7 @@ export default function AdminPromotionCodes() {
       {promotions.map((promo, index) => (
         <div
           key={index}
-          className={`grid grid-cols-6 items-center px-4 py-3 ${
+          className={`grid grid-cols-5 justify-items-center items-center px-4 py-3 ${
             index % 2 === 0 ? "bg-white" : "bg-gray-50"
           }`}
         >
