@@ -1,13 +1,17 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import useAuth from "@/app/hooks/useAuth";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import ProductCard from "../../../components/product/ProductCard";
 import { getProductByIdAPI } from "@/app/apis/product.api";
+import useCartStore from "@/app/stores/cartStore";
 
 export default function ProductDetail() {
-  const params = useParams();
-  const productId = params?.productId?.toString();
+  const { isAuthenticated } = useAuth();
+  const { addToCart } = useCartStore();
+  const { productId } = useParams(); 
+  
   const [product, setProduct] = useState(null);
   const [mainImage, setMainImage] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -38,9 +42,28 @@ export default function ProductDetail() {
     fetchProduct();
   }, [productId]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+  if (!isAuthenticated) {
     setIsModalOpen(true);
+    return;
+  }
+
+  const newItem = {
+    productId: Number(productId),
+    productName: product.name,
+    quantity,
   };
+
+  try {
+    await addToCart(newItem); // <-- passed in here
+  } catch (error) {
+    console.error("🚨 Error calling addToCart:", error);
+  }
+};
+
+
+
+
 
   if (!product) return <div>Loading product...</div>;
 

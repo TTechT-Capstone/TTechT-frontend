@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import useUserStore from "../stores/userStore";
 
 const useAuth = () => {
-  const { user, fetchUser, loading, logout } = useUserStore();
+  const { user, idToken, fetchUser, loading, logout } = useUserStore();
 
   useEffect(() => {
     if (!user) fetchUser(); // fetch if not already loaded
@@ -17,6 +17,7 @@ const useAuth = () => {
     isAuthenticated: !!user,
     loading,
     logout,
+    idToken,
   };
 };
 
