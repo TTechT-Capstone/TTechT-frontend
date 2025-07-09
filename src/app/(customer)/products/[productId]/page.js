@@ -62,9 +62,6 @@ export default function ProductDetail() {
 };
 
 
-
-
-
   if (!product) return <div>Loading product...</div>;
 
   return (

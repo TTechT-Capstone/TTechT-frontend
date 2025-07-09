@@ -58,7 +58,7 @@ const useCartStore = create(
             if (!userId) throw new Error("User ID not found");
 
             const newCart = await createNewCart(userId);
-            cartId = newCart.cartId;
+            cartId = newCart.id;
             set({ cartId });
             localStorage.setItem("cartId", String(cartId));
           }
