@@ -16,12 +16,13 @@ const getAuthHeaders = () => {
   };
 };
 
-// Create Order: https://ttecht-backend.onrender.com/api/v1/orders/2/1
+//Payment Checkout: https://ttecht-backend.onrender.com/api/payments/checkout
 
 
-// Get Order By UserId: https://ttecht-backend.onrender.com/api/v1/orders/user/2
+//Get Payment By Id: https://ttecht-backend.onrender.com/api/payments/4
 
 
-// Get Order By Id: https://ttecht-backend.onrender.com/api/v1/orders/1
+//Get my payments: https://ttecht-backend.onrender.com/api/payments/my-payments
 
 
+//Payment Intent: https://ttecht-backend.onrender.com/api/payments/intent
