@@ -181,16 +181,23 @@ export const validateToken = async (token) => {
 
 /**
  * Change password for logged-in user.
- * @param {Object} payload - e.g. { oldPassword, newPassword }
+ * @param {string|number} userId
+ * @param {Object} payload - {
+ *   oldPassword: string,
+ *   newPassword: string,
+ *   confirmNewPassword: string
+ * }
  */
-export const updatePassword = async (payload) => {
+export const updatePassword = async (userId, payload) => {
   try {
-    const response = await axios.put(`${API_BASE_URL}/users/update-password`, payload, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.put(
+      `${API_BASE_URL}/users/update-password/${userId}`,
+      payload,
+      { headers: getAuthHeaders() }
+    );
     return response.data;
   } catch (error) {
-    console.error('Failed to update password:', error);
+    console.error('❌ Failed to update password:', error);
     throw error.response?.data || error;
   }
 };
@@ -198,14 +205,22 @@ export const updatePassword = async (payload) => {
 /**
  * Reset password using token.
  * @param {Object} payload - e.g. { token, newPassword }
+ * {
+    "token" : "XAXJp089Ki25LOzk4rYvxC78P2GaII-EKDRlKZ3hhOs",
+    "newPassword" : "securePass123",
+    "confirmNewPassword" : "securePass123"
+}
  */
 export const resetPassword = async (payload) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/auth/reset-password`, payload);
+    const response = await axios.post(
+      `${API_BASE_URL}/auth/reset-password`,
+      payload
+    );
     return response.data;
   } catch (error) {
-    console.error('Failed to reset password:', error);
-    throw error.response?.data || error;
+    console.error('❌ Failed to reset password:', error);
+    throw new Error(error.response?.data?.message || 'Unable to reset password. Please try again.');
   }
 };
 

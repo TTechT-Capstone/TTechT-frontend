@@ -16,12 +16,58 @@ const getAuthHeaders = () => {
   };
 };
 
-// Create Order: https://ttecht-backend.onrender.com/api/v1/orders/2/1
+/**
+ * Create a new order.
+ * @param {string|number} userId - The user placing the order
+ * @param {string|number} cartId - The cart to convert into an order
+ * @returns {Promise<Object>}
+ */
+export const createOrderAPI = async (userId, cartId) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/orders/${userId}/${cartId}`,
+      {},
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error creating order:', error.response?.data || error.message);
+    throw new Error('Unable to create order. Please try again.');
+  }
+};
 
+/**
+ * Get all orders for a user.
+ * @param {string|number} userId
+ * @returns {Promise<Object>}
+ */
+export const getOrdersByUserIdAPI = async (userId) => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/orders/user/${userId}`,
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error fetching orders by user ID:', error.response?.data || error.message);
+    throw new Error('Unable to retrieve orders. Please try again.');
+  }
+};
 
-// Get Order By UserId: https://ttecht-backend.onrender.com/api/v1/orders/user/2
-
-
-// Get Order By Id: https://ttecht-backend.onrender.com/api/v1/orders/1
-
-
+/**
+ * Get an order by its ID.
+ * @param {string|number} orderId
+ * @returns {Promise<Object>}
+ */
+export const getOrderByIdAPI = async (orderId) => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/orders/${orderId}`,
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error fetching order by ID:', error.response?.data || error.message);
+    throw new Error('Unable to retrieve order details. Please try again.');
+  }
+};

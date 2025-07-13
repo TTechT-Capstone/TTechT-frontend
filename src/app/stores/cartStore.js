@@ -249,7 +249,7 @@ function calculateCartTotals(cartItems) {
   );
 
   const totalPrice = cartItems.reduce((sum, item) => {
-    const price = parseFloat(item.productPrice || 0);
+    const price = parseFloat(item.price || 0);
     const qty = parseInt(item.quantity, 10);
     return sum + price * qty;
   }, 0);

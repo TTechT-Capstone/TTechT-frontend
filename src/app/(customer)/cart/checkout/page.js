@@ -1,72 +1,120 @@
 "use client";
-import React, { useState } from "react";
-import { useStripe, useElements, Elements, EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js';
-import { loadStripe } from "@stripe/stripe-js";
 
+import React, { useState, useEffect } from "react";
+import useAuth from "@/app/hooks/useAuth";
+import {
+  EmbeddedCheckoutProvider,
+  EmbeddedCheckout,
+} from "@stripe/react-stripe-js";
+//import { loadStripe } from "@stripe/stripe-js";
+import useCartStore from "@/app/stores/cartStore";
+import useCheckoutStore from "@/app/stores/checkoutStore";
+import { createPaymentIntentAPI } from "@/app/apis/payment.api";
 
-const mockSelectedCart = [
-  {
-    id: 1,
-    name: "Product A",
-    price: 100000,
-    quantity: 2,
-    image: "",
-  },
-  {
-    id: 2,
-    name: "Product B",
-    price: 150000,
-    quantity: 1,
-    image: "",
-  },
-];
+// ✅ Setup Stripe promise (add your key in .env)
+//const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "");
 
 export default function CheckoutPage() {
+  const { user } = useAuth();
+  const { cart, loadCart, totalPrice } = useCartStore();
+  const selectedCartItems = cart || [];
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("");
-  const [selectedCartItems, setSelectedCartItems] = useState(mockSelectedCart);
-  
+  const [clientSecret, setClientSecret] = useState(null);
+  const [loadingClientSecret, setLoadingClientSecret] = useState(false);
+  const [paymentError, setPaymentError] = useState("");
+  const [showEmbeddedCheckout, setShowEmbeddedCheckout] = useState(false);
 
-  const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    address: "",
-    region: "",
-    city: "",
-    area: "",
-    email: "",
-  });
+  // const [form, setForm] = useState({
+  //   contactName: "",
+  //   contactPhone: "",
+  //   deliveryAddress: "",
+  //   contactEmail: "",
+  // });
+
+  const {
+  contactName,
+  contactPhone,
+  contactEmail,
+  deliveryAddress,
+  promotionCode,
+  setFormData,
+  clearFormData,
+} = useCheckoutStore();
+
 
   const [errors, setErrors] = useState({});
+  const cartTotal = totalPrice;
 
-  const cartTotal = selectedCartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
+  useEffect(() => {
+    loadCart();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+  contactName: user.firstName || "",
+  contactPhone: user.phoneNumber || "",
+  contactEmail: user.email || "",
+  deliveryAddress: user.address || "",
+});
+
+    }
+  }, [user]);
 
   const isFormIncomplete =
-    !form.name ||
-    !form.phone ||
-    !form.address ||
-    !form.region ||
-    !form.city ||
-    !form.area ||
-    !form.email ||
-    !paymentMethod;
+    !contactName ||
+    !contactPhone ||
+    !deliveryAddress ||
+    !contactEmail;
+    //!paymentMethod;
 
   const validateForm = () => {
     const newErrors = {};
-    if (!form.name.trim()) newErrors.name = "Name is required";
-    if (!form.phone.trim()) newErrors.phone = "Phone number is required";
-    if (!form.address.trim()) newErrors.address = "Address is required";
-    if (!form.region.trim()) newErrors.region = "Region is required";
-    if (!form.city.trim()) newErrors.city = "City is required";
-    if (!form.area.trim()) newErrors.area = "Area is required";
-    if (!form.email.trim()) newErrors.email = "Email is required";
+    if (!contactName.trim()) newErrors.contactName = "Name is required";
+    if (!contactPhone.trim())
+      newErrors.contactPhone = "Phone number is required";
+    if (!deliveryAddress.trim())
+      newErrors.deliveryAddress = "Address is required";
+    if (!contactEmail.trim()) newErrors.contactEmail = "Email is required";
     if (!paymentMethod) newErrors.paymentMethod = "Select a payment method";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handlePayClick = async () => {
+    if (!validateForm()) return;
+
+    try {
+      setLoadingClientSecret(true);
+      setPaymentError("");
+
+      const payload = {
+        amount: cartTotal,
+        name: contactName,
+        phone: contactPhone,
+        email: contactEmail,
+        address: deliveryAddress,
+      };
+
+      const response = await createPaymentIntentAPI(payload);
+      const secret = response?.result?.clientSecret;
+      console.log("🚀 Payment intent response:", response);
+
+      if (!secret) {
+        throw new Error("No client secret returned");
+      }
+
+      setClientSecret(secret);
+      setShowEmbeddedCheckout(true);
+    } catch (error) {
+      setPaymentError("Unable to load payment form. Try again.");
+      console.error("❌ Stripe payment error:", error);
+    } finally {
+      setLoadingClientSecret(false);
+    }
   };
 
   const handleCheckout = async () => {
@@ -74,7 +122,7 @@ export default function CheckoutPage() {
 
     setIsProcessing(true);
 
-    // Simulate API call
+    // Simulated backend process
     setTimeout(() => {
       setIsProcessing(false);
       alert("Order placed successfully!");
@@ -96,108 +144,81 @@ export default function CheckoutPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Name
+              </label>
               <input
                 type="text"
-                placeholder="Name*"
                 className="input-field"
-                value={form.name}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, name: e.target.value }))
-                }
+                placeholder="Your first name"
+                value={contactName}
+                // onChange={(e) =>
+                //   setForm((prev) => ({ ...prev, contactName: e.target.value }))
+                // }
+                onChange={(e) => setFormData({ contactName: e.target.value })}
               />
-              {errors.name && (
-                <p className="text-sm text-red-500">{errors.name}</p>
+              {errors.contactName && (
+                <p className="text-sm text-red-500">{errors.contactName}</p>
               )}
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Phone Number
+              </label>
               <input
                 type="text"
-                placeholder="Phone Number*"
                 className="input-field"
-                value={form.phone}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, phone: e.target.value }))
-                }
+                placeholder="Phone number"
+                value={contactPhone}
+                // onChange={(e) =>
+                //   setForm((prev) => ({ ...prev, contactPhone: e.target.value }))
+                // }
+                onChange={(e) => setFormData({ contactPhone: e.target.value })}
               />
-              {errors.phone && (
-                <p className="text-sm text-red-500">{errors.phone}</p>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <input
-              type="text"
-              placeholder="Address*"
-              className="input-field"
-              value={form.address}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, address: e.target.value }))
-              }
-            />
-            {errors.address && (
-              <p className="text-sm text-red-500">{errors.address}</p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <input
-                type="text"
-                placeholder="Region*"
-                className="input-field"
-                value={form.region}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, region: e.target.value }))
-                }
-              />
-              {errors.region && (
-                <p className="text-sm text-red-500">{errors.region}</p>
-              )}
-            </div>
-            <div>
-              <input
-                type="text"
-                placeholder="City*"
-                className="input-field"
-                value={form.city}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, city: e.target.value }))
-                }
-              />
-              {errors.city && (
-                <p className="text-sm text-red-500">{errors.city}</p>
+              {errors.contactPhone && (
+                <p className="text-sm text-red-500">{errors.contactPhone}</p>
               )}
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Address
+              </label>
               <input
                 type="text"
-                placeholder="Area*"
                 className="input-field"
-                value={form.area}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, area: e.target.value }))
-                }
+                placeholder="Address"
+                value={deliveryAddress}
+                // onChange={(e) =>
+                //   setForm((prev) => ({
+                //     ...prev,
+                //     deliveryAddress: e.target.value,
+                //   }))
+                // }
+                onChange={(e) => setFormData({ deliveryAddress: e.target.value })}
               />
-              {errors.area && (
-                <p className="text-sm text-red-500">{errors.area}</p>
+              {errors.deliveryAddress && (
+                <p className="text-sm text-red-500">{errors.deliveryAddress}</p>
               )}
             </div>
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
               <input
                 type="email"
-                placeholder="Email*"
                 className="input-field"
-                value={form.email}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, email: e.target.value }))
-                }
+                placeholder="Email"
+                value={contactEmail}
+                // onChange={(e) =>
+                //   setForm((prev) => ({ ...prev, contactEmail: e.target.value }))
+                // }
+                onChange={(e) => setFormData({ contactEmail: e.target.value })}
               />
-              {errors.email && (
-                <p className="text-sm text-red-500">{errors.email}</p>
+              {errors.contactEmail && (
+                <p className="text-sm text-red-500">{errors.contactEmail}</p>
               )}
             </div>
           </div>
@@ -219,14 +240,11 @@ export default function CheckoutPage() {
             >
               <div className="col-span-2 flex items-center gap-4">
                 <img
-                  src={
-                    item.image ||
-                    "https://via.placeholder.com/60x60?text=No+Img"
-                  }
-                  alt={item.name}
+                  src={item.image}
+                  alt={item.productName}
                   className="w-14 h-14 object-cover rounded"
                 />
-                <span className="font-medium">{item.name}</span>
+                <span className="font-medium">{item.productName}</span>
               </div>
               <div className="text-center">
                 ₫{item.price.toLocaleString("vi-VN")}
@@ -261,48 +279,57 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        {/* Payment Method */}
-        {/* <div className="mb-6 p-4 rounded-lg shadow-sm bg-white flex-1">
-          <h3 className="text-lg font-semibold mb-2 font-urbanist">
-            Payment Method
-          </h3>
-          {loadingClientSecret ? (
-            <p>Loading payment information...</p>
-          ) : (
-            <>
-              {showEmbeddedCheckout ? (
-                <EmbeddedCheckoutProvider
-                  stripe={stripePromise}
-                  options={{ clientSecret }}
-                >
-                  <EmbeddedCheckout />
-                </EmbeddedCheckoutProvider>
-              ) : (
-                <button
-                  className="bg-[#E89F71] text-white px-6 py-2 rounded-md hover:bg-orange-500 transition duration-200"
-                  onClick={handlePayClick}
-                >
-                  Pay
-                </button>
-              )}
-              {paymentError && (
-                <p className="text-red-500 text-sm mt-2">{paymentError}</p>
-              )}
-            </>
-          )}
-        </div> */}
+{/* Payment Method */}
+<div className="bg-white shadow-md rounded-lg p-6 space-y-4 flex-1">
+  <h2 className="text-xl font-bold font-urbanist text-gray-800">Payment Method</h2>
 
-        <button
-          className={`mt-4 w-full py-2 font-medium transition duration-200 ${
-            isFormIncomplete || isProcessing
-              ? "bg-gray-300 cursor-not-allowed text-gray-600"
-              : "bg-primary text-white hover:opacity-90"
-          }`}
-          onClick={handleCheckout}
-          disabled={isFormIncomplete || isProcessing}
-        >
-          {isProcessing ? "Processing..." : "Place Order"}
-        </button>
+  <div className="space-y-3">
+    {/* Stripe Checkout UI */}
+    {loadingClientSecret ? (
+      <p className="text-sm text-gray-500">Loading payment information...</p>
+    ) : showEmbeddedCheckout ? (
+      <EmbeddedCheckoutProvider options={{ clientSecret }}>
+        <EmbeddedCheckout />
+      </EmbeddedCheckoutProvider>
+    ) : (
+      <button
+        onClick={handlePayClick}
+        disabled={loadingClientSecret}
+        className={`w-full sm:w-auto bg-secondary text-white px-6 py-2 rounded-md font-semibold transition duration-200 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed`}
+      >
+        Pay
+      </button>
+    )}
+
+    {/* Error Message */}
+    {paymentError && (
+      <p className="text-sm text-red-500">{paymentError}</p>
+    )}
+  </div>
+</div>
+
+        {/* Stripe Embedded Checkout */}
+        {paymentMethod === "CARD" && (
+          <div className="mb-6 p-4 rounded-lg shadow-sm bg-white flex-1">
+            <h3 className="text-lg font-semibold mb-2 font-urbanist">
+              Card Payment
+            </h3>
+            
+          </div>
+        )}
+
+        {/* Place Order Button */}        
+          <button
+            className={`mt-4 w-full py-2 font-medium transition duration-200 ${
+              isFormIncomplete || isProcessing
+                ? "bg-gray-300 cursor-not-allowed text-gray-600"
+                : "bg-primary text-white hover:opacity-90"
+            }`}
+            onClick={handleCheckout}
+            disabled={isFormIncomplete || isProcessing}
+          >
+            {isProcessing ? "Processing..." : "Next: Payment"}
+          </button>
       </div>
     </div>
   );

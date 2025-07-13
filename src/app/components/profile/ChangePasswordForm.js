@@ -6,6 +6,7 @@ import React, { useState } from "react";
 export default function ChangePasswordForm({ profile, setProfile, error, handleChangePassword }) {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
   return (
     <div className="mt-5 w-full bg-white shadow-xl p-6 space-y-6 rounded-lg max-w-5xl mx-auto">
@@ -60,6 +61,31 @@ export default function ChangePasswordForm({ profile, setProfile, error, handleC
             aria-label={showNewPassword ? "Hide new password" : "Show new password"}
           >
             {showNewPassword ? <EyeClosed /> : <Eye />}
+          </button>
+        </div>
+
+        {/* Confirm New Password */}
+        <div className="relative">
+          <label htmlFor="confirmNewPassword" className="block text-sm font-medium text-gray-700 mb-2">
+            Confirm Password
+          </label>
+          <input
+            type={showConfirmNewPassword ? "text" : "password"}
+            id="confirmNewPassword"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 transition pr-10"
+            placeholder="Enter your new password"
+            value={profile.confirmNewPassword}
+            onChange={(e) => {
+              setProfile({ ...profile, confirmNewPassword: e.target.value });
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+            className="absolute right-3 top-10 text-gray-500 hover:text-primary focus:outline-none"
+            aria-label={showConfirmNewPassword ? "Hide confirm new password" : "Show confirm new password"}
+          >
+            {showConfirmNewPassword ? <EyeClosed /> : <Eye />}
           </button>
         </div>
 

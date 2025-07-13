@@ -6,13 +6,16 @@ import { Trash2 } from "lucide-react";
 import useCartStore from "@/app/stores/cartStore";
 
 export default function ShoppingCartPage() {
-  const { cart, loadCart, updateQuantity, removeItemFromCart, submitCart } =
+  const { cart, loadCart, totalPrice, updateQuantity, removeItemFromCart, submitCart } =
     useCartStore();
 
-  const cartTotal = cart.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
+  // const cartTotal = cart.reduce(
+  //   (total, item) => total + item.price * item.quantity,
+  //   0
+  // );
+
+    const cartTotal = totalPrice;
+
 
   const cartId = localStorage.getItem("cartId");
 
@@ -74,11 +77,11 @@ export default function ShoppingCartPage() {
                 {/* Product Info */}
                 <div className="col-span-2 flex items-center gap-4">
                   <img
-                    src={item.image || "/placeholder.png"}
-                    alt={item.name}
+                    src={item.image}
+                    alt={item.productName}
                     className="w-20 h-20 object-cover rounded"
                   />
-                  <span className="font-medium">{item.name}</span>
+                  <span className="font-medium">{item.productName}</span>
                 </div>
 
                 {/* Unit Price */}

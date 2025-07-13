@@ -17,8 +17,9 @@ export default function RightSide({ activeSection }) {
     address: "",
     phoneNumber: "",
     userName: "",
-    oldPassword: "", // Initialize oldPassword
-    newPassword: "", // Initialize newPassword
+    oldPassword: "",
+    newPassword: "", 
+    confirmNewPassword: "", 
   });
   const [error, setError] = useState(null);
   const [orders, setOrders] = useState([]);
@@ -57,16 +58,72 @@ export default function RightSide({ activeSection }) {
     const passwordErrorMessage =
       "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
 
-    // Validate new password
+      const { oldPassword, newPassword, confirmNewPassword } = profile;
+    
+      // Validate new password
     if (profile.newPassword && !isValidPassword(profile.newPassword)) {
       setError(passwordErrorMessage);
       return false;
     }
 
+    // Check if confirmNewPassword matches newPassword
+  if (newPassword !== confirmNewPassword) {
+    setError("New password and confirmation do not match.");
+    return false;
+  }
+
+  // Check if newPassword is the same as oldPassword
+  if (oldPassword === newPassword) {
+    setError("New password must be different from old password.");
+    return false;
+  }
+
     // Clear error if the new password is valid
     setError(null);
     return true;
   };
+  
+const handleChangePassword = async (e) => {
+  e.preventDefault();
+
+  // Validate new password input rules
+  if (!validatePassword()) return;
+
+  try {
+    await updatePassword(
+      user.id,
+      {
+        oldPassword: profile.oldPassword,
+        newPassword: profile.newPassword,
+        confirmNewPassword: profile.confirmNewPassword,
+      }
+    );
+
+    alert("✅ Password updated successfully!");
+
+    // Clear form after success
+    setProfile((prevProfile) => ({
+      ...prevProfile,
+      oldPassword: "",
+      newPassword: "",
+      confirmNewPassword: "",
+    }));
+  } catch (error) {
+    // Print full error to console
+    console.error("❌ Error changing password:", error);
+
+    // Extract a detailed error message
+    const detailedMessage =
+      error?.response?.data?.message ||   // e.g. { message: "Old password is incorrect" }
+      error?.response?.data?.error ||     // fallback key
+      JSON.stringify(error?.response?.data) || // whole response if structure is unknown
+      error.message ||                    // JS error fallback
+      "An unexpected error occurred.";
+
+    alert(`❌ Failed to change password:\n${detailedMessage}`);
+  }
+};
+
 
   useEffect(() => {
     if (user) {
@@ -83,34 +140,6 @@ export default function RightSide({ activeSection }) {
     }
   }, [user]);
 
-  const handleChangePassword = async (e) => {
-    e.preventDefault();
-    if (!validatePassword()) return;
-
-    //Ensure idToken is available
-    if (!idToken) {
-      alert("ID token is not available. Please log in again.");
-      return;
-    }
-
-    try {
-      await updatePassword(
-        idToken,
-        profile.oldPassword,
-        profile.newPassword
-      );
-      alert("Password updated successfully!");
-      // Clear password fields after updating
-      setProfile((prevProfile) => ({
-        ...prevProfile,
-        oldPassword: "",
-        newPassword: "",
-      }));
-    } catch (error) {
-      console.error("Error changing password:", error);
-      alert(error.message); // Display the specific error message
-    }
-  };
 
   // Fix handleSubmit()
   const handleSubmit = async (e) => {

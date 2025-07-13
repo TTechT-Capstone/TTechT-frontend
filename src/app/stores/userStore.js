@@ -5,6 +5,7 @@ import { getProfile } from "@/app/apis/auth.api";
 const useUserStore = create((set) => ({
   user: null,
   idToken: localStorage.getItem('idToken'),
+  //idToken: nu
   loading: false,
   error: null,
 
@@ -30,8 +31,7 @@ const useUserStore = create((set) => ({
     localStorage.removeItem('idToken');
     localStorage.removeItem('userRole');
     localStorage.removeItem('userId');
-    set({ user: null });
-    window.location.href = "/";
+    set({ user: null });  
   },
 }));
 
