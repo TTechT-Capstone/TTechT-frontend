@@ -2,19 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import useAuth from "@/app/hooks/useAuth";
-import {
-  EmbeddedCheckoutProvider,
-  EmbeddedCheckout,
-} from "@stripe/react-stripe-js";
-//import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe } from '@stripe/stripe-js';
+import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js';
 import useCartStore from "@/app/stores/cartStore";
 import useCheckoutStore from "@/app/stores/checkoutStore";
 import { createPaymentIntentAPI } from "@/app/apis/payment.api";
 
-// ✅ Setup Stripe promise (add your key in .env)
-//const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "");
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "");
 
 export default function CheckoutPage() {
+
   const { user } = useAuth();
   const { cart, loadCart, totalPrice } = useCartStore();
   const selectedCartItems = cart || [];
@@ -25,6 +22,8 @@ export default function CheckoutPage() {
   const [loadingClientSecret, setLoadingClientSecret] = useState(false);
   const [paymentError, setPaymentError] = useState("");
   const [showEmbeddedCheckout, setShowEmbeddedCheckout] = useState(false);
+  const [stripeInstance, setStripeInstance] = useState(null);
+
 
   // const [form, setForm] = useState({
   //   contactName: "",
@@ -34,15 +33,14 @@ export default function CheckoutPage() {
   // });
 
   const {
-  contactName,
-  contactPhone,
-  contactEmail,
-  deliveryAddress,
-  promotionCode,
-  setFormData,
-  clearFormData,
-} = useCheckoutStore();
-
+    contactName,
+    contactPhone,
+    contactEmail,
+    deliveryAddress,
+    promotionCode,
+    setFormData,
+    clearFormData,
+  } = useCheckoutStore();
 
   const [errors, setErrors] = useState({});
   const cartTotal = totalPrice;
@@ -54,21 +52,25 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (user) {
       setFormData({
-  contactName: user.firstName || "",
-  contactPhone: user.phoneNumber || "",
-  contactEmail: user.email || "",
-  deliveryAddress: user.address || "",
-});
-
+        contactName: user.firstName || "",
+        contactPhone: user.phoneNumber || "",
+        contactEmail: user.email || "",
+        deliveryAddress: user.address || "",
+      });
     }
   }, [user]);
 
+  useEffect(() => {
+    const load = async () => {
+      const stripe = await stripePromise;
+      setStripeInstance(stripe);
+    };
+    load();
+  }, []);
+  
   const isFormIncomplete =
-    !contactName ||
-    !contactPhone ||
-    !deliveryAddress ||
-    !contactEmail;
-    //!paymentMethod;
+    !contactName || !contactPhone || !deliveryAddress || !contactEmail;
+  //!paymentMethod;
 
   const validateForm = () => {
     const newErrors = {};
@@ -78,44 +80,112 @@ export default function CheckoutPage() {
     if (!deliveryAddress.trim())
       newErrors.deliveryAddress = "Address is required";
     if (!contactEmail.trim()) newErrors.contactEmail = "Email is required";
-    if (!paymentMethod) newErrors.paymentMethod = "Select a payment method";
+    //if (!paymentMethod) newErrors.paymentMethod = "Select a payment method";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // const handlePayClick = async () => {
+
+  //   if (!validateForm()) return;
+
+  //   try {
+  //     setLoadingClientSecret(true);
+  //     setPaymentError("");
+
+  //     // const payload = {
+  //     //   amount: cartTotal,
+  //     //   name: contactName,
+  //     //   phone: contactPhone,
+  //     //   email: contactEmail,
+  //     //   address: deliveryAddress,
+  //     // };
+
+  //     const payload = {
+  //       items: selectedCartItems.map((item) => ({
+  //         productId: item.productId || item.id,
+  //         quantity: item.quantity,
+  //       })),
+  //       customerEmail: contactEmail,
+  //       customerName: contactName,
+  //       description: "Test order from TTECHT store",
+  //     };
+
+  //     const response = await createPaymentIntentAPI(payload);
+  //     const secret = response?.result?.clientSecret;
+  //     console.log("🚀 Payment intent response:", response);
+
+  //     if (!secret) {
+  //       throw new Error("No client secret returned");
+  //     }
+
+  //     setClientSecret(secret);
+  //     setShowEmbeddedCheckout(true);
+  //   } catch (error) {
+  //     setPaymentError("Unable to load payment form. Try again.");
+  //     console.error("❌ Stripe payment error:", error);
+  //   } finally {
+  //     setLoadingClientSecret(false);
+  //   }
+  // };
+
   const handlePayClick = async () => {
-    if (!validateForm()) return;
+  if (!validateForm()) return;
 
-    try {
-      setLoadingClientSecret(true);
-      setPaymentError("");
+  try {
+    setLoadingClientSecret(true);
+    setPaymentError("");
 
-      const payload = {
-        amount: cartTotal,
-        name: contactName,
-        phone: contactPhone,
-        email: contactEmail,
-        address: deliveryAddress,
-      };
+    const payload = {
+      items: selectedCartItems.map((item) => ({
+        productId: item.productId || item.id,
+        quantity: item.quantity,
+      })),
+      customerEmail: contactEmail,
+      customerName: contactName,
+      description: "Test order from TTECHT store",
+    };
 
-      const response = await createPaymentIntentAPI(payload);
-      const secret = response?.result?.clientSecret;
-      console.log("🚀 Payment intent response:", response);
+    console.log("🚀 Creating payment intent with payload:", payload);
 
-      if (!secret) {
-        throw new Error("No client secret returned");
-      }
+    const response = await createPaymentIntentAPI(payload);
+    const secret = response?.result?.clientSecret;
+    console.log("🚀 Payment intent response:", response);
 
-      setClientSecret(secret);
-      setShowEmbeddedCheckout(true);
-    } catch (error) {
-      setPaymentError("Unable to load payment form. Try again.");
-      console.error("❌ Stripe payment error:", error);
-    } finally {
-      setLoadingClientSecret(false);
+    if (!secret) {
+      throw new Error("No client secret returned");
     }
-  };
+
+    setClientSecret(secret);
+    setShowEmbeddedCheckout(true);
+  } catch (error) {
+    setPaymentError("Unable to load payment form. Try again.");
+
+    console.group("❌ Stripe Payment Error Details");
+
+    if (error.response) {
+      // Backend returned a non-2xx response
+      console.error("👉 error.response.status:", error.response.status);
+      console.error("👉 error.response.data:", error.response.data);
+      console.error("👉 error.response.headers:", error.response.headers);
+    } else if (error.request) {
+      // Request was made but no response received
+      console.error("👉 error.request (no response received):", error.request);
+    } else {
+      // Something happened in setting up the request
+      console.error("👉 error.message:", error.message);
+    }
+
+    // Always log full error object for safety
+    console.error("👉 Full error object:", error);
+
+    console.groupEnd();
+  } finally {
+    setLoadingClientSecret(false);
+  }
+};
+
 
   const handleCheckout = async () => {
     if (!validateForm()) return;
@@ -197,7 +267,9 @@ export default function CheckoutPage() {
                 //     deliveryAddress: e.target.value,
                 //   }))
                 // }
-                onChange={(e) => setFormData({ deliveryAddress: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ deliveryAddress: e.target.value })
+                }
               />
               {errors.deliveryAddress && (
                 <p className="text-sm text-red-500">{errors.deliveryAddress}</p>
@@ -279,57 +351,53 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-{/* Payment Method */}
-<div className="bg-white shadow-md rounded-lg p-6 space-y-4 flex-1">
-  <h2 className="text-xl font-bold font-urbanist text-gray-800">Payment Method</h2>
+        {/* Payment Method */}
+        <div className="bg-white shadow-md rounded-lg p-6 space-y-4 flex-1">
+          <h2 className="text-xl font-bold font-urbanist text-gray-800">
+            Payment Method
+          </h2>
 
-  <div className="space-y-3">
-    {/* Stripe Checkout UI */}
-    {loadingClientSecret ? (
-      <p className="text-sm text-gray-500">Loading payment information...</p>
-    ) : showEmbeddedCheckout ? (
-      <EmbeddedCheckoutProvider options={{ clientSecret }}>
-        <EmbeddedCheckout />
-      </EmbeddedCheckoutProvider>
-    ) : (
-      <button
-        onClick={handlePayClick}
-        disabled={loadingClientSecret}
-        className={`w-full sm:w-auto bg-secondary text-white px-6 py-2 rounded-md font-semibold transition duration-200 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed`}
-      >
-        Pay
-      </button>
-    )}
+          <div className="space-y-3">
+            {/* Stripe Checkout UI */}
+            {loadingClientSecret ? (
+              <p className="text-sm text-gray-500">
+                Loading payment information...
+              </p>
+            ) : showEmbeddedCheckout ? (
+              <EmbeddedCheckoutProvider 
+                options={{ clientSecret }}
+                stripe={stripePromise}>
+                <EmbeddedCheckout />
+              </EmbeddedCheckoutProvider>
+            ) : (
+              <button
+                onClick={handlePayClick}
+                disabled={loadingClientSecret}
+                className={`w-full sm:w-auto bg-secondary text-white px-6 py-2 rounded-md font-semibold transition duration-200 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                Pay
+              </button>
+            )}
 
-    {/* Error Message */}
-    {paymentError && (
-      <p className="text-sm text-red-500">{paymentError}</p>
-    )}
-  </div>
-</div>
-
-        {/* Stripe Embedded Checkout */}
-        {paymentMethod === "CARD" && (
-          <div className="mb-6 p-4 rounded-lg shadow-sm bg-white flex-1">
-            <h3 className="text-lg font-semibold mb-2 font-urbanist">
-              Card Payment
-            </h3>
-            
+            {/* Error Message */}
+            {paymentError && (
+              <p className="text-sm text-red-500">{paymentError}</p>
+            )}
           </div>
-        )}
+        </div>
 
-        {/* Place Order Button */}        
-          <button
-            className={`mt-4 w-full py-2 font-medium transition duration-200 ${
-              isFormIncomplete || isProcessing
-                ? "bg-gray-300 cursor-not-allowed text-gray-600"
-                : "bg-primary text-white hover:opacity-90"
-            }`}
-            onClick={handleCheckout}
-            disabled={isFormIncomplete || isProcessing}
-          >
-            {isProcessing ? "Processing..." : "Next: Payment"}
-          </button>
+        {/* Place Order Button */}
+        <button
+          className={`mt-4 w-full py-2 font-medium transition duration-200 ${
+            isFormIncomplete || isProcessing
+              ? "bg-gray-300 cursor-not-allowed text-gray-600"
+              : "bg-primary text-white hover:opacity-90"
+          }`}
+          onClick={handleCheckout}
+          disabled={isFormIncomplete || isProcessing}
+        >
+          {isProcessing ? "Processing..." : "Next: Payment"}
+        </button>
       </div>
     </div>
   );
