@@ -67,7 +67,7 @@ export default function OrdersSection({
               <div>
                 <p className="text-sm text-gray-500">
                   Order Status:{" "}
-                  <span className="font-medium">{order.status}</span>
+                  <span className="font-medium">{order.orderStatus}</span>
                 </p>
                 <p className="text-sm text-gray-500">
                   Order Date:{" "}

@@ -2,35 +2,34 @@
 
 import React, { useState, useEffect } from "react";
 import useAuth from "@/app/hooks/useAuth";
-import { loadStripe } from '@stripe/stripe-js';
-import { EmbeddedCheckoutProvider, EmbeddedCheckout } from '@stripe/react-stripe-js';
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  EmbeddedCheckoutProvider,
+  EmbeddedCheckout,
+} from "@stripe/react-stripe-js";
 import useCartStore from "@/app/stores/cartStore";
 import useCheckoutStore from "@/app/stores/checkoutStore";
-import { createPaymentIntentAPI } from "@/app/apis/payment.api";
+import {
+  createPaymentIntentAPI,
+  createPaymentCheckoutAPI,
+} from "@/app/apis/payment.api";
+import { createOrderAPI } from "@/app/apis/order.api";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "");
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ""
+);
 
 export default function CheckoutPage() {
-
   const { user } = useAuth();
-  const { cart, loadCart, totalPrice } = useCartStore();
+  const { cartId, cart, loadCart, totalPrice } = useCartStore();
   const selectedCartItems = cart || [];
 
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("");
   const [clientSecret, setClientSecret] = useState(null);
   const [loadingClientSecret, setLoadingClientSecret] = useState(false);
   const [paymentError, setPaymentError] = useState("");
   const [showEmbeddedCheckout, setShowEmbeddedCheckout] = useState(false);
   const [stripeInstance, setStripeInstance] = useState(null);
-
-
-  // const [form, setForm] = useState({
-  //   contactName: "",
-  //   contactPhone: "",
-  //   deliveryAddress: "",
-  //   contactEmail: "",
-  // });
 
   const {
     contactName,
@@ -67,7 +66,7 @@ export default function CheckoutPage() {
     };
     load();
   }, []);
-  
+
   const isFormIncomplete =
     !contactName || !contactPhone || !deliveryAddress || !contactEmail;
   //!paymentMethod;
@@ -80,124 +79,115 @@ export default function CheckoutPage() {
     if (!deliveryAddress.trim())
       newErrors.deliveryAddress = "Address is required";
     if (!contactEmail.trim()) newErrors.contactEmail = "Email is required";
-    //if (!paymentMethod) newErrors.paymentMethod = "Select a payment method";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // const handlePayClick = async () => {
-
-  //   if (!validateForm()) return;
-
-  //   try {
-  //     setLoadingClientSecret(true);
-  //     setPaymentError("");
-
-  //     // const payload = {
-  //     //   amount: cartTotal,
-  //     //   name: contactName,
-  //     //   phone: contactPhone,
-  //     //   email: contactEmail,
-  //     //   address: deliveryAddress,
-  //     // };
-
-  //     const payload = {
-  //       items: selectedCartItems.map((item) => ({
-  //         productId: item.productId || item.id,
-  //         quantity: item.quantity,
-  //       })),
-  //       customerEmail: contactEmail,
-  //       customerName: contactName,
-  //       description: "Test order from TTECHT store",
-  //     };
-
-  //     const response = await createPaymentIntentAPI(payload);
-  //     const secret = response?.result?.clientSecret;
-  //     console.log("🚀 Payment intent response:", response);
-
-  //     if (!secret) {
-  //       throw new Error("No client secret returned");
-  //     }
-
-  //     setClientSecret(secret);
-  //     setShowEmbeddedCheckout(true);
-  //   } catch (error) {
-  //     setPaymentError("Unable to load payment form. Try again.");
-  //     console.error("❌ Stripe payment error:", error);
-  //   } finally {
-  //     setLoadingClientSecret(false);
-  //   }
-  // };
-
   const handlePayClick = async () => {
+    if (!validateForm()) return;
+
+    try {
+      setLoadingClientSecret(true);
+      setPaymentError("");
+
+      const payload = {
+        items: selectedCartItems.map((item) => ({
+          productId: item.productId || item.id,
+          quantity: item.quantity,
+        })),
+        customerEmail: contactEmail,
+        customerName: contactName,
+        description: "Test order from TTECHT store",
+      };
+
+      console.log("🚀 Creating payment intent with payload:", payload);
+
+      const response = await createPaymentCheckoutAPI(payload);
+      const secret = response?.result?.clientSecret;
+      console.log("🚀 Payment intent response:", response);
+
+      if (!secret) {
+        throw new Error("No client secret returned");
+      }
+
+      setClientSecret(secret);
+      setShowEmbeddedCheckout(true);
+    } catch (error) {
+      setPaymentError("Unable to load payment form. Try again.");
+
+      console.group("❌ Stripe Payment Error Details");
+
+      if (error.response) {
+        // Backend returned a non-2xx response
+        console.error("👉 error.response.status:", error.response.status);
+        console.error("👉 error.response.data:", error.response.data);
+        console.error("👉 error.response.headers:", error.response.headers);
+      } else if (error.request) {
+        // Request was made but no response received
+        console.error(
+          "👉 error.request (no response received):",
+          error.request
+        );
+      } else {
+        // Something happened in setting up the request
+        console.error("👉 error.message:", error.message);
+      }
+
+      // Always log full error object for safety
+      console.error("👉 Full error object:", error);
+
+      console.groupEnd();
+    } finally {
+      setLoadingClientSecret(false);
+    }
+  };
+
+const handleCheckout = async () => {
   if (!validateForm()) return;
 
-  try {
-    setLoadingClientSecret(true);
-    setPaymentError("");
+  if (!user?.id || !cartId) {
+    alert("Missing user or cart info.");
+    return;
+  }
 
-    const payload = {
-      items: selectedCartItems.map((item) => ({
-        productId: item.productId || item.id,
-        quantity: item.quantity,
-      })),
-      customerEmail: contactEmail,
-      customerName: contactName,
-      description: "Test order from TTECHT store",
+  setIsProcessing(true);
+
+  const cartItemIds = cart.map((item) => item.id); 
+
+  try {
+    const orderPayload = {
+      totalAmount: totalPrice,
+      orderStatus: "PENDING",
+      contactName,
+      contactEmail,
+      contactPhone,
+      deliveryAddress,
+      promotionCode: promotionCode || null,
+      paymentMethod: "CARD",
+      cartItemIds,
     };
 
-    console.log("🚀 Creating payment intent with payload:", payload);
+    const orderData = await createOrderAPI(user.id, cartId, orderPayload);
+    console.log("✅ Order created:", orderData);
 
-    const response = await createPaymentIntentAPI(payload);
-    const secret = response?.result?.clientSecret;
-    console.log("🚀 Payment intent response:", response);
+    alert("Order placed successfully!");
 
-    if (!secret) {
-      throw new Error("No client secret returned");
-    }
+    // Optional: clear cart & form
+    // useCartStore.getState().clearCart();
+    // clearFormData();
 
-    setClientSecret(secret);
-    setShowEmbeddedCheckout(true);
+    // Optional: redirect to confirmation page
+    // router.push("/order-success");
+
   } catch (error) {
-    setPaymentError("Unable to load payment form. Try again.");
-
-    console.group("❌ Stripe Payment Error Details");
-
-    if (error.response) {
-      // Backend returned a non-2xx response
-      console.error("👉 error.response.status:", error.response.status);
-      console.error("👉 error.response.data:", error.response.data);
-      console.error("👉 error.response.headers:", error.response.headers);
-    } else if (error.request) {
-      // Request was made but no response received
-      console.error("👉 error.request (no response received):", error.request);
-    } else {
-      // Something happened in setting up the request
-      console.error("👉 error.message:", error.message);
-    }
-
-    // Always log full error object for safety
-    console.error("👉 Full error object:", error);
-
-    console.groupEnd();
+    console.error("❌ Failed to place order:", error.message);
+    alert("Failed to place order. Please try again.");
   } finally {
-    setLoadingClientSecret(false);
+    setIsProcessing(false);
   }
 };
 
-
-  const handleCheckout = async () => {
-    if (!validateForm()) return;
-
-    setIsProcessing(true);
-
-    // Simulated backend process
-    setTimeout(() => {
-      setIsProcessing(false);
-      alert("Order placed successfully!");
-    }, 2000);
-  };
 
   return (
     <div className="min-h-screen w-full bg-[#f5f5f5] text-primary py-10 px-4 font-roboto">
@@ -364,9 +354,10 @@ export default function CheckoutPage() {
                 Loading payment information...
               </p>
             ) : showEmbeddedCheckout ? (
-              <EmbeddedCheckoutProvider 
+              <EmbeddedCheckoutProvider
                 options={{ clientSecret }}
-                stripe={stripePromise}>
+                stripe={stripePromise}
+              >
                 <EmbeddedCheckout />
               </EmbeddedCheckoutProvider>
             ) : (
@@ -396,7 +387,7 @@ export default function CheckoutPage() {
           onClick={handleCheckout}
           disabled={isFormIncomplete || isProcessing}
         >
-          {isProcessing ? "Processing..." : "Next: Payment"}
+          {isProcessing ? "Processing..." : "Checkout"}
         </button>
       </div>
     </div>

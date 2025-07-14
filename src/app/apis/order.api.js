@@ -15,26 +15,27 @@ const getAuthHeaders = () => {
     Authorization: `Bearer ${token}`,
   };
 };
-
 /**
  * Create a new order.
  * @param {string|number} userId - The user placing the order
  * @param {string|number} cartId - The cart to convert into an order
+ * @param {Object} orderData - Order details (contact info, address, etc.)
  * @returns {Promise<Object>}
  */
-export const createOrderAPI = async (userId, cartId) => {
+export const createOrderAPI = async (userId, cartId, orderData) => {
   try {
     const response = await axios.post(
       `${API_BASE_URL}/orders/${userId}/${cartId}`,
-      {},
+      orderData,
       { headers: getAuthHeaders() }
     );
     return response.data;
   } catch (error) {
-    console.error('❌ Error creating order:', error.response?.data || error.message);
-    throw new Error('Unable to create order. Please try again.');
+    console.error("❌ Error creating order:", error.response?.data || error.message);
+    throw new Error("Unable to create order. Please try again.");
   }
 };
+
 
 /**
  * Get all orders for a user.

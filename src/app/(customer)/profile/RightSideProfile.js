@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import useAuth from "@/app/hooks/useAuth";
 import { updatePassword, updateUser } from "@/app/apis/auth.api";
+import { getOrdersByUserIdAPI } from "@/app/apis/order.api";
 import ProfileForm from "@/app/components/profile/ProfileForm";
 import ChangePasswordForm from "@/app/components/profile/ChangePasswordForm";
 import OrdersSection from "@/app/components/order/OrderSection";
 import CancelOrderModal from "@/app/components/order/CancelOrderModal";
-
-// import { listOrdersAPI, cancelOrderAPI, getOrderDetailAPI } from '../../../apis/order.api.js';
 
 export default function RightSide({ activeSection }) {
   const { idToken, user, isAuthenticated, loading } = useAuth();
@@ -141,7 +140,6 @@ const handleChangePassword = async (e) => {
   }, [user]);
 
 
-  // Fix handleSubmit()
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!profile.email || !profile.firstName || !profile.lastName) {
@@ -171,24 +169,25 @@ const handleChangePassword = async (e) => {
     }
   };
 
-  // useEffect(() => {
-  //     if (activeSection === 2 && idToken) {
-  //         const fetchOrders = async () => {
-  //             setLoadingOrders(true);
-  //             try {
-  //                 const data = await listOrdersAPI();
-  //                 setOrders(data);
-  //             } catch (error) {
-  //                 console.error('Error fetching orders:', error);
-  //                 setOrders([]);
-  //             } finally {
-  //                 setLoadingOrders(false);
-  //             }
-  //         };
+  useEffect(() => {
+      if (activeSection === 2 && idToken) {
+          const fetchOrders = async () => {
+              setLoadingOrders(true);
+              try {
+                  const data = await getOrdersByUserIdAPI(user.id);
+                  console.log("Fetched orders:", data.result);
+                  setOrders(data.result);
+              } catch (error) {
+                  console.error('Error fetching orders:', error);
+                  setOrders([]);
+              } finally {
+                  setLoadingOrders(false);
+              }
+          };
 
-  //         fetchOrders();
-  //     }
-  // }, [activeSection, idToken]);
+          fetchOrders();
+      }
+  }, [activeSection, idToken]);
 
   const handleCancelOrder = async (orderId) => {
     if (!cancelReason) {
