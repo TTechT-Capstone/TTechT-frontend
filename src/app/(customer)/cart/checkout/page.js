@@ -12,6 +12,7 @@ import useCheckoutStore from "@/app/stores/checkoutStore";
 import {
   createPaymentIntentAPI,
   createPaymentCheckoutAPI,
+  getPaymentStatusAPI,
 } from "@/app/apis/payment.api";
 import { createOrderAPI } from "@/app/apis/order.api";
 
@@ -27,9 +28,11 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [clientSecret, setClientSecret] = useState(null);
   const [loadingClientSecret, setLoadingClientSecret] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
   const [paymentError, setPaymentError] = useState("");
   const [showEmbeddedCheckout, setShowEmbeddedCheckout] = useState(false);
   const [stripeInstance, setStripeInstance] = useState(null);
+  const [paymentCompleted, setPaymentCompleted] = useState(false);
 
   const {
     contactName,
@@ -105,6 +108,8 @@ export default function CheckoutPage() {
 
       const response = await createPaymentCheckoutAPI(payload);
       const secret = response?.result?.clientSecret;
+      setSessionId(response?.result?.sessionId);
+
       console.log("🚀 Payment intent response:", response);
 
       if (!secret) {
@@ -143,51 +148,54 @@ export default function CheckoutPage() {
     }
   };
 
-const handleCheckout = async () => {
-  if (!validateForm()) return;
+  const handleCheckout = async () => {
+    if (!validateForm()) return;
 
-  if (!user?.id || !cartId) {
-    alert("Missing user or cart info.");
-    return;
-  }
+    if (!user?.id || !cartId || !sessionId) {
+      alert("Missing user, cart, or payment session.");
+      return;
+    }
 
-  setIsProcessing(true);
+    setIsProcessing(true);
 
-  const cartItemIds = cart.map((item) => item.id); 
+    try {
+      // ✅ Check payment status before proceeding
+      const paymentStatusResponse = await getPaymentStatusAPI(sessionId);
+      const status = paymentStatusResponse?.result?.status;
 
-  try {
-    const orderPayload = {
-      totalAmount: totalPrice,
-      orderStatus: "PENDING",
-      contactName,
-      contactEmail,
-      contactPhone,
-      deliveryAddress,
-      promotionCode: promotionCode || null,
-      paymentMethod: "CARD",
-      cartItemIds,
-    };
+      if (status !== "SUCCEEDED") {
+        alert("Please complete payment before placing your order.");
+        setPaymentCompleted(false);
+        return;
+      }
 
-    const orderData = await createOrderAPI(user.id, cartId, orderPayload);
-    console.log("✅ Order created:", orderData);
+      setPaymentCompleted(true); // ✅ Payment is done!
 
-    alert("Order placed successfully!");
+      const cartItemIds = cart.map((item) => item.id);
+      const orderPayload = {
+        totalAmount: totalPrice,
+        orderStatus: "PENDING",
+        contactName,
+        contactEmail,
+        contactPhone,
+        deliveryAddress,
+        promotionCode: promotionCode || null,
+        paymentMethod: "CARD",
+        cartItemIds,
+      };
 
-    // Optional: clear cart & form
-    // useCartStore.getState().clearCart();
-    // clearFormData();
+      const orderData = await createOrderAPI(user.id, cartId, orderPayload);
+      console.log("✅ Order created:", orderData);
 
-    // Optional: redirect to confirmation page
-    // router.push("/order-success");
-
-  } catch (error) {
-    console.error("❌ Failed to place order:", error.message);
-    alert("Failed to place order. Please try again.");
-  } finally {
-    setIsProcessing(false);
-  }
-};
-
+      alert("Order placed successfully!");
+      // Optional: redirect or reset state
+    } catch (error) {
+      console.error("❌ Failed to complete checkout:", error);
+      alert("Checkout failed. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div className="min-h-screen w-full bg-[#f5f5f5] text-primary py-10 px-4 font-roboto">
@@ -380,12 +388,12 @@ const handleCheckout = async () => {
         {/* Place Order Button */}
         <button
           className={`mt-4 w-full py-2 font-medium transition duration-200 ${
-            isFormIncomplete || isProcessing
+            isFormIncomplete || isProcessing || !paymentCompleted
               ? "bg-gray-300 cursor-not-allowed text-gray-600"
               : "bg-primary text-white hover:opacity-90"
           }`}
           onClick={handleCheckout}
-          disabled={isFormIncomplete || isProcessing}
+          disabled={isFormIncomplete || isProcessing || !paymentCompleted}
         >
           {isProcessing ? "Processing..." : "Checkout"}
         </button>

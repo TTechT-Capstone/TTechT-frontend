@@ -1,15 +1,15 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = 'https://ttecht-backend.onrender.com/api';
+const API_BASE_URL = "https://ttecht-backend.onrender.com/api";
 
 /**
  * Helper function to get the auth headers.
  * @returns {Object} - Authorization headers
  */
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('idToken');
+  const token = localStorage.getItem("idToken");
   if (!token) {
-    throw new Error('Authorization token is missing');
+    throw new Error("Authorization token is missing");
   }
   return {
     Authorization: `Bearer ${token}`,
@@ -42,8 +42,33 @@ export const createPaymentCheckoutAPI = async (payload) => {
     );
     return response.data;
   } catch (error) {
-    console.error('❌ Error creating payment checkout:', error.response?.data || error.message);
-    throw new Error('Unable to create payment checkout. Please try again.');
+    console.error(
+      "❌ Error creating payment checkout:",
+      error.response?.data || error.message
+    );
+    throw new Error("Unable to create payment checkout. Please try again.");
+  }
+};
+
+/**
+ * Get payment status.
+ * @param {string|number} paymentId
+ * @returns {Promise<Object>}
+ * Endpoint: https://ttecht-backend.onrender.com/api/payments/status/{sessionId}
+ */
+export const getPaymentStatusAPI = async (sessionId) => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/payments/status/${sessionId}`,
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "❌ Error fetching payment status by session ID:",
+      error.response?.data || error.message
+    );
+    throw new Error("Unable to retrieve payment status. Please try again.");
   }
 };
 
@@ -54,14 +79,16 @@ export const createPaymentCheckoutAPI = async (payload) => {
  */
 export const getPaymentByIdAPI = async (paymentId) => {
   try {
-    const response = await axios.get(
-      `${API_BASE_URL}/payments/${paymentId}`,
-      { headers: getAuthHeaders() }
-    );
+    const response = await axios.get(`${API_BASE_URL}/payments/${paymentId}`, {
+      headers: getAuthHeaders(),
+    });
     return response.data;
   } catch (error) {
-    console.error('❌ Error fetching payment by ID:', error.response?.data || error.message);
-    throw new Error('Unable to retrieve payment details. Please try again.');
+    console.error(
+      "❌ Error fetching payment by ID:",
+      error.response?.data || error.message
+    );
+    throw new Error("Unable to retrieve payment details. Please try again.");
   }
 };
 
@@ -71,14 +98,16 @@ export const getPaymentByIdAPI = async (paymentId) => {
  */
 export const getMyPaymentsAPI = async () => {
   try {
-    const response = await axios.get(
-      `${API_BASE_URL}/payments/my-payments`,
-      { headers: getAuthHeaders() }
-    );
+    const response = await axios.get(`${API_BASE_URL}/payments/my-payments`, {
+      headers: getAuthHeaders(),
+    });
     return response.data;
   } catch (error) {
-    console.error('❌ Error fetching user payments:', error.response?.data || error.message);
-    throw new Error('Unable to retrieve your payments. Please try again.');
+    console.error(
+      "❌ Error fetching user payments:",
+      error.response?.data || error.message
+    );
+    throw new Error("Unable to retrieve your payments. Please try again.");
   }
 };
 
@@ -109,7 +138,10 @@ export const createPaymentIntentAPI = async (payload) => {
     );
     return response.data;
   } catch (error) {
-    console.error('❌ Error creating payment intent:', error.response?.data || error.message);
-    throw new Error('Unable to create payment intent. Please try again.');
+    console.error(
+      "❌ Error creating payment intent:",
+      error.response?.data || error.message
+    );
+    throw new Error("Unable to create payment intent. Please try again.");
   }
 };
