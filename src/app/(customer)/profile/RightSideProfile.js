@@ -28,14 +28,15 @@ export default function RightSide({ activeSection }) {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
-  const [orderStatusFilter, setOrderStatusFilter] = useState("all");
+  const [orderStatusFilter, setOrderStatusFilter] = useState("ALL");
 
   const filteredOrders = () => {
-    if (orderStatusFilter === "all") {
-      return orders;
-    }
-    return orders.filter((order) => order.status === orderStatusFilter); // Filter by selected status
-  };
+  if (orderStatusFilter.toUpperCase() === "ALL") return orders;
+  return orders.filter(
+    (order) => order.orderStatus.toUpperCase() === orderStatusFilter.toUpperCase()
+  );
+};
+
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

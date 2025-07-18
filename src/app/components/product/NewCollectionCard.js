@@ -14,7 +14,9 @@ export default function NewCollectionCard({ name, price, img, onClick }) {
         />
       </div>
       <p className="mt-2 text-primary font-semibold">{name}</p>
-      <p className="text-sm text-gray-600">{price}</p>
+      <p className="text-sm text-gray-600">
+        {price ? Number(price).toFixed(2) : "0.00"} USD
+      </p>
     </div>
   );
 }

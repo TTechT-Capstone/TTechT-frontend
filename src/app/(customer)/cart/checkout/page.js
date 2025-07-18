@@ -15,12 +15,14 @@ import {
   getPaymentStatusAPI,
 } from "@/app/apis/payment.api";
 import { createOrderAPI } from "@/app/apis/order.api";
+import { useRouter } from "next/navigation";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ""
 );
 
 export default function CheckoutPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const { cartId, cart, loadCart, totalPrice } = useCartStore();
   const selectedCartItems = cart || [];
@@ -33,6 +35,7 @@ export default function CheckoutPage() {
   const [showEmbeddedCheckout, setShowEmbeddedCheckout] = useState(false);
   const [stripeInstance, setStripeInstance] = useState(null);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
     contactName,
@@ -187,7 +190,8 @@ export default function CheckoutPage() {
       const orderData = await createOrderAPI(user.id, cartId, orderPayload);
       console.log("✅ Order created:", orderData);
 
-      alert("Order placed successfully!");
+      setIsModalOpen(true); // ✅ Show modal
+
       // Optional: redirect or reset state
     } catch (error) {
       console.error("❌ Failed to complete checkout:", error);
@@ -195,6 +199,16 @@ export default function CheckoutPage() {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleContinueShopping = () => {
+    setIsModalOpen(false);
+    router.push("/products");
+  };
+
+  const handleViewOrder = () => {
+    setIsModalOpen(false);
+    router.push("/profile");
   };
 
   return (
@@ -317,19 +331,40 @@ export default function CheckoutPage() {
                 <span className="font-medium">{item.productName}</span>
               </div>
               <div className="text-center">
-                ₫{item.price.toLocaleString("vi-VN")}
+                {item.price
+                  ? Number(item.price).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  : "0.00"}{" "}
+                USD
               </div>
               <div className="text-center">{item.quantity}</div>
               <div className="text-center text-red-500 font-semibold">
-                ₫{(item.price * item.quantity).toLocaleString("vi-VN")}
+                {item.price && item.quantity
+                  ? (Number(item.price) * Number(item.quantity)).toLocaleString(
+                      undefined,
+                      {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }
+                    )
+                  : "0.00"}{" "}
+                USD
               </div>
             </div>
           ))}
 
           <div className="flex justify-between font-semibold pt-4 border-t border-dashed border-[#EDEDED]">
             <span>Total:</span>
-            <span className="text-red-500 text-lg">
-              ₫{cartTotal.toLocaleString("vi-VN")}
+            <span className="text-red-500 text-xl">
+              {cartTotal
+                ? Number(cartTotal).toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : "0.00"}{" "}
+              USD
             </span>
           </div>
         </div>
@@ -398,6 +433,49 @@ export default function CheckoutPage() {
           {isProcessing ? "Processing..." : "Checkout"}
         </button>
       </div>
+
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 bg-secondary bg-opacity-50 flex justify-center items-center z-50 transition-opacity duration-300"
+          role="dialog"
+          aria-labelledby="modalTitle"
+          aria-hidden={!isModalOpen}
+        >
+          <div className="bg-white p-10 rounded-lg shadow-lg w-full max-w-md flex flex-col items-center justify-center space-y-6 transform transition-transform duration-300">
+            <div>
+              <img
+                className="h-24 w-24"
+                src="/assets/check.png"
+                alt="Checkmark Icon"
+              />
+            </div>
+            <h2
+              id="modalTitle"
+              className="text-2xl font-urbanist text-[#008080] font-bold text-center"
+            >
+              Thank You For Your Order
+            </h2>
+            <p className="text-center font-roboto text-gray-700">
+              Your order has been successfully placed. You can continue shopping
+              or review your orders.
+            </p>
+            <div className="flex flex-row space-x-4 font-roboto">
+              <button
+                onClick={handleContinueShopping}
+                className="bg-secondary text-white px-6 py-2 rounded-md hover:bg-[#3d4a54] transition duration-200"
+              >
+                Continue Shopping
+              </button>
+              <button
+                onClick={handleViewOrder}
+                className="bg-white text-secondary px-6 py-2 border border-secondary rounded-md hover:bg-[#f2f7fb] transition duration-200"
+              >
+                View Order
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

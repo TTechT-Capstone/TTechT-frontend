@@ -13,6 +13,7 @@ export default function OrdersSection({
   setSelectedOrderId,
   filteredOrders,
 }) {
+
   const renderOrderFilter = () => (
     <div className="mb-4 text-primary">
       <label
@@ -27,11 +28,11 @@ export default function OrdersSection({
         value={orderStatusFilter}
         onChange={(e) => setOrderStatusFilter(e.target.value)}
       >
-        <option value="all">All</option>
-        <option value="new">New</option>
-        <option value="completed">Completed</option>
-        <option value="rejected">Rejected</option>
-        <option value="cancelled">Cancelled</option>
+        <option value="ALL">All</option>
+        <option value="NEW">New</option>
+        <option value="COMPLETED">Completed</option>
+        <option value="REJECTED">Rejected</option>
+        <option value="CANCELLED">Cancelled</option>
       </select>
     </div>
   );
@@ -112,7 +113,7 @@ export default function OrdersSection({
                   </div>
                 )}
 
-              {order.status === "new" && (
+              {order.orderStatus === "NEW" && (
                 <div className="flex justify-end">
                   <button
                     onClick={(e) => {

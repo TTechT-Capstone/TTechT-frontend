@@ -6,39 +6,21 @@ import { Trash2 } from "lucide-react";
 import useCartStore from "@/app/stores/cartStore";
 
 export default function ShoppingCartPage() {
-  const { cart, loadCart, totalPrice, updateQuantity, removeItemFromCart, submitCart } =
-    useCartStore();
+  const {
+    cart,
+    cartId,
+    loadCart,
+    totalPrice,
+    updateQuantity,
+    removeItemFromCart,
+    submitCart,
+  } = useCartStore();
 
-  // const cartTotal = cart.reduce(
-  //   (total, item) => total + item.price * item.quantity,
-  //   0
-  // );
-
-    const cartTotal = totalPrice;
-
-
-  const cartId = localStorage.getItem("cartId");
+  const cartTotal = totalPrice;
 
   useEffect(() => {
     loadCart();
-  }, []);
-
-  // const handleRemoveItem = async (itemId) => {
-  //   try {
-  //     await removeItemFromCart(itemId);
-  //   } catch (err) {
-  //     console.error("Failed to remove item:", err);
-  //   }
-  // };
-
-  const handleSubmitCart = async () => {
-    try {
-      await submitCart();
-      alert("🛍️ Order submitted successfully!");
-    } catch (err) {
-      alert("❌ Failed to submit cart: " + err.message);
-    }
-  };
+  }, [loadCart]);
 
   return (
     <div className="min-h-screen w-full bg-[#f5f5f5] text-primary py-10 px-4 font-roboto">
@@ -85,7 +67,15 @@ export default function ShoppingCartPage() {
                 </div>
 
                 {/* Unit Price */}
-                <div className="text-center">₫{item.price}</div>
+                <div className="text-center">
+                  {item.price
+                    ? Number(item.price).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : "0.00"}{" "}
+                  USD
+                </div>
 
                 {/* Quantity Controls */}
                 <div className="flex flex-col items-center gap-1">
@@ -117,7 +107,15 @@ export default function ShoppingCartPage() {
 
                 {/* Subtotal */}
                 <div className="text-center text-red-500 font-semibold">
-                  ₫{item.price * item.quantity}
+                  {item.price && item.quantity
+                    ? (
+                        Number(item.price) * Number(item.quantity)
+                      ).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : "0.00"}{" "}
+                  USD
                 </div>
 
                 {/* Actions */}
@@ -139,7 +137,13 @@ export default function ShoppingCartPage() {
               <div className="text-base font-semibold">
                 Total:{" "}
                 <span className="text-red-500 text-xl">
-                  ₫{cartTotal.toLocaleString("vi-VN")}
+                  {cartTotal
+                    ? Number(cartTotal).toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : "0.00"}{" "}
+                  USD
                 </span>
               </div>
 
@@ -158,9 +162,7 @@ export default function ShoppingCartPage() {
             <p className="text-lg font-semibold mb-4">
               Your cart is currently empty.
             </p>
-            <p className="mb-6 text-gray-600">
-              Explore exciting products now!
-            </p>
+            <p className="mb-6 text-gray-600">Explore exciting products now!</p>
             <a
               href="/products"
               className="inline-block bg-secondary text-white px-6 py-2 rounded hover:bg-gray-800 transition"
