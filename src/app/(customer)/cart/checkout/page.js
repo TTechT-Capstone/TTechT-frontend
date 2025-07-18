@@ -10,7 +10,6 @@ import {
 import useCartStore from "@/app/stores/cartStore";
 import useCheckoutStore from "@/app/stores/checkoutStore";
 import {
-  createPaymentIntentAPI,
   createPaymentCheckoutAPI,
   getPaymentStatusAPI,
 } from "@/app/apis/payment.api";
@@ -33,7 +32,7 @@ export default function CheckoutPage() {
   const [sessionId, setSessionId] = useState(null);
   const [paymentError, setPaymentError] = useState("");
   const [showEmbeddedCheckout, setShowEmbeddedCheckout] = useState(false);
-  const [stripeInstance, setStripeInstance] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState("");
   const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -44,7 +43,6 @@ export default function CheckoutPage() {
     deliveryAddress,
     promotionCode,
     setFormData,
-    clearFormData,
   } = useCheckoutStore();
 
   const [errors, setErrors] = useState({});
@@ -63,19 +61,10 @@ export default function CheckoutPage() {
         deliveryAddress: user.address || "",
       });
     }
-  }, [user]);
-
-  useEffect(() => {
-    const load = async () => {
-      const stripe = await stripePromise;
-      setStripeInstance(stripe);
-    };
-    load();
-  }, []);
+  }, [user, setFormData]);
 
   const isFormIncomplete =
     !contactName || !contactPhone || !deliveryAddress || !contactEmail;
-  //!paymentMethod;
 
   const validateForm = () => {
     const newErrors = {};
@@ -96,6 +85,7 @@ export default function CheckoutPage() {
     try {
       setLoadingClientSecret(true);
       setPaymentError("");
+      setPaymentStatus("Creating payment session...");
 
       const payload = {
         items: selectedCartItems.map((item) => ({
@@ -104,51 +94,75 @@ export default function CheckoutPage() {
         })),
         customerEmail: contactEmail,
         customerName: contactName,
-        description: "Test order from TTECHT store",
+        description: `Order from TTECHT store - ${selectedCartItems.length} items`,
       };
 
-      console.log("🚀 Creating payment intent with payload:", payload);
+      console.log("Creating checkout session with payload:", payload);
 
       const response = await createPaymentCheckoutAPI(payload);
       const secret = response?.result?.clientSecret;
-      setSessionId(response?.result?.sessionId);
+      const sessionIdResponse = response?.result?.sessionId;
 
-      console.log("🚀 Payment intent response:", response);
+      console.log("Payment checkout response:", response);
 
-      if (!secret) {
-        throw new Error("No client secret returned");
+      if (!secret || !sessionIdResponse) {
+        throw new Error("No client secret or session ID returned");
       }
 
       setClientSecret(secret);
+      setSessionId(sessionIdResponse);
       setShowEmbeddedCheckout(true);
+      setPaymentStatus("Payment form ready");
+
+      setTimeout(() => {
+        startPaymentStatusPolling(sessionIdResponse);
+      }, 2000);
+
     } catch (error) {
       setPaymentError("Unable to load payment form. Try again.");
-
-      console.group("❌ Stripe Payment Error Details");
-
-      if (error.response) {
-        // Backend returned a non-2xx response
-        console.error("👉 error.response.status:", error.response.status);
-        console.error("👉 error.response.data:", error.response.data);
-        console.error("👉 error.response.headers:", error.response.headers);
-      } else if (error.request) {
-        // Request was made but no response received
-        console.error(
-          "👉 error.request (no response received):",
-          error.request
-        );
-      } else {
-        // Something happened in setting up the request
-        console.error("👉 error.message:", error.message);
-      }
-
-      // Always log full error object for safety
-      console.error("👉 Full error object:", error);
-
-      console.groupEnd();
+      setPaymentStatus("");
+      console.error("Stripe Payment Error:", error);
     } finally {
       setLoadingClientSecret(false);
     }
+  };
+
+  const startPaymentStatusPolling = (sessionId) => {
+    let pollCount = 0;
+    const maxPolls = 70; // (70 * 4 seconds)
+
+    const pollInterval = setInterval(async () => {
+      pollCount++;
+      
+      try {
+        setPaymentStatus(`Checking payment status... (${pollCount})`);
+        
+        const statusResponse = await getPaymentStatusAPI(sessionId);
+        const status = statusResponse?.result?.status;
+        
+        console.log(`Payment status check ${pollCount}:`, status);
+        
+        if (status === "SUCCEEDED") {
+          clearInterval(pollInterval);
+          setPaymentCompleted(true);
+          setPaymentStatus("Payment completed successfully!");
+          console.log("Payment completed successfully!");
+        } else if (status === "FAILED") {
+          clearInterval(pollInterval);
+          setPaymentError("Payment failed. Please try again.");
+          setPaymentStatus("");
+        }
+        
+        // Stop polling after max attempts
+        if (pollCount >= maxPolls) {
+          clearInterval(pollInterval);
+          setPaymentStatus("Payment verification timeout");
+        }
+        
+      } catch (error) {
+        console.error("Error checking payment status:", error);
+      }
+    }, 4000); // Poll every 4 seconds
   };
 
   const handleCheckout = async () => {
@@ -159,20 +173,23 @@ export default function CheckoutPage() {
       return;
     }
 
+    if (!paymentCompleted) {
+      alert("Please complete payment before placing your order.");
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
-      // ✅ Check payment status before proceeding
+      // ✅ Double-check payment status before creating order
       const paymentStatusResponse = await getPaymentStatusAPI(sessionId);
       const status = paymentStatusResponse?.result?.status;
 
       if (status !== "SUCCEEDED") {
-        alert("Please complete payment before placing your order.");
+        alert("Payment not completed. Please complete payment first.");
         setPaymentCompleted(false);
         return;
       }
-
-      setPaymentCompleted(true); // ✅ Payment is done!
 
       const cartItemIds = cart.map((item) => item.id);
       const orderPayload = {
@@ -190,8 +207,8 @@ export default function CheckoutPage() {
       const orderData = await createOrderAPI(user.id, cartId, orderPayload);
       console.log("✅ Order created:", orderData);
 
+      alert("Order placed successfully!");
       setIsModalOpen(true); // ✅ Show modal
-
       // Optional: redirect or reset state
     } catch (error) {
       console.error("❌ Failed to complete checkout:", error);
@@ -234,9 +251,6 @@ export default function CheckoutPage() {
                 className="input-field"
                 placeholder="Your first name"
                 value={contactName}
-                // onChange={(e) =>
-                //   setForm((prev) => ({ ...prev, contactName: e.target.value }))
-                // }
                 onChange={(e) => setFormData({ contactName: e.target.value })}
               />
               {errors.contactName && (
@@ -252,9 +266,6 @@ export default function CheckoutPage() {
                 className="input-field"
                 placeholder="Phone number"
                 value={contactPhone}
-                // onChange={(e) =>
-                //   setForm((prev) => ({ ...prev, contactPhone: e.target.value }))
-                // }
                 onChange={(e) => setFormData({ contactPhone: e.target.value })}
               />
               {errors.contactPhone && (
@@ -273,12 +284,6 @@ export default function CheckoutPage() {
                 className="input-field"
                 placeholder="Address"
                 value={deliveryAddress}
-                // onChange={(e) =>
-                //   setForm((prev) => ({
-                //     ...prev,
-                //     deliveryAddress: e.target.value,
-                //   }))
-                // }
                 onChange={(e) =>
                   setFormData({ deliveryAddress: e.target.value })
                 }
@@ -296,9 +301,6 @@ export default function CheckoutPage() {
                 className="input-field"
                 placeholder="Email"
                 value={contactEmail}
-                // onChange={(e) =>
-                //   setForm((prev) => ({ ...prev, contactEmail: e.target.value }))
-                // }
                 onChange={(e) => setFormData({ contactEmail: e.target.value })}
               />
               {errors.contactEmail && (
@@ -377,6 +379,8 @@ export default function CheckoutPage() {
               type="text"
               placeholder="Enter Coupon Code"
               className="input-field w-full"
+              value={promotionCode}
+              onChange={(e) => setFormData({ promotionCode: e.target.value })}
             />
             <button className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded text-sm font-medium">
               Apply
@@ -391,38 +395,59 @@ export default function CheckoutPage() {
           </h2>
 
           <div className="space-y-3">
+            {/* Payment Status */}
+            {paymentStatus && (
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <p className="text-sm text-blue-700">{paymentStatus}</p>
+              </div>
+            )}
+
+            {/* Payment Completed Indicator */}
+            {paymentCompleted && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                <p className="text-sm text-green-700 font-semibold">
+                  ✅ Payment completed successfully! You can now place your order.
+                </p>
+              </div>
+            )}
+
             {/* Stripe Checkout UI */}
             {loadingClientSecret ? (
-              <p className="text-sm text-gray-500">
-                Loading payment information...
-              </p>
-            ) : showEmbeddedCheckout ? (
-              <EmbeddedCheckoutProvider
-                options={{ clientSecret }}
-                stripe={stripePromise}
-              >
-                <EmbeddedCheckout />
-              </EmbeddedCheckoutProvider>
+              <div className="flex items-center gap-2">
+                <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                <p className="text-sm text-gray-500">Loading payment form...</p>
+              </div>
+            ) : showEmbeddedCheckout && clientSecret ? (
+              <div className="border rounded-lg overflow-hidden">
+                <EmbeddedCheckoutProvider
+                  options={{ clientSecret }}
+                  stripe={stripePromise}
+                >
+                  <EmbeddedCheckout />
+                </EmbeddedCheckoutProvider>
+              </div>
             ) : (
               <button
                 onClick={handlePayClick}
-                disabled={loadingClientSecret}
+                disabled={loadingClientSecret || isFormIncomplete}
                 className={`w-full sm:w-auto bg-secondary text-white px-6 py-2 rounded-md font-semibold transition duration-200 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed`}
               >
-                Pay
+                {loadingClientSecret ? "Loading..." : "Pay with Card"}
               </button>
             )}
 
             {/* Error Message */}
             {paymentError && (
-              <p className="text-sm text-red-500">{paymentError}</p>
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-sm text-red-500">{paymentError}</p>
+              </div>
             )}
           </div>
         </div>
 
         {/* Place Order Button */}
         <button
-          className={`mt-4 w-full py-2 font-medium transition duration-200 ${
+          className={`mt-4 w-full py-3 font-medium transition duration-200 rounded-md ${
             isFormIncomplete || isProcessing || !paymentCompleted
               ? "bg-gray-300 cursor-not-allowed text-gray-600"
               : "bg-primary text-white hover:opacity-90"
@@ -430,7 +455,16 @@ export default function CheckoutPage() {
           onClick={handleCheckout}
           disabled={isFormIncomplete || isProcessing || !paymentCompleted}
         >
-          {isProcessing ? "Processing..." : "Checkout"}
+          {isProcessing ? (
+            <div className="flex items-center justify-center gap-2">
+              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+              Processing Order...
+            </div>
+          ) : paymentCompleted ? (
+            "Place Order"
+          ) : (
+            "Complete Payment First"
+          )}
         </button>
       </div>
 
