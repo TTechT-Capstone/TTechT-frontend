@@ -50,7 +50,6 @@ const useCartStore = create(
       addToCart: async (newItem) => {
         try {
           set({ status: "loading" });
-
           let { cartId, cart } = get();
 
           if (!cartId) {
@@ -69,25 +68,32 @@ const useCartStore = create(
             );
           }
 
-          const response = await addItemToCartAPI(cartId, newItem);
-
-          if (!response?.result) {
-            throw new Error("Invalid response structure from API");
-          }
-
-          const newCartItem = response.result;
-
-          // Merge item with existing cart
-          const updatedCart = [...(cart || [])];
-          const existingIndex = updatedCart.findIndex(
-            (item) => item.productId === newCartItem.productId
+          const existingItem = cart.find(
+            (item) => item.productId === newItem.productId
           );
 
-          if (existingIndex !== -1) {
-            // Update quantity if already exists
-            updatedCart[existingIndex].quantity += newCartItem.quantity;
+          let updatedCart;
+
+          if (existingItem) {
+            // 🛠 Call update API instead of add
+            const updatedQuantity = existingItem.quantity + newItem.quantity;
+            await updateItemQuantityAPI(
+              cartId,
+              existingItem.id,
+              updatedQuantity
+            );
+
+            updatedCart = cart.map((item) =>
+              item.productId === newItem.productId
+                ? { ...item, quantity: updatedQuantity }
+                : item
+            );
           } else {
-            updatedCart.push(newCartItem);
+            // 🛠 Call add API for new items only
+            const response = await addItemToCartAPI(cartId, newItem);
+            const newCartItem = response.result;
+
+            updatedCart = [...cart, newCartItem];
           }
 
           const totals = calculateCartTotals(updatedCart);
@@ -98,7 +104,6 @@ const useCartStore = create(
             totalPrice: totals.totalPrice,
             status: "succeeded",
           });
-          console.log("✅ Successfully added to cart:", newCartItem);
         } catch (err) {
           console.error("❌ Failed to add item to cart:", err);
           set({ status: "failed", error: err.message });
@@ -106,31 +111,21 @@ const useCartStore = create(
       },
 
       // Remove item from cart
-      removeItemFromCart: async (itemId) => {
-        const { cartId } = get();
-        if (!cartId) return; // Ensure cartId is available
+      removeItemFromCart: async (productId) => {
+        const { cartId, loadCart } = get();
+        if (!cartId) return;
 
         try {
-          // Call the API to remove the item
-          const updatedCart = await removeItemFromCartAPI(cartId, itemId);
+          await removeItemFromCartAPI(cartId, productId);
+          await loadCart(); // loadCart already updates the store
 
-          // Check if the API response structure is as expected
-          const items = updatedCart.result?.cartItems || []; // Use optional chaining for safety
-
-          // Calculate new totals
-          const totals = calculateCartTotals(items);
-
-          // Update the state with the new cart data
-          set({
-            cart: items,
-            totalQuantity: totals.totalQuantity,
-            totalPrice: totals.totalPrice,
-            status: "succeeded",
-          });
+          set({ status: "succeeded", error: null });
         } catch (err) {
-          console.error("❌ Failed to remove item:", err);
-          set({ status: "failed", error: err.message });
-          // Optionally, provide user feedback here
+          console.error("❌ Remove error:", err);
+          set({
+            status: "failed",
+            error: err.message || "Error removing item",
+          });
         }
       },
 

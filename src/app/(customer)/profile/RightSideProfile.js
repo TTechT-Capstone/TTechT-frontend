@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import useAuth from "@/app/hooks/useAuth";
 import { updatePassword, updateUser } from "@/app/apis/auth.api";
-import { getOrdersByUserIdAPI } from "@/app/apis/order.api";
+import { getOrdersByUserIdAPI, getOrderByIdAPI } from "@/app/apis/order.api";
 import ProfileForm from "@/app/components/profile/ProfileForm";
 import ChangePasswordForm from "@/app/components/profile/ChangePasswordForm";
 import OrdersSection from "@/app/components/order/OrderSection";
@@ -17,8 +17,8 @@ export default function RightSide({ activeSection }) {
     phoneNumber: "",
     userName: "",
     oldPassword: "",
-    newPassword: "", 
-    confirmNewPassword: "", 
+    newPassword: "",
+    confirmNewPassword: "",
   });
   const [error, setError] = useState(null);
   const [orders, setOrders] = useState([]);
@@ -28,11 +28,11 @@ export default function RightSide({ activeSection }) {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
-  const [orderStatusFilter, setOrderStatusFilter] = useState("all"); 
+  const [orderStatusFilter, setOrderStatusFilter] = useState("all");
 
   const filteredOrders = () => {
     if (orderStatusFilter === "all") {
-      return orders; 
+      return orders;
     }
     return orders.filter((order) => order.status === orderStatusFilter); // Filter by selected status
   };
@@ -57,72 +57,68 @@ export default function RightSide({ activeSection }) {
     const passwordErrorMessage =
       "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
 
-      const { oldPassword, newPassword, confirmNewPassword } = profile;
-    
-      // Validate new password
+    const { oldPassword, newPassword, confirmNewPassword } = profile;
+
+    // Validate new password
     if (profile.newPassword && !isValidPassword(profile.newPassword)) {
       setError(passwordErrorMessage);
       return false;
     }
 
     // Check if confirmNewPassword matches newPassword
-  if (newPassword !== confirmNewPassword) {
-    setError("New password and confirmation do not match.");
-    return false;
-  }
+    if (newPassword !== confirmNewPassword) {
+      setError("New password and confirmation do not match.");
+      return false;
+    }
 
-  // Check if newPassword is the same as oldPassword
-  if (oldPassword === newPassword) {
-    setError("New password must be different from old password.");
-    return false;
-  }
+    // Check if newPassword is the same as oldPassword
+    if (oldPassword === newPassword) {
+      setError("New password must be different from old password.");
+      return false;
+    }
 
     // Clear error if the new password is valid
     setError(null);
     return true;
   };
-  
-const handleChangePassword = async (e) => {
-  e.preventDefault();
 
-  // Validate new password input rules
-  if (!validatePassword()) return;
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
 
-  try {
-    await updatePassword(
-      user.id,
-      {
+    // Validate new password input rules
+    if (!validatePassword()) return;
+
+    try {
+      await updatePassword(user.id, {
         oldPassword: profile.oldPassword,
         newPassword: profile.newPassword,
         confirmNewPassword: profile.confirmNewPassword,
-      }
-    );
+      });
 
-    alert("✅ Password updated successfully!");
+      alert("✅ Password updated successfully!");
 
-    // Clear form after success
-    setProfile((prevProfile) => ({
-      ...prevProfile,
-      oldPassword: "",
-      newPassword: "",
-      confirmNewPassword: "",
-    }));
-  } catch (error) {
-    // Print full error to console
-    console.error("❌ Error changing password:", error);
+      // Clear form after success
+      setProfile((prevProfile) => ({
+        ...prevProfile,
+        oldPassword: "",
+        newPassword: "",
+        confirmNewPassword: "",
+      }));
+    } catch (error) {
+      // Print full error to console
+      console.error("❌ Error changing password:", error);
 
-    // Extract a detailed error message
-    const detailedMessage =
-      error?.response?.data?.message ||   // e.g. { message: "Old password is incorrect" }
-      error?.response?.data?.error ||     // fallback key
-      JSON.stringify(error?.response?.data) || // whole response if structure is unknown
-      error.message ||                    // JS error fallback
-      "An unexpected error occurred.";
+      // Extract a detailed error message
+      const detailedMessage =
+        error?.response?.data?.message || // e.g. { message: "Old password is incorrect" }
+        error?.response?.data?.error || // fallback key
+        JSON.stringify(error?.response?.data) || // whole response if structure is unknown
+        error.message || // JS error fallback
+        "An unexpected error occurred.";
 
-    alert(`❌ Failed to change password:\n${detailedMessage}`);
-  }
-};
-
+      alert(`❌ Failed to change password:\n${detailedMessage}`);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -138,7 +134,6 @@ const handleChangePassword = async (e) => {
       setLoadingProfile(false);
     }
   }, [user]);
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -170,23 +165,23 @@ const handleChangePassword = async (e) => {
   };
 
   useEffect(() => {
-      if (activeSection === 2 && idToken) {
-          const fetchOrders = async () => {
-              setLoadingOrders(true);
-              try {
-                  const data = await getOrdersByUserIdAPI(user.id);
-                  console.log("Fetched orders:", data.result);
-                  setOrders(data.result);
-              } catch (error) {
-                  console.error('Error fetching orders:', error);
-                  setOrders([]);
-              } finally {
-                  setLoadingOrders(false);
-              }
-          };
+    if (activeSection === 2 && idToken) {
+      const fetchOrders = async () => {
+        setLoadingOrders(true);
+        try {
+          const data = await getOrdersByUserIdAPI(user.id);
+          console.log("Fetched orders:", data.result);
+          setOrders(data.result);
+        } catch (error) {
+          console.error("Error fetching orders:", error);
+          setOrders([]);
+        } finally {
+          setLoadingOrders(false);
+        }
+      };
 
-          fetchOrders();
-      }
+      fetchOrders();
+    }
   }, [activeSection, idToken]);
 
   const handleCancelOrder = async (orderId) => {
@@ -211,73 +206,25 @@ const handleChangePassword = async (e) => {
     }
   };
 
-  // const renderOrderFilter = () => (
-  //   <div className="mb-4">
-  //     <label
-  //       htmlFor="orderStatus"
-  //       className="block text-sm font-medium text-gray-700"
-  //     >
-  //       Filter by Order Status:
-  //     </label>
-  //     <select
-  //       id="orderStatus"
-  //       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-  //       value={orderStatusFilter}
-  //       onChange={(e) => setOrderStatusFilter(e.target.value)}
-  //     >
-  //       <option value="all">All Orders</option>
-  //       <option value="new">New</option>
-  //       <option value="completed">Completed</option>
-  //       <option value="rejected">Rejected</option>
-  //       <option value="cancelled">Cancelled</option>
-  //     </select>
-  //   </div>
-  // );
-
   const handleOrderClick = async (orderId) => {
     if (selectedOrderId === orderId) {
       setSelectedOrderId(null);
       setOrderDetails(null);
     } else {
       try {
-        const details = await getOrderDetailAPI(orderId);
-        setOrderDetails(details);
+        const details = await getOrderByIdAPI(orderId);
+        //console.log("Fetched order details:", details);
+
+        const orderItems = details?.result?.orderItems || [];
+        //console.log("Order Items:", orderItems);
+
+        setOrderDetails(details.result);
         setSelectedOrderId(orderId);
       } catch (error) {
         console.error("Error fetching order details:", error);
       }
     }
   };
-
-  // const renderCancelModal = () => (
-  //   <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-  //     <div className="bg-white p-6 rounded-lg shadow-lg">
-  //       <h2 className="text-lg font-semibold mb-4">Cancel Order</h2>
-  //       <p>Please provide a reason for canceling the order:</p>
-  //       <textarea
-  //         className="w-full border border-gray-300 rounded-lg p-2 mt-2"
-  //         rows="4"
-  //         value={cancelReason}
-  //         onChange={(e) => setCancelReason(e.target.value)}
-  //         placeholder="Enter your reason here..."
-  //       />
-  //       <div className="flex justify-end mt-4">
-  //         <button
-  //           onClick={() => setIsCancelModalOpen(false)}
-  //           className="mr-2 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition duration-200"
-  //         >
-  //           Cancel
-  //         </button>
-  //         <button
-  //           onClick={() => handleCancelOrder(selectedOrderId)}
-  //           className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition duration-200"
-  //         >
-  //           Confirm Cancel
-  //         </button>
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
 
   return (
     <div className="p-4 mb-8 max-w-6xl mx-auto">
@@ -298,7 +245,7 @@ const handleChangePassword = async (e) => {
         </>
       )}
       {activeSection === 2 && (
-          <OrdersSection
+        <OrdersSection
           orders={orders}
           loadingOrders={loadingOrders}
           selectedOrderId={selectedOrderId}

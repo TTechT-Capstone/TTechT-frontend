@@ -92,25 +92,26 @@ export default function OrdersSection({
                   </span>
                 </p>
               </div>
-              {selectedOrderId === order.id && orderDetails && (
-                <div className="mt-2">
-                  <h2 className="text-lg font-semibold">Order Items:</h2>
-                  <ul className="list-disc pl-5">
-                    {orderDetails.orderItems.map((item) => (
-                      <li key={item.id} className="text-sm text-gray-600">
-                        {item.productName} - Quantity: {item.quantity} - Price:
-                        $
-                        {item.discountPrice
-                          ? item.discountPrice +
-                            ` (Previous price: $` +
-                            item.productPrice +
-                            `)`
-                          : item.productPrice}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+
+              {selectedOrderId === order.id &&
+                orderDetails &&
+                Array.isArray(orderDetails.orderItems) && (
+                  <div className="mt-2">
+                    <h2 className="text-lg font-semibold">Order Items:</h2>
+                    <ul className="list-disc pl-5">
+                      {(orderDetails.orderItems || []).map((item) => (
+                        <li key={item.id} className="text-sm text-gray-600">
+                          {item.productName} - Quantity: {item.quantity} -
+                          Price: $
+                          {item.discountPrice
+                            ? `${item.discountPrice} (Previous price: $${item.price})`
+                            : item.price}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
               {order.status === "new" && (
                 <div className="flex justify-end">
                   <button

@@ -23,13 +23,13 @@ export default function ShoppingCartPage() {
     loadCart();
   }, []);
 
-  const handleRemoveItem = async (itemId) => {
-    try {
-      await removeItemFromCart(itemId);
-    } catch (err) {
-      console.error("Failed to remove item:", err);
-    }
-  };
+  // const handleRemoveItem = async (itemId) => {
+  //   try {
+  //     await removeItemFromCart(itemId);
+  //   } catch (err) {
+  //     console.error("Failed to remove item:", err);
+  //   }
+  // };
 
   const handleSubmitCart = async () => {
     try {

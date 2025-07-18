@@ -135,8 +135,8 @@ export const addItemToCartAPI = async (cartId, newItem) => {
 export const removeItemFromCartAPI = async (cartId, itemId) => {
   try {
     const response = await axios.post(
-      `${API_BASE_URL}/cartsItems/remove/${cartId}`,
-      itemId ,
+      `${API_BASE_URL}/cartsItems/remove/${cartId}/${itemId}` ,
+      {},
       { headers: getAuthHeaders() }
     );
     return response.data;
