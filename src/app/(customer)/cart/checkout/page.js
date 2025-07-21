@@ -85,7 +85,7 @@ export default function CheckoutPage() {
     try {
       setLoadingClientSecret(true);
       setPaymentError("");
-      setPaymentStatus("Creating payment session...");
+      //setPaymentStatus("Creating payment session...");
 
       const payload = {
         items: selectedCartItems.map((item) => ({
@@ -112,7 +112,7 @@ export default function CheckoutPage() {
       setClientSecret(secret);
       setSessionId(sessionIdResponse);
       setShowEmbeddedCheckout(true);
-      setPaymentStatus("Payment form ready");
+      //setPaymentStatus("Payment form ready");
 
       setTimeout(() => {
         startPaymentStatusPolling(sessionIdResponse);
@@ -120,7 +120,7 @@ export default function CheckoutPage() {
 
     } catch (error) {
       setPaymentError("Unable to load payment form. Try again.");
-      setPaymentStatus("");
+      //setPaymentStatus("");
       console.error("Stripe Payment Error:", error);
     } finally {
       setLoadingClientSecret(false);
@@ -135,7 +135,7 @@ export default function CheckoutPage() {
       pollCount++;
       
       try {
-        setPaymentStatus(`Checking payment status... (${pollCount})`);
+        //... (${pollCount})`);
         
         const statusResponse = await getPaymentStatusAPI(sessionId);
         const status = statusResponse?.result?.status;
@@ -145,7 +145,7 @@ export default function CheckoutPage() {
         if (status === "SUCCEEDED") {
           clearInterval(pollInterval);
           setPaymentCompleted(true);
-          setPaymentStatus("Payment completed successfully!");
+          //setPaymentStatus("Payment completed successfully!");
           console.log("Payment completed successfully!");
         } else if (status === "FAILED") {
           clearInterval(pollInterval);
@@ -156,7 +156,7 @@ export default function CheckoutPage() {
         // Stop polling after max attempts
         if (pollCount >= maxPolls) {
           clearInterval(pollInterval);
-          setPaymentStatus("Payment verification timeout");
+          //setPaymentStatus("Payment verification timeout");
         }
         
       } catch (error) {
@@ -207,9 +207,7 @@ export default function CheckoutPage() {
       const orderData = await createOrderAPI(user.id, cartId, orderPayload);
       console.log("✅ Order created:", orderData);
 
-      alert("Order placed successfully!");
       setIsModalOpen(true); // ✅ Show modal
-      // Optional: redirect or reset state
     } catch (error) {
       console.error("❌ Failed to complete checkout:", error);
       alert("Checkout failed. Please try again.");
@@ -430,7 +428,7 @@ export default function CheckoutPage() {
               <button
                 onClick={handlePayClick}
                 disabled={loadingClientSecret || isFormIncomplete}
-                className={`w-full sm:w-auto bg-secondary text-white px-6 py-2 rounded-md font-semibold transition duration-200 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`w-full sm:w-auto bg-secondary text-white px-6 py-2 rounded-md font-semibold transition duration-200 hover:bg-[#3d4a54] disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {loadingClientSecret ? "Loading..." : "Pay with Card"}
               </button>
