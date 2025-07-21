@@ -14,10 +14,16 @@ export default function ShoppingCartPage() {
     updateQuantity,
     removeItemFromCart,
     submitCart,
+    selectedItems,
+    setSelectedItems,
+    toggleItemSelection,
+    toggleAllItems,
+    calculatePriceOfSelectedItems
   } = useCartStore();
-
-  const cartTotal = totalPrice;
-
+  
+  //const cartTotal = totalPrice;
+  const cartTotal = calculatePriceOfSelectedItems();
+  
   useEffect(() => {
     loadCart();
   }, [loadCart]);
@@ -33,7 +39,11 @@ export default function ShoppingCartPage() {
         {/* Table Header */}
         <div className="grid grid-cols-7 px-6 py-3 bg-white text-gray-600 font-semibold text-sm">
           <div>
-            <input type="checkbox" />
+            <input
+              type="checkbox"
+              checked={selectedItems.length === cart.length}
+              onChange={toggleAllItems}
+            />
           </div>
           <div className="col-span-2">Product</div>
           <div className="text-center">Unit Price</div>
@@ -53,7 +63,11 @@ export default function ShoppingCartPage() {
               >
                 {/* Checkbox */}
                 <div>
-                  <input type="checkbox" />
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.includes(item.productId)}
+                    onChange={() => toggleItemSelection(item.productId)}
+                  />
                 </div>
 
                 {/* Product Info */}
@@ -149,9 +163,22 @@ export default function ShoppingCartPage() {
 
               {/* Checkout Buttons */}
               <div className="flex gap-4">
-                <Link href="/cart/checkout">
+                {/* <Link href="/cart/checkout">
                   <button className="px-6 py-2 bg-primary text-white hover:opacity-90">
                     Checkout
+                  </button>
+                </Link> */}
+                <Link
+                  href={{
+                    pathname: "/cart/checkout",
+                    query: { selected: JSON.stringify(selectedItems) },
+                  }}
+                >
+                  <button
+                    className="px-6 py-2 bg-primary text-white hover:opacity-90"
+                    disabled={selectedItems.length === 0}
+                  >
+                    Checkout ({selectedItems.length})
                   </button>
                 </Link>
               </div>

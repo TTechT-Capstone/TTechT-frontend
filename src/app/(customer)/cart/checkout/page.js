@@ -23,8 +23,12 @@ const stripePromise = loadStripe(
 export default function CheckoutPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { cartId, cart, loadCart, totalPrice } = useCartStore();
-  const selectedCartItems = cart || [];
+  const { cartId, cart, loadCart, totalPrice, selectedItems, calculatePriceOfSelectedItems} = useCartStore();
+  
+  const selectedCartItems = cart.filter(item =>
+  selectedItems.includes(item.productId)
+);
+
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [clientSecret, setClientSecret] = useState(null);
@@ -46,8 +50,9 @@ export default function CheckoutPage() {
   } = useCheckoutStore();
 
   const [errors, setErrors] = useState({});
-  const cartTotal = totalPrice;
-
+  //const cartTotal = totalPrice;
+  const cartTotal = calculatePriceOfSelectedItems();
+  
   useEffect(() => {
     loadCart();
   }, []);
@@ -191,7 +196,10 @@ export default function CheckoutPage() {
         return;
       }
 
-      const cartItemIds = cart.map((item) => item.id);
+      //const cartItemIds = cart.map((item) => item.id);
+
+      const cartItemIds = selectedCartItems.map((item) => item.id);
+
       const orderPayload = {
         totalAmount: totalPrice,
         orderStatus: "PENDING",
@@ -223,7 +231,7 @@ export default function CheckoutPage() {
 
   const handleViewOrder = () => {
     setIsModalOpen(false);
-    router.push("/profile");
+    router.push("/user/order");
   };
 
   return (

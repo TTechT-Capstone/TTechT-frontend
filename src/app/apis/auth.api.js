@@ -1,15 +1,15 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = 'https://ttecht-backend.onrender.com/api/v1';
+const API_BASE_URL = "https://ttecht-backend.onrender.com/api/v1";
 
 /**
  * Helper function to get the auth headers.
  * @returns {Object} - Authorization headers
  */
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('idToken');
+  const token = localStorage.getItem("idToken");
   if (!token) {
-    throw new Error('Authorization token is missing');
+    throw new Error("Authorization token is missing");
   }
   return {
     Authorization: `Bearer ${token}`,
@@ -21,27 +21,15 @@ const getAuthHeaders = () => {
  * @param {Object} credentials - The login credentials.
  * @returns {Promise<Object>} - API response data.
  */
-export const login = async (credentials) => {
+export const loginAsUser = async (credentials) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/auth/token`, credentials);
+    const response = await axios.post(
+      `${API_BASE_URL}/auth/token`,
+      credentials
+    );
     return response.data;
   } catch (error) {
-    console.error('Login failed:', error);
-    throw error.response?.data || error;
-  }
-};
-
-/**
- * Log in an admin user.
- * @param {Object} credentials - The admin login credentials.
- * @returns {Promise<Object>} - API response data.
- */
-export const loginAsAdmin = async (credentials) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/auth/login/admin`, credentials);
-    return response.data;
-  } catch (error) {
-    console.error('Admin login failed:', error);
+    console.error("Login failed:", error);
     throw error.response?.data || error;
   }
 };
@@ -51,13 +39,13 @@ export const loginAsAdmin = async (credentials) => {
  * @param {Object} userInfo - User registration information.
  * @returns {Promise<Object>} - API response data.
  */
-export const register = async (userInfo) => {
-  try {   
-    console.log('Registering user with info:', userInfo);
+export const registerUser = async (userInfo) => {
+  try {
+    //console.log("Registering user with info:", userInfo);
     const response = await axios.post(`${API_BASE_URL}/users`, userInfo);
     return response.data;
   } catch (error) {
-    console.error('Registration failed:', error);
+    console.error("Registration failed:", error);
     throw error.response?.data || error;
   }
 };
@@ -68,10 +56,14 @@ export const register = async (userInfo) => {
  */
 export const createRoles = async () => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/roles`, {}, { headers: getAuthHeaders() });
+    const response = await axios.post(
+      `${API_BASE_URL}/roles`,
+      {},
+      { headers: getAuthHeaders() }
+    );
     return response.data;
   } catch (error) {
-    console.error('Failed to create roles:', error);
+    console.error("Failed to create roles:", error);
     throw error.response?.data || error;
   }
 };
@@ -82,10 +74,12 @@ export const createRoles = async () => {
  */
 export const getRoles = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/roles/all`, { headers: getAuthHeaders() });
+    const response = await axios.get(`${API_BASE_URL}/roles/all`, {
+      headers: getAuthHeaders(),
+    });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch roles:', error);
+    console.error("Failed to fetch roles:", error);
     throw error.response?.data || error;
   }
 };
@@ -96,24 +90,30 @@ export const getRoles = async () => {
  */
 export const getProfile = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/users/my-info`, { headers: getAuthHeaders() });
+    const response = await axios.get(`${API_BASE_URL}/users/my-info`, {
+      headers: getAuthHeaders(),
+    });
     return response.data;
   } catch (error) {
-    console.error('Failed to get profile:', error);
+    console.error("Failed to get profile:", error);
     throw error.response?.data || error;
   }
 };
 
 /**
  * Update information of a user by ID.
- * @param {string|number} userId 
- * @param {Object} userInfo 
+ * @param {string|number} userId
+ * @param {Object} userInfo
  */
 export const updateUser = async (userId, userInfo) => {
   try {
-    const response = await axios.put(`${API_BASE_URL}/users/${userId}`, userInfo, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.put(
+      `${API_BASE_URL}/users/${userId}`,
+      userInfo,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
     return response.data;
   } catch (error) {
     console.error(`Failed to update profile for user ${userId}:`, error);
@@ -126,12 +126,16 @@ export const updateUser = async (userId, userInfo) => {
  */
 export const refreshToken = async () => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.post(
+      `${API_BASE_URL}/auth/refresh`,
+      {},
+      {
+        headers: getAuthHeaders(),
+      }
+    );
     return response.data;
   } catch (error) {
-    console.error('Failed to refresh token:', error);
+    console.error("Failed to refresh token:", error);
     throw error.response?.data || error;
   }
 };
@@ -142,10 +146,13 @@ export const refreshToken = async () => {
  */
 export const forgotPassword = async (payload) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/auth/forgot-password`, payload);
+    const response = await axios.post(
+      `${API_BASE_URL}/auth/forgot-password`,
+      payload
+    );
     return response.data;
   } catch (error) {
-    console.error('Failed to initiate forgot password:', error);
+    console.error("Failed to initiate forgot password:", error);
     throw error.response?.data || error;
   }
 };
@@ -160,24 +167,25 @@ export const redisCheck = async () => {
     });
     return response.data;
   } catch (error) {
-    console.error('Failed to check Redis:', error);
+    console.error("Failed to check Redis:", error);
     throw error.response?.data || error;
   }
 };
 /**
  * Validate reset token.
- * @param {string} token 
+ * @param {string} token
  */
 export const validateToken = async (token) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/auth/validate-reset-token?token=${token}`);
+    const response = await axios.get(
+      `${API_BASE_URL}/auth/validate-reset-token?token=${token}`
+    );
     return response.data;
   } catch (error) {
-    console.error('Failed to validate reset token:', error);
+    console.error("Failed to validate reset token:", error);
     throw error.response?.data || error;
   }
 };
-
 
 /**
  * Change password for logged-in user.
@@ -197,7 +205,7 @@ export const updatePassword = async (userId, payload) => {
     );
     return response.data;
   } catch (error) {
-    console.error('❌ Failed to update password:', error);
+    console.error("❌ Failed to update password:", error);
     throw error.response?.data || error;
   }
 };
@@ -219,8 +227,104 @@ export const resetPassword = async (payload) => {
     );
     return response.data;
   } catch (error) {
-    console.error('❌ Failed to reset password:', error);
-    throw new Error(error.response?.data?.message || 'Unable to reset password. Please try again.');
+    console.error("❌ Failed to reset password:", error);
+    throw new Error(
+      error.response?.data?.message ||
+        "Unable to reset password. Please try again."
+    );
+  }
+};
+/**
+ * Create a new seller.
+ * @param {Object} sellerInfo - The seller registration information.
+ * @returns {Promise<Object>} - API response data.
+ */
+export const createSeller = async (sellerInfo) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/sellers`, sellerInfo, {
+      
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Failed to create seller:", error);
+    throw error.response?.data || error;
   }
 };
 
+/**
+ * Get seller information by seller ID.
+ * @param {string|number} sellerId - Seller ID.
+ * @returns {Promise<Object>} - Seller data.
+ */
+export const getSellerById = async (sellerId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/sellers/${sellerId}`, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to get seller by ID ${sellerId}:`, error);
+    throw error.response?.data || error;
+  }
+};
+
+/**
+ * Get seller information by user ID.
+ * @param {string|number} userId - User ID.
+ * @returns {Promise<Object>} - Seller data.
+ */
+export const getSellerByUserId = async (userId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/sellers/user/${userId}`, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to get seller by user ID ${userId}:`, error);
+    throw error.response?.data || error;
+  }
+};
+
+/**
+ * Update seller information by seller ID.
+ * @param {string|number} sellerId - Seller ID.
+ * @param {Object} updatedInfo - Updated seller info.
+ * @returns {Promise<Object>} - Updated seller data.
+ */
+export const updateSellerById = async (sellerId, updatedInfo) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/sellers/${sellerId}`,
+      updatedInfo,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to update seller by ID ${sellerId}:`, error);
+    throw error.response?.data || error;
+  }
+};
+
+/**
+ * Update seller information by user ID.
+ * @param {string|number} userId - User ID.
+ * @param {Object} updatedInfo - Updated seller info.
+ * @returns {Promise<Object>} - Updated seller data.
+ */
+export const updateSellerByUserId = async (userId, updatedInfo) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/sellers/user/${userId}`,
+      updatedInfo,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Failed to update seller by user ID ${userId}:`, error);
+    throw error.response?.data || error;
+  }
+};

@@ -4,7 +4,7 @@ import React from "react";
 export default function ProfileForm({profile, setProfile, handleSubmit, loadingProfile}) {
     return(
         <>
-         <div className="w-full bg-white shadow-xl p-6 space-y-6 rounded-lg max-w-5xl mx-auto">
+         <div className="w-full bg-white shadow-xl p-6 space-y-6 rounded-lg mx-auto">
       <h1 className="font-urbanist text-2xl font-semibold text-primary text-center">
         My Personal Information
       </h1>

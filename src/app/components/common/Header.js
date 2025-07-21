@@ -71,7 +71,7 @@ export default function Header() {
 
             {/* Dropdown shown on hover */}
             <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 font-bold rounded-lg shadow-md z-50 opacity-0 group-hover:opacity-100 group-hover:visible invisible transition-all duration-200">
-              <Link href="/profile">
+              <Link href="/user/account/profile">
                 <button className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100">
                   My Profile
                 </button>
