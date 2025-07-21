@@ -1,19 +1,18 @@
-// /app/(store)/userStore.js
 import { create } from 'zustand';
 import { getProfile } from "@/app/apis/auth.api";
 
-const useUserStore = create((set) => ({
+const useUserStore = create((set, get) => ({
   user: null,
-  idToken: localStorage.getItem('idToken'),
-  //idToken: nu
+  idToken: null,
   loading: false,
   error: null,
 
   fetchUser: async () => {
+    if (typeof window === "undefined") return; // prevent SSR crash
+
     set({ loading: true, error: null });
     try {
       const data = await getProfile();
-      //console.log('Fetched user data:', data);
 
       localStorage.setItem('userId', data.result.id);
       set({ user: data.result, loading: false });
@@ -23,16 +22,27 @@ const useUserStore = create((set) => ({
   },
 
   setIdToken: (token) => {
-    localStorage.setItem('idToken', token); // Save token to localStorage
-    set({ idToken: token }); // Update state
+    if (typeof window !== "undefined") {
+      localStorage.setItem('idToken', token);
+    }
+    set({ idToken: token });
   },
 
   logout: () => {
-    localStorage.removeItem('idToken');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userId');
-    set({ user: null });  
+    if (typeof window !== "undefined") {
+      localStorage.removeItem('idToken');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('userId');
+    }
+    set({ user: null, idToken: null });
   },
+
+  initializeToken: () => {
+    if (typeof window !== "undefined") {
+      const storedToken = localStorage.getItem('idToken');
+      set({ idToken: storedToken });
+    }
+  }
 }));
 
 export default useUserStore;
