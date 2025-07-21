@@ -1,61 +1,31 @@
-import Link from "next/link";
-import { Trash2 } from "lucide-react";
+"use client";
 
-const mockCart = [
-  {
-    id: 1,
-    name: "Product's name",
-    price: 100000,
-    quantity: 5,
-    image: "", // or use real image URL
-  },
-  {
-    id: 2,
-    name: "Product's name",
-    price: 100000,
-    quantity: 5,
-    image: "",
-  },
-  {
-    id: 3,
-    name: "Product's name",
-    price: 100000,
-    quantity: 5,
-    image: "",
-  },
-  {
-    id: 4,
-    name: "Product's name",
-    price: 100000,
-    quantity: 5,
-    image: "",
-  },
-  {
-    id: 5,
-    name: "Product's name",
-    price: 100000,
-    quantity: 5,
-    image: "",
-  },
-  {
-    id: 6,
-    name: "Product's name",
-    price: 100000,
-    quantity: 5,
-    image: "",
-  },
-];
+import Link from "next/link";
+import React, { useEffect } from "react";
+import { Trash2 } from "lucide-react";
+import useCartStore from "@/app/stores/cartStore";
 
 export default function ShoppingCartPage() {
-  const cartTotal = mockCart.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
+  const {
+    cart,
+    cartId,
+    loadCart,
+    totalPrice,
+    updateQuantity,
+    removeItemFromCart,
+    submitCart,
+  } = useCartStore();
+
+  const cartTotal = totalPrice;
+
+  useEffect(() => {
+    loadCart();
+  }, [loadCart]);
 
   return (
     <div className="min-h-screen w-full bg-[#f5f5f5] text-primary py-10 px-4 font-roboto">
       {/* Heading */}
-      <h1 className="text-secondary text-3xl font-bold font-urbanist text-center py-6 ">
+      <h1 className="text-secondary text-3xl font-bold font-urbanist text-center py-6">
         Shopping Cart
       </h1>
 
@@ -74,79 +44,133 @@ export default function ShoppingCartPage() {
       </div>
 
       <div className="max-w-7xl mx-auto bg-white overflow-hidden">
-        {/* Cart Items */}
-        {mockCart.map((item) => (
-          <div
-            key={item.id}
-            className="grid grid-cols-7 items-center px-6 py-5 border-b border-[#EDEDED] text-sm"
-          >
-            {/* Checkbox */}
-            <div>
-              <input type="checkbox" />
-            </div>
+        {cart && cart.length > 0 ? (
+          <>
+            {cart.map((item) => (
+              <div
+                key={item.productId}
+                className="grid grid-cols-7 items-center px-6 py-5 border-b border-[#EDEDED] text-sm"
+              >
+                {/* Checkbox */}
+                <div>
+                  <input type="checkbox" />
+                </div>
 
-            {/* Product Info */}
-            <div className="col-span-2 flex items-center gap-4">
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-20 h-20 object-cover rounded"
-              />
-              <span className="font-medium">{item.name}</span>
-            </div>
+                {/* Product Info */}
+                <div className="col-span-2 flex items-center gap-4">
+                  <img
+                    src={item.image}
+                    alt={item.productName}
+                    className="w-20 h-20 object-cover rounded"
+                  />
+                  <span className="font-medium">{item.productName}</span>
+                </div>
 
-            {/* Unit Price */}
-            <div className="text-center">
-              ₫{item.price.toLocaleString("vi-VN")}
-            </div>
+                {/* Unit Price */}
+                <div className="text-center">
+                  {item.price
+                    ? Number(item.price).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : "0.00"}{" "}
+                  USD
+                </div>
 
-            {/* Quantity Controls */}
-            <div className="flex flex-col items-center gap-1">
-              <div className="flex items-center border border-[#EDEDED] overflow-hidden">
-                <button className="px-3 py-1   hover:bg-gray-100">-</button>
-                <span className="px-3 py-1 border-l border-r border-[#EDEDED]">
-                  {item.quantity}
-                </span>
-                <button className="px-3 py-1 bg-gray-100 hover:bg-gray-800  text-black hover:text-white">
-                  +
-                </button>
+                {/* Quantity Controls */}
+                <div className="flex flex-col items-center gap-1">
+                  <div className="flex items-center border border-[#EDEDED] overflow-hidden">
+                    <button
+                      className="px-3 py-1 hover:bg-gray-100"
+                      onClick={() =>
+                        updateQuantity(item.productId, item.quantity - 1)
+                      }
+                    >
+                      -
+                    </button>
+                    <span className="px-3 py-1 border-l border-r border-[#EDEDED]">
+                      {item.quantity}
+                    </span>
+                    <button
+                      className="px-3 py-1 bg-gray-100 hover:bg-gray-800 text-black hover:text-white"
+                      onClick={() =>
+                        updateQuantity(item.productId, item.quantity + 1)
+                      }
+                    >
+                      +
+                    </button>
+                  </div>
+                  <p className="text-xs text-red-500">
+                    {item.stock ? `Only ${item.stock} left` : ""}
+                  </p>
+                </div>
+
+                {/* Subtotal */}
+                <div className="text-center text-red-500 font-semibold">
+                  {item.price && item.quantity
+                    ? (
+                        Number(item.price) * Number(item.quantity)
+                      ).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : "0.00"}{" "}
+                  USD
+                </div>
+
+                {/* Actions */}
+                <div className="text-center text-red-500">
+                  <button
+                    onClick={() => removeItemFromCart(item.id)}
+                    className="items-center hover:text-red-500 text-gray-600"
+                  >
+                    <Trash2 className="w-4 h-4 mx-auto" />
+                    <span>Remove</span>
+                  </button>
+                </div>
               </div>
-              <p className="text-xs text-red-500">Only {item.stock} left</p>
-            </div>
+            ))}
 
-            {/* Subtotal */}
-            <div className="text-center text-red-500 font-semibold">
-              ₫{(item.price * item.quantity).toLocaleString("vi-VN")}
-            </div>
+            {/* Cart Summary */}
+            <div className="max-w-7xl sticky bottom-0 bg-white shadow-md mx-auto mt-6 flex flex-col md:flex-row justify-end items-center p-6 gap-4 z-10">
+              {/* Cart Total */}
+              <div className="text-base font-semibold">
+                Total:{" "}
+                <span className="text-red-500 text-xl">
+                  {cartTotal
+                    ? Number(cartTotal).toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : "0.00"}{" "}
+                  USD
+                </span>
+              </div>
 
-            {/* Actions */}
-            <div className="text-center text-red-500">
-              <button className="items-center hover:text-red-500 text-gray-600">
-                <Trash2 className="w-4 h-4 mx-auto" />
-                <span>Remove</span>
-              </button>
+              {/* Checkout Buttons */}
+              <div className="flex gap-4">
+                <Link href="/cart/checkout">
+                  <button className="px-6 py-2 bg-primary text-white hover:opacity-90">
+                    Checkout
+                  </button>
+                </Link>
+              </div>
             </div>
+          </>
+        ) : (
+          <div className="text-center py-16">
+            <p className="text-lg font-semibold mb-4">
+              Your cart is currently empty.
+            </p>
+            <p className="mb-6 text-gray-600">Explore exciting products now!</p>
+            <a
+              href="/products"
+              className="inline-block bg-secondary text-white px-6 py-2 rounded hover:bg-gray-800 transition"
+            >
+              Shopping Now
+            </a>
           </div>
-        ))}
-      </div>
-
-      <div className="max-w-7xl sticky bottom-0 bg-white shadow-md mx-auto mt-6 flex flex-col md:flex-row justify-end items-center p-6 gap-4 z-10">
-        {/* Cart Total */}
-        <div className="text-base font-semibold">
-          Total:{" "}
-          <span className="text-red-500 text-xl">
-            ₫{cartTotal.toLocaleString("vi-VN")}
-          </span>
-        </div>
-
-        {/* Checkout Buttons */}
-        <div className="flex gap-4">
-          <Link href="/cart/checkout">
-            <button className="px-6 py-2 bg-primary text-white hover:opacity-90">
-              Checkout
-            </button>
-          </Link>
-        </div>
+        )}
       </div>
     </div>
   );

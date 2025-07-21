@@ -15,91 +15,60 @@ const getAuthHeaders = () => {
     Authorization: `Bearer ${token}`,
   };
 };
-
 /**
- * List all orders.
- * @returns {Promise<Object[]>} - API response data containing a list of orders.
+ * Create a new order.
+ * @param {string|number} userId - The user placing the order
+ * @param {string|number} cartId - The cart to convert into an order
+ * @param {Object} orderData - Order details (contact info, address, etc.)
+ * @returns {Promise<Object>}
  */
-export const listOrdersAPI = async () => {
+export const createOrderAPI = async (userId, cartId, orderData) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/orders`, { headers: getAuthHeaders() });
+    const response = await axios.post(
+      `${API_BASE_URL}/orders/${userId}/${cartId}`,
+      orderData,
+      { headers: getAuthHeaders() }
+    );
     return response.data;
   } catch (error) {
-    console.error('Error fetching orders:', error);
-    throw error; // Rethrow the error to be handled by the calling function
+    console.error("❌ Error creating order:", error.response?.data || error.message);
+    throw new Error("Unable to create order. Please try again.");
+  }
+};
+
+
+/**
+ * Get all orders for a user.
+ * @param {string|number} userId
+ * @returns {Promise<Object>}
+ */
+export const getOrdersByUserIdAPI = async (userId) => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/orders/user/${userId}`,
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error fetching orders by user ID:', error.response?.data || error.message);
+    throw new Error('Unable to retrieve orders. Please try again.');
   }
 };
 
 /**
- * Get order details by order ID.
- * @param {string} orderId - The ID of the order to retrieve.
- * @returns {Promise<Object>} - API response data containing order details.
+ * Get an order by its ID.
+ * @param {string|number} orderId
+ * @returns {Promise<Object>}
  */
-export const getOrderDetailAPI = async (orderId) => {
+export const getOrderByIdAPI = async (orderId) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/orders/${orderId}`, { headers: getAuthHeaders() });
-    return response.data; // Assuming the response contains the order details
+    const response = await axios.get(
+      `${API_BASE_URL}/orders/${orderId}`,
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
   } catch (error) {
-    console.error(`Error fetching order details for orderId: ${orderId}:`, error);
-    throw error; // Rethrow the error to be handled by the calling function
-  }
-};
-
-/**
- * Cancel an order by order ID.
- * @param {string} orderId - The ID of the order to cancel.
- * @returns {Promise<Object>} - API response data.
- */
-export const cancelOrderAPI = async (orderId, reason) => {
-  try {
-    const response = await axios.put(`${API_BASE_URL}/orders/${orderId}/cancel`, {
-      reason: reason,
-    }, {
-      headers: getAuthHeaders(),
-    });
-
-    return response.data; // Return the response data
-  } catch (error) {
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      console.error(`Error canceling order ${orderId}:`, error.response.data);
-    } else if (error.request) {
-      // The request was made but no response was received
-      console.error(`No response received for order ${orderId}:`, error.request);
-    } else {
-      // Something happened in setting up the request
-      console.error('Error', error.message);
-    }
-    throw new Error('Unable to cancel order. Please try again.');
-  }
-};
-
-/**
- * Reject an order by order ID.
- * @param {string} orderId - The ID of the order to reject.
- * @returns {Promise<Object>} - API response data.
- */
-export const rejectOrderAPI = async (orderId) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/orders/${orderId}/reject`, {}, { headers: getAuthHeaders() });
-    return response.data; // Assuming the response contains the updated order status
-  } catch (error) {
-    console.error(`Error rejecting order (orderId: ${orderId}):`, error);
-    throw error; // Rethrow the error to be handled by the calling function
-  }
-};
-
-/**
- * Complete an order by order ID.
- * @param {string} orderId - The ID of the order to complete.
- * @returns {Promise<Object>} - API response data.
- */
-export const completeOrderAPI = async (orderId) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/orders/${orderId}/complete`, {}, { headers: getAuthHeaders() });
-    return response.data; // Assuming the response contains the updated order status
-  } catch (error) {
-    console.error(`Error completing order (orderId: ${orderId}):`, error);
-    throw error; // Rethrow the error to be handled by the calling function
+    console.error('❌ Error fetching order by ID:', error.response?.data || error.message);
+    throw new Error('Unable to retrieve order details. Please try again.');
   }
 };
