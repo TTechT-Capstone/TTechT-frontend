@@ -15,10 +15,10 @@ import {
 } from "@/app/apis/product.api";
 import SearchingProductResult from "@/app/components/product/SearchingProductResult";
 
-export default function ProductPage() {
+export default function SearchProductPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const searchQuery = searchParams.get("query");
+  //const searchParams = useSearchParams();
+  //const searchQuery = searchParams.get("query");
   
   const [isSidebarVisible, setSidebarVisible] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
