@@ -19,7 +19,7 @@ export default function SellerOrders() {
       try {
         const data = await getOrdersByUserIdAPI(user.id);
         setOrders(data.result || []);
-        console.log(data.result);
+        //console.log(data.result);
       } catch (error) {
         console.error("Error loading orders:", error.message);
         setOrders([]); // fallback

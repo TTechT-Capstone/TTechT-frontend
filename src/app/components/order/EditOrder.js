@@ -1,11 +1,30 @@
 "use client";
 
+import useAuth from "@/app/hooks/useAuth";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 export default function EditOrder({
   order,
   setOrder,
   handleSubmit,
   loadingOrder,
 }) {
+  const router = useRouter();
+  const { user } = useAuth();
+
+  const handleCancel = () => {
+    const role = user?.roles?.[0]?.name || "UNKNOWN";
+    
+    if (role === "ADMIN") {
+      router.push("/admin/orders");
+    } else if (role === "SELLER") {
+      router.push("/seller/orders");
+    } else {
+      console.warn("Unknown role or not logged in");
+    }
+  };
+
   return (
     <>
       {loadingOrder ? (
@@ -170,6 +189,7 @@ export default function EditOrder({
             <div className="flex justify-center gap-4">
               <button
                 type="button"
+                onClick={handleCancel}
                 className="w-full px-6 py-2 bg-[#FFFFFD] text-gray-700 rounded-xl"
               >
                 Cancel

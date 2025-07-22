@@ -38,6 +38,24 @@ export const createOrderAPI = async (userId, cartId, orderData) => {
 
 
 /**
+ * Get orders.
+ * @param {string|number} orderId
+ * @returns {Promise<Object>}
+ */
+export const getOrdersAPI = async () => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/orders/`,
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error fetching orders:', error.response?.data || error.message);
+    throw new Error('Unable to retrieve order details. Please try again.');
+  }
+};
+
+/**
  * Get all orders for a user.
  * @param {string|number} userId
  * @returns {Promise<Object>}

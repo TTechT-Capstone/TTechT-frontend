@@ -7,7 +7,7 @@ import Link from "next/link";
 import { updateOrderStatusAPI, getOrderByIdAPI } from "@/app/apis/order.api";
 import { useParams, useSearchParams } from "next/navigation";
 
-export default function SellerEditOrder() {
+export default function AdminEditOrder() {
   const { idToken, user, isAuthenticated, loading } = useAuth();
   const [order, setOrder] = useState({
     contactName: "",
