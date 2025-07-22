@@ -6,8 +6,7 @@ import { useState } from "react";
 import useAuth from "@/app/hooks/useAuth";
 
 export default function AdminHeader() {
-  const [isAuthorized, setAuthorized] = useState(false); 
-  const { username, isAuthenticated, userRole, logout, loading } = useAuth();
+const { username, isAuthenticated, userRole, logout, loading } = useAuth();
 
 
   return (
@@ -19,7 +18,7 @@ export default function AdminHeader() {
       
 
       {/* Right Icons */}
-      {isAuthorized ? (
+      {isAuthenticated ? (
         <div className="relative group">
           <User className="h-6 w-6 cursor-pointer hover:text-primary transition-colors" />
 

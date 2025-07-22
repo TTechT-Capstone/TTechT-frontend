@@ -49,10 +49,10 @@ export default function Login() {
           router.push("/");
           break;
         case "SELLER":
-          router.push("/seller/dashboard");
+          router.push("/seller");
           break;
         case "ADMIN":
-          router.push("/admin/dashboard");
+          router.push("/admin");
           break;
         default:
           setLoginError("Unknown user role. Cannot redirect.");

@@ -4,18 +4,19 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, UploadCloud, Trash2 } from "lucide-react";
 import { getAllCategoriesAPI } from "@/app/apis/category.api";
+import { createProductAPI } from "@/app/apis/product.api";
 
 export default function CreateNewProduct() {
   const [sizeInput, setSizeInput] = useState("");
   const [colorInput, setColorInput] = useState("");
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
+  //const [selectedCategory, setSelectedCategory] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
     price: "",
-    inventory: "",
-    category: "",
+    stockQuantity: "",
+    categoryId: "",
     brand: "",
     size: [],
     color: [],
@@ -27,7 +28,8 @@ export default function CreateNewProduct() {
     const fetchCategories = async () => {
       try {
         const data = await getAllCategoriesAPI(0, 50);
-        setCategories(data.categories || []);
+        setCategories(data);
+        //console.log("Fetched categories:", data);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
       }
@@ -77,12 +79,21 @@ export default function CreateNewProduct() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!user?.storeName) {
+      alert("Missing store name.");
+      return;
+    }
+
     const finalData = {
       ...formData,
-      category: selectedCategory,
+      storeName: user.storeName,
+      price: parseFloat(Number(formData.price).toFixed(2)),
+      stockQuantity: parseInt(formData.stockQuantity),
     };
+
     console.log("Submitting product:", finalData);
-    // Submit via API...
+    createProductAPI(finalData);
   };
 
   return (
@@ -111,13 +122,14 @@ export default function CreateNewProduct() {
                 Category
               </label>
               <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                name="category"
+                value={formData.categoryId}
+                onChange={handleInputChange}
                 className="input-field"
               >
                 <option value="">Select a category</option>
                 {categories.map((cat) => (
-                  <option key={cat._id} value={cat._id}>
+                  <option key={cat.categoryId} value={cat.categoryId}>
                     {cat.name}
                   </option>
                 ))}
@@ -222,29 +234,38 @@ export default function CreateNewProduct() {
             {/* Price and Inventory */}
             <div className="w-full">
               <label className="block text-gray-700 font-medium mb-1">
-                Price (₫)
+                Price (USD)
               </label>
               <input
                 type="number"
                 name="price"
                 value={formData.price}
                 onChange={handleInputChange}
+                onBlur={() => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    price: parseFloat(prev.price || 0).toFixed(2),
+                  }));
+                }}
                 placeholder="Enter price"
+                step="0.01"
+                min="0"
                 className="input-field"
               />
             </div>
 
             <div className="w-full">
               <label className="block text-gray-700 font-medium mb-1">
-                Inventory
+                Stock Quantity
               </label>
               <input
                 type="number"
-                name="inventory"
-                value={formData.inventory}
+                name="stockQuantity"
+                value={formData.stockQuantity}
                 onChange={handleInputChange}
                 placeholder="Available stock"
                 className="input-field"
+                min="1"
               />
             </div>
           </div>

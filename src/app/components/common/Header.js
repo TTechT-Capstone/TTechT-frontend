@@ -3,17 +3,23 @@
 import useAuth from "@/app/hooks/useAuth";
 import { Menu, Search, ShoppingCart, User, X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { searchProductsByNameAPI } from "@/app/apis/product.api";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const { user, isAuthenticated, logout } = useAuth();
   const [isSearchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const router = useRouter(); // <-- Initialize router
+
   const handleSearch = () => {
     if (searchQuery.trim() !== "") {
-      // Implement search functionality, e.g., navigate to a search results page
-      console.log("Searching for:", searchQuery);
+      const encoded = encodeURIComponent(searchQuery.trim());
+      router.push(`/search?query=${encoded}`);
+      setSearchOpen(false);
     }
   };
 
@@ -39,6 +45,7 @@ export default function Header() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               placeholder="Search..."
               className="flex-1 bg-transparent outline-none text-sm px-2"
             />
@@ -46,7 +53,7 @@ export default function Header() {
               onClick={handleSearch}
               className="text-primary font-medium hover:underline px-2"
             >
-              Go
+              <Search className="h-5 w-5" />
             </button>
             <X
               className="h-5 w-5 cursor-pointer text-gray-500 hover:text-primary transition-colors"

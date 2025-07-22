@@ -7,15 +7,16 @@ import useAuth from "@/app/hooks/useAuth";
 
 export default function SellerHeader() {
   const { user, isAuthenticated, logout } = useAuth();
-  const [isAuthorized, setAuthorized] = useState(false);
 
   return (
     <header className="flex justify-between items-center px-6 py-4 bg-[#F4F4F4] text-secondary font-urbanist border-b border-gray-300">
       {/* Left Logo */}
-      <h1 className="text-4xl font-bold">Origity</h1>
+      <Link href="/seller">
+        <h1 className="text-4xl font-bold">Origity</h1>
+      </Link>
 
       {/* Right Icons */}
-      {isAuthorized ? (
+      {isAuthenticated ? (
         <div className="relative group">
           <User className="h-6 w-6 cursor-pointer hover:text-primary transition-colors" />
 

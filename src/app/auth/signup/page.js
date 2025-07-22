@@ -205,9 +205,9 @@ export default function SignUp() {
                 className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your phone number"
               />
-              {errors.phonenumber && (
+              {errors.phoneNumber && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.phonenumber}
+                  {errors.phoneNumber}
                 </p>
               )}
             </div>
@@ -348,18 +348,23 @@ export default function SignUp() {
               </div>
               <div>
                 <label
-                  htmlFor="storedescription"
+                  htmlFor="storeDescription"
                   className="block font-medium mb-2"
                 >
                   Store Description:
                 </label>
-                <textarea
-                  id="storedescription"
+                <input
+                  id="storeDescription"
                   value={storeDescription}
                   onChange={(e) => setStoreDescription(e.target.value)}
                   className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                   placeholder="Enter your store description"
-                ></textarea>
+                />
+                {errors.storeDescription && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.storeDescription}
+                  </p>
+                )}
               </div>
             </div>
           )}
