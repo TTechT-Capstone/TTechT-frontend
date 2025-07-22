@@ -184,26 +184,83 @@ const useCartStore = create(
         }
       },
       // Submit cart (checkout)
+      // submitCart: async () => {
+      //   const { cartId } = get();
+      //   if (!cartId) throw new Error("Cart ID not found");
+
+      //   try {
+      //     set({ status: "loading" });
+      //     const response = await submitCartAPI(cartId);
+
+      //     // Assume successful response means order is placed
+      //     set({
+      //       cart: [],
+      //       totalQuantity: 0,
+      //       totalPrice: 0,
+      //       cartId: null,
+      //       status: "succeeded",
+      //     });
+
+      //     localStorage.removeItem("cartId");
+      //     console.log("✅ Cart submitted successfully:", response);
+      //     return response; // Useful if UI wants to redirect or show confirmation
+      //   } catch (err) {
+      //     console.error("❌ Failed to submit cart:", err);
+      //     set({ status: "failed", error: err.message });
+      //     throw err;
+      //   }
+      // },
       submitCart: async () => {
-        const { cartId } = get();
+        const { cartId, cart, selectedItems } = get();
         if (!cartId) throw new Error("Cart ID not found");
 
         try {
           set({ status: "loading" });
-          const response = await submitCartAPI(cartId);
 
-          // Assume successful response means order is placed
+          // Only submit selected items
+          const selectedCartItems = cart.filter((item) =>
+            selectedItems.includes(item.productId)
+          );
+
+          if (selectedCartItems.length === 0) {
+            throw new Error("No items selected for checkout.");
+          }
+
+          const payload = {
+            cartId,
+            items: selectedCartItems.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+            })),
+          };
+
+          const response = await submitCartAPI(payload);
+
+          // Remove only submitted items from cart
+          const remainingCart = cart.filter(
+            (item) => !selectedItems.includes(item.productId)
+          );
+
+          const newTotalQuantity = remainingCart.reduce(
+            (sum, item) => sum + item.quantity,
+            0
+          );
+
           set({
-            cart: [],
-            totalQuantity: 0,
-            totalPrice: 0,
-            cartId: null,
+            cart: remainingCart,
+            totalQuantity: newTotalQuantity,
+            selectedItems: [],
             status: "succeeded",
           });
 
-          localStorage.removeItem("cartId");
+          // Optional: remove cartId if cart is now empty
+          if (remainingCart.length === 0) {
+            set({ cartId: null });
+            localStorage.removeItem("cartId");
+          }
+
           console.log("✅ Cart submitted successfully:", response);
-          return response; // Useful if UI wants to redirect or show confirmation
+          return response;
         } catch (err) {
           console.error("❌ Failed to submit cart:", err);
           set({ status: "failed", error: err.message });
@@ -224,6 +281,45 @@ const useCartStore = create(
           error: null,
         });
       },
+
+      selectedItems: [],
+
+      setSelectedItems: (items) => set({ selectedItems: items }),
+
+      toggleItemSelection: (productId) => {
+        const { selectedItems } = get();
+        if (selectedItems.includes(productId)) {
+          set({
+            selectedItems: selectedItems.filter((id) => id !== productId),
+          });
+        } else {
+          set({ selectedItems: [...selectedItems, productId] });
+        }
+      },
+
+      toggleAllItems: () => {
+        const { selectedItems, cart } = get();
+        const allIds = cart.map((item) => item.productId);
+        if (selectedItems.length === cart.length) {
+          set({ selectedItems: [] });
+        } else {
+          set({ selectedItems: allIds });
+        }
+      },
+
+      calculatePriceOfSelectedItems: () => {
+        const { cart, selectedItems } = get();
+
+        const selectedCartItems = cart.filter((item) =>
+          selectedItems.includes(item.productId)
+        );
+
+        return selectedCartItems.reduce((sum, item) => {
+          const price = parseFloat(item.price || 0);
+          const qty = parseInt(item.quantity, 10);
+          return sum + price * qty;
+        }, 0);
+      },
     }),
     {
       name: "cart-store",
@@ -231,6 +327,7 @@ const useCartStore = create(
         cartId: state.cartId,
         cart: state.cart,
         totalQuantity: state.totalQuantity,
+        selectedItems: state.selectedItems,
       }),
     }
   )

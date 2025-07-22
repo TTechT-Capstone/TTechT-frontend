@@ -3,23 +3,21 @@
 import { User } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import useAuth from "@/app/hooks/useAuth";
 
 export default function AdminHeader() {
-  const [isAuthorized, setAuthorized] = useState(false); 
-  const router = useRouter();
-  const { username, isAuthenticated, userRole, logout, loading } = useAuth();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+const { username, isAuthenticated, userRole, logout, loading } = useAuth();
+const [error, setError] = useState(null);
 
-  const handleLogout = () => {
-    if (window.confirm("Are you sure you want to log out?")) {
-      setIsLoggingOut(true);
-      logout();
-      router.push("/");
-      window.location.reload();
+const logoutAccount = async () => {
+    try {
+      await logout();
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout failed:", error);
+      alert("Failed to logout. Please try again.");
     }
-  };
+  }; 
 
   return (
     <header className="flex justify-between items-center px-6 py-4 bg-[#F4F4F4] text-secondary font-urbanist border-b border-gray-300">
@@ -30,7 +28,7 @@ export default function AdminHeader() {
       
 
       {/* Right Icons */}
-      {isAuthorized ? (
+      {isAuthenticated ? (
         <div className="relative group">
           <User className="h-6 w-6 cursor-pointer hover:text-primary transition-colors" />
 
@@ -44,22 +42,25 @@ export default function AdminHeader() {
 
             <button 
               className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
-              onClick={handleLogout}
-              disabled={isLoggingOut}>
+              onClick={logoutAccount}>
               Logout
             </button>
           </div>
         </div>
       ) : (
         <div className="flex items-center space-x-4">
-          <button className="text-primary font-medium hover:underline">
-            Signup
-          </button>
-          <div className="w-px h-6 bg-gray-300"></div>
-          <button className="text-secondary font-medium hover:underline">
-            Login
-          </button>
-        </div>
+            <Link href="/auth/signup">
+              <button className="text-primary font-medium hover:underline">
+                Signup
+              </button>
+            </Link>
+            <div className="w-px h-6 bg-gray-300"></div>
+            <Link href="/auth/login">
+              <button className="text-secondary font-medium hover:underline">
+                Login
+              </button>
+            </Link>
+          </div>
       )}
     </header>
   );

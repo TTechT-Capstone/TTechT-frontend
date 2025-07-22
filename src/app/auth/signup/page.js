@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeClosed } from "lucide-react";
-import { register } from "@/app/apis/auth.api";
+import { registerUser, createSeller } from "@/app/apis/auth.api"; 
 
 export default function SignUp() {
   const [errors, setErrors] = useState({});
@@ -52,7 +52,7 @@ export default function SignUp() {
       newErrors.confirmPassword = "Confirm password is required.";
 
     if (role === "Seller" && !storeName.trim()) {
-      newErrors.storeName = "Store name is required.";
+      newErrors.storeName = "Store name is required."; // and unique
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -63,7 +63,7 @@ export default function SignUp() {
     if (password.length < 6) {
       newErrors.password = "Password must be at least 6 characters.";
     }
-   
+
     if (password !== confirmPassword) {
       setErrors((prev) => ({
         ...prev,
@@ -75,7 +75,6 @@ export default function SignUp() {
     try {
       setErrors({}); // Clear field-level errors
       setSignUpError(""); // Clear general errors
-      
 
       console.log("Signup payload:");
       const payload = {
@@ -93,9 +92,17 @@ export default function SignUp() {
             }
           : {}),
       };
-      console.log("Signup payload:", payload);
 
-      const res = await register(payload);
+      let response;
+      if (role === "Seller") {
+        response = await createSeller({
+          ...payload,
+          storeName,
+          storeDescription,
+        });
+      } else {
+        response = await registerUser(payload);
+      }
 
       route.push("/auth/login");
     } catch (error) {
@@ -198,9 +205,9 @@ export default function SignUp() {
                 className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your phone number"
               />
-              {errors.phonenumber && (
+              {errors.phoneNumber && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.phonenumber}
+                  {errors.phoneNumber}
                 </p>
               )}
             </div>
@@ -341,18 +348,23 @@ export default function SignUp() {
               </div>
               <div>
                 <label
-                  htmlFor="storedescription"
+                  htmlFor="storeDescription"
                   className="block font-medium mb-2"
                 >
                   Store Description:
                 </label>
-                <textarea
-                  id="storedescription"
+                <input
+                  id="storeDescription"
                   value={storeDescription}
                   onChange={(e) => setStoreDescription(e.target.value)}
                   className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                   placeholder="Enter your store description"
-                ></textarea>
+                />
+                {errors.storeDescription && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.storeDescription}
+                  </p>
+                )}
               </div>
             </div>
           )}

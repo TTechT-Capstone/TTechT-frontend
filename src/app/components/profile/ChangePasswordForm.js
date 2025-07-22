@@ -9,7 +9,7 @@ export default function ChangePasswordForm({ profile, setProfile, error, handleC
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
   return (
-    <div className="mt-5 w-full bg-white shadow-xl p-6 space-y-6 rounded-lg max-w-5xl mx-auto">
+    <div className="mt-5 w-full bg-white shadow-xl p-6 space-y-6 rounded-lg mx-auto">
       <h1 className="font-urbanist text-2xl font-semibold text-primary text-center">
         Change Password
       </h1>

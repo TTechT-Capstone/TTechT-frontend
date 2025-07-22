@@ -5,37 +5,49 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { X, ChevronDown, ChevronRight, Funnel } from "lucide-react";
 import ProductCard from "@/app/components/product/ProductCard";
-import { getAllProductsAPI } from "@/app/apis/product.api";
+import {
+  getAllProductsAPI,
+  searchProductsByNameAPI,
+} from "@/app/apis/product.api";
 
-export default function ProductContent() {
+export default function SearchingProductResult() {
   const router = useRouter();
-  const [products, setProducts] = useState([]);
   const searchParams = useSearchParams();
+  const searchQuery = searchParams.get("query");
+  const [products, setProducts] = useState([]);
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const backendPage = currentPage - 1;
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
 
-  const fetchProducts = async () => {
+  const fetchSearchResults = async () => {
+    if (!searchQuery?.trim()) return;
+
     try {
       setLoading(true);
-      const data = await getAllProductsAPI(backendPage, 10); // limit = 10
-      //console.log("Fetched product data:", data);
-      setProducts(data.content);
-      setTotalPages(data.totalPages);
+      const result = await searchProductsByNameAPI(
+        searchQuery,
+        backendPage,
+        10
+      );
+      setSearchResults(result || []);
+      setTotalPages(result.totalPages || 1);
     } catch (error) {
-      console.error("Failed to fetch products:", error);
+      console.error("Failed to fetch search results:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProducts();
-  }, [backendPage]);
+    fetchSearchResults();
+  }, [searchQuery, backendPage]);
 
   const handlePageChange = (newPage) => {
-    router.push(`/products?page=${newPage}`);
+    router.push(
+      `/products?query=${encodeURIComponent(searchQuery)}&page=${newPage}`
+    );
   };
 
   const handleProductClick = (id) => {
@@ -48,10 +60,10 @@ export default function ProductContent() {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6 w-full">
         {loading ? (
           <p>Loading...</p>
-        ) : products.length === 0 ? (
+        ) : searchResults.length === 0 ? (
           <p className="text-secondary font-roboto">No products found.</p>
         ) : (
-          products.map((product) => (
+          searchResults.map((product) => (
             <ProductCard
               key={product.productId || product.name}
               name={product.name}

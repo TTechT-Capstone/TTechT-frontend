@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
-import { login } from "@/app/apis/auth.api";
+import { loginAsUser } from "@/app/apis/auth.api";
 
 export default function Login() {
   const [errors, setErrors] = useState({});
@@ -30,7 +30,7 @@ export default function Login() {
       setErrors({});
       setLoginError("");
 
-      const res = await login({ username, password });
+      const res = await loginAsUser({ username, password });
       const { token, role, authenticated } = res?.result || {};
 
       if (!token || !authenticated) {
@@ -49,10 +49,10 @@ export default function Login() {
           router.push("/");
           break;
         case "SELLER":
-          router.push("/seller/dashboard");
+          router.push("/seller/products");
           break;
         case "ADMIN":
-          router.push("/admin/dashboard");
+          router.push("/admin/products");
           break;
         default:
           setLoginError("Unknown user role. Cannot redirect.");

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-export default function ProfileForm({profile, setProfile, handleSubmit, loadingProfile}) {
+export default function SellerProfileForm({profile, setProfile, handleSubmit, loadingProfile}) {
     return(
         <>
          <div className="w-full bg-white shadow-xl p-6 space-y-6 rounded-lg mx-auto">
@@ -133,6 +133,67 @@ export default function ProfileForm({profile, setProfile, handleSubmit, loadingP
                 setProfile({ ...profile, userName: e.target.value })
               }
               readOnly
+            />
+          </div>
+
+          {/* UserRole */}
+          <div>
+            <label
+              htmlFor="userRole"
+              className="block text-sm font-medium text-gray-700"
+            >
+              User Role
+            </label>
+            <input
+              type="text"
+              id="userRole"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 transition cursor-not-allowed"
+              placeholder="Enter your userRole"
+              value={profile.userRole}
+              onChange={(e) =>
+                setProfile({ ...profile, userRole: e.target.value })
+              }
+              readOnly
+            />
+          </div>
+
+          {/* Storename */}
+          <div>
+            <label
+              htmlFor="storeName"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Store Name
+            </label>
+            <input
+              type="text"
+              id="storeName"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 transition"
+              placeholder="Enter your storename"
+              value={profile.storeName}
+              onChange={(e) =>
+                setProfile({ ...profile, storeName: e.target.value })
+              }
+            />
+          </div>
+
+          {/* Store  */}
+          <div>
+            <label
+              htmlFor="storeDescription"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Store Description
+            </label>
+            <input
+              type="text"
+              id="storeDescription"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 transition"
+              placeholder="Enter your store description"
+              value={profile.storeDescription}
+              onChange={(e) =>
+                setProfile({ ...profile, storeDescription: e.target.value })
+              }
             />
           </div>
 

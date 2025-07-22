@@ -38,6 +38,24 @@ export const createOrderAPI = async (userId, cartId, orderData) => {
 
 
 /**
+ * Get orders.
+ * @param {string|number} orderId
+ * @returns {Promise<Object>}
+ */
+export const getOrdersAPI = async () => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/orders/`,
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error fetching orders:', error.response?.data || error.message);
+    throw new Error('Unable to retrieve order details. Please try again.');
+  }
+};
+
+/**
  * Get all orders for a user.
  * @param {string|number} userId
  * @returns {Promise<Object>}
@@ -70,5 +88,44 @@ export const getOrderByIdAPI = async (orderId) => {
   } catch (error) {
     console.error('❌ Error fetching order by ID:', error.response?.data || error.message);
     throw new Error('Unable to retrieve order details. Please try again.');
+  }
+};
+
+/**
+ * Update an order's status.
+ * @param {string|number} orderId
+ * @param {string} newStatus - e.g., "COMPLETED", "CANCELLED", etc.
+ * @returns {Promise<Object>}
+ */
+export const updateOrderStatusAPI = async (orderId, newStatus) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/orders/${orderId}/status`,
+      { orderStatus: newStatus },
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error updating order status:', error.response?.data || error.message);
+    throw new Error('Unable to update order status. Please try again.');
+  }
+};
+
+/**
+ * Cancel an order.
+ * @param {string|number} orderId
+ * @returns {Promise<Object>}
+ */
+export const cancelOrderAPI = async (orderId) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/orders/${orderId}/cancel`,
+      {},
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error cancelling order:', error.response?.data || error.message);
+    throw new Error('Unable to cancel order. Please try again.');
   }
 };
