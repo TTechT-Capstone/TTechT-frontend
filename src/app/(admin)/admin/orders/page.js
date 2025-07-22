@@ -35,6 +35,17 @@ export default function AdminOrders() {
   router.push(`/seller/orders/${order.id}`);
 };
 
+  const handleDeleteOrder = async (orderId) => {
+    if (!window.confirm("Are you sure you want to delete this order?")) return;
+
+    try {
+      //await deleteOrderAPI(orderId);
+      setOrders((prevOrders) => prevOrders.filter((order) => order.id !== orderId));
+    } catch (error) {
+      console.error("Error deleting order:", error.message);
+    }
+  };
+
   return (
     <main className="font-roboto p-4 min-h-screen">
       {/* Header */}
@@ -91,7 +102,10 @@ export default function AdminOrders() {
               className="text-gray-600 hover:text-primary cursor-pointer" 
               onClick={() => handleEditOrder(order)}
               />
-              <Trash2 className="text-red-600 hover:text-red-800 cursor-pointer" />
+              <Trash2
+                className="text-red-600 hover:text-red-800 cursor-pointer"
+                onClick={() => handleDeleteOrder(order.id)}
+              />
             </div>
           </div>
         ))

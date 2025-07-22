@@ -7,7 +7,17 @@ import useAuth from "@/app/hooks/useAuth";
 
 export default function AdminHeader() {
 const { username, isAuthenticated, userRole, logout, loading } = useAuth();
+const [error, setError] = useState(null);
 
+const logoutAccount = async () => {
+    try {
+      await logout();
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout failed:", error);
+      alert("Failed to logout. Please try again.");
+    }
+  }; 
 
   return (
     <header className="flex justify-between items-center px-6 py-4 bg-[#F4F4F4] text-secondary font-urbanist border-b border-gray-300">
@@ -32,7 +42,7 @@ const { username, isAuthenticated, userRole, logout, loading } = useAuth();
 
             <button 
               className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
-              onClick={logout}>
+              onClick={logoutAccount}>
               Logout
             </button>
           </div>

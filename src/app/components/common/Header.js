@@ -12,8 +12,19 @@ export default function Header() {
   const { user, isAuthenticated, logout } = useAuth();
   const [isSearchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [error, setError] = useState(null);
 
-  const router = useRouter(); // <-- Initialize router
+  const logoutAccount = async () => {
+    try {
+      await logout();
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout failed:", error);
+      alert("Failed to logout. Please try again.");
+    }
+  }; 
+
+  const router = useRouter(); 
 
   const handleSearch = () => {
     if (searchQuery.trim() !== "") {
@@ -85,7 +96,7 @@ export default function Header() {
               </Link>
 
               <button
-                onClick={logout}
+                onClick={logoutAccount}
                 className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
               >
                 Logout

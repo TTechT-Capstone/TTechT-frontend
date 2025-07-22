@@ -20,7 +20,7 @@ export default function ProductContent() {
     try {
       setLoading(true);
       const data = await getAllProductsAPI(backendPage, 10); // limit = 10
-      console.log("Fetched product data:", data);
+      //console.log("Fetched product data:", data);
       setProducts(data.content);
       setTotalPages(data.totalPages);
     } catch (error) {
