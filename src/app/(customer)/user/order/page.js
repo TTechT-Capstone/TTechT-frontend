@@ -5,7 +5,7 @@ import { getOrdersByUserIdAPI, getOrderByIdAPI } from "@/app/apis/order.api";
 import OrdersSection from "@/app/components/order/OrderSection";
 import CancelOrderModal from "@/app/components/order/CancelOrderModal";
 
-export default function RightSide({ activeSection }) {
+export default function MyOrder() {
   const { idToken, user, isAuthenticated, loading } = useAuth();
   const [error, setError] = useState(null);
   const [orders, setOrders] = useState([]);
@@ -17,31 +17,31 @@ export default function RightSide({ activeSection }) {
   const [orderStatusFilter, setOrderStatusFilter] = useState("ALL");
 
   const filteredOrders = () => {
-  if (orderStatusFilter.toUpperCase() === "ALL") return orders;
-  return orders.filter(
-    (order) => order.orderStatus.toUpperCase() === orderStatusFilter.toUpperCase()
-  );
-};
+    if (orderStatusFilter.toUpperCase() === "ALL") return orders;
+    return orders.filter(
+      (order) =>
+        order.orderStatus.toUpperCase() === orderStatusFilter.toUpperCase()
+    );
+  };
 
   useEffect(() => {
-    if (idToken) {
-      const fetchOrders = async () => {
-        setLoadingOrders(true);
-        try {
-          const data = await getOrdersByUserIdAPI(user.id);
-          console.log("Fetched orders:", data.result);
-          setOrders(data.result);
-        } catch (error) {
-          console.error("Error fetching orders:", error);
-          setOrders([]);
-        } finally {
-          setLoadingOrders(false);
-        }
-      };
+    if (!idToken || !user?.id) return;
 
-      fetchOrders();
-    }
-  }, [idToken]);
+    const fetchOrders = async () => {
+      setLoadingOrders(true);
+      try {
+        const data = await getOrdersByUserIdAPI(user.id);
+        setOrders(data.result || []);
+      } catch (error) {
+        console.error("❌ Error fetching orders:", error);
+        setOrders([]);
+      } finally {
+        setLoadingOrders(false);
+      }
+    };
+
+    fetchOrders();
+  }, [idToken, user?.id]);
 
   const handleCancelOrder = async (orderId) => {
     if (!cancelReason) {
@@ -87,18 +87,18 @@ export default function RightSide({ activeSection }) {
 
   return (
     <div className="p-4 mb-8 max-w-6xl mx-auto">
-        <OrdersSection
-          orders={orders}
-          loadingOrders={loadingOrders}
-          selectedOrderId={selectedOrderId}
-          orderDetails={orderDetails}
-          orderStatusFilter={orderStatusFilter}
-          setOrderStatusFilter={setOrderStatusFilter}
-          handleOrderClick={handleOrderClick}
-          setIsCancelModalOpen={setIsCancelModalOpen}
-          setSelectedOrderId={setSelectedOrderId}
-          filteredOrders={filteredOrders}
-        />
+      <OrdersSection
+        orders={orders}
+        loadingOrders={loadingOrders}
+        selectedOrderId={selectedOrderId}
+        orderDetails={orderDetails}
+        orderStatusFilter={orderStatusFilter}
+        setOrderStatusFilter={setOrderStatusFilter}
+        handleOrderClick={handleOrderClick}
+        setIsCancelModalOpen={setIsCancelModalOpen}
+        setSelectedOrderId={setSelectedOrderId}
+        filteredOrders={filteredOrders}
+      />
       {/* {isCancelModalOpen && renderCancelModal()} */}
       <CancelOrderModal
         isOpen={isCancelModalOpen}

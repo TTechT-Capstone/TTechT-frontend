@@ -1,15 +1,33 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import { ChevronDown, Search, Pencil, Trash2, SquarePen } from "lucide-react";
-
-const orders = [
-  { orderId: "Name", quantity: 1, date: "100.000₫", status: "Pending" },
-  { orderId: "Name", quantity: 1, date: "100.000₫", status: "Shipped" },
-  { orderId: "Name", quantity: 1, date: "100.000₫", status: "Delivered" },
-  { orderId: "Name", quantity: 1, date: "100.000₫", status: "Cancelled" },
-];
+import { getOrdersByUserIdAPI } from "@/app/apis/order.api";
+import useAuth from "@/app/hooks/useAuth";
 
 export default function SellerOrders() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { idToken, user, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (!idToken || !user?.id) return;
+
+    const fetchOrders = async () => {
+      try {
+        const data = await getOrdersByUserIdAPI(user.id);
+        setOrders(data.result || []);
+      } catch (error) {
+        console.error("Error loading orders:", error.message);
+        setOrders([]); // fallback
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [user?.id]);
+
   return (
     <main className="font-roboto p-4 min-h-screen">
       {/* Header */}
@@ -30,8 +48,8 @@ export default function SellerOrders() {
       </div>
 
       {/* Table Header */}
-      <div className="grid grid-cols-5 justify-items-center font-urbanist font-bold bg-gray-100 px-4 py-3 rounded-t-lg">
-        <div>Order ID</div>
+      <div className="grid grid-cols-6 justify-items-center font-urbanist font-bold bg-gray-100 px-4 py-3 rounded-t-lg">
+        <div className="col-span-2">Order ID</div>
         <div>Quantity</div>
         <div>Order Date</div>
         <div>Status</div>
@@ -39,24 +57,33 @@ export default function SellerOrders() {
       </div>
 
       {/* Table Rows */}
-      {orders.map((order, index) => (
-        <div
-          key={index}
-          className={`grid grid-cols-5 justify-items-center items-center px-4 py-3 ${
-            index % 2 === 0 ? "bg-white" : "bg-gray-50"
-          }`}
-        >
-          <div className="font-medium">{order.orderId}</div>
-          <div>{order.quantity}</div>
-          <div>{order.date}</div>
-          <div>{order.status}</div>
-
-          <div className="flex space-x-3">
-            <SquarePen className="text-gray-600 hover:text-primary cursor-pointer" />
-            <Trash2 className="text-red-600 hover:text-red-800 cursor-pointer" />
-          </div>
+      {loading ? (
+        <div className="text-center py-8 text-gray-500 font-urbanist col-span-6">
+          Loading orders...
         </div>
-      ))}
+      ) : orders.length === 0 ? (
+        <div className="text-center py-8 text-gray-500 font-urbanist col-span-6">
+          No orders found.
+        </div>
+      ) : (
+        orders.map((order, index) => (
+          <div
+            key={order.id}
+            className={`grid grid-cols-6 justify-items-center items-center px-4 py-3 ${
+              index % 2 === 0 ? "bg-white" : "bg-gray-50"
+            }`}
+          >
+            <div className="col-span-2 font-medium">{order.orderNumber}</div>
+            <div>{order.orderItems?.length || 0}</div>
+            <div>{new Date(order.createdAt).toLocaleDateString()}</div>
+            <div>{order.orderStatus}</div>
+            <div className="flex space-x-3">
+              <SquarePen className="text-gray-600 hover:text-primary cursor-pointer" />
+              <Trash2 className="text-red-600 hover:text-red-800 cursor-pointer" />
+            </div>
+          </div>
+        ))
+      )}
     </main>
   );
 }

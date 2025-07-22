@@ -1,13 +1,26 @@
 // /app/hooks/useAuth.js
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useUserStore from "../stores/userStore";
 
 const useAuth = () => {
-  const { user, idToken, fetchUser, loading, logout } = useUserStore();
+  const { user, idToken, fetchUser, loading, logout, initializeToken} = useUserStore();
+
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    if (!user) fetchUser(); // fetch if not already loaded
-  }, [user, fetchUser]);
+    // Only run this on client
+    if (typeof window !== "undefined" && !initialized) {
+      initializeToken(); // Load token from localStorage
+      setInitialized(true);
+    }
+  }, [initialized, initializeToken]);
+
+  useEffect(() => {
+    // Once initialized and token exists, fetch user if not already
+    if (initialized && idToken && !user) {
+      fetchUser();
+    }
+  }, [initialized, idToken, user, fetchUser]);
 
   return {
     user,

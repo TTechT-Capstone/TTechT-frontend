@@ -8,7 +8,7 @@ const useUserStore = create((set, get) => ({
   error: null,
 
   fetchUser: async () => {
-    if (typeof window === "undefined") return; // prevent SSR crash
+    if (typeof window === "undefined") return; 
 
     set({ loading: true, error: null });
     try {

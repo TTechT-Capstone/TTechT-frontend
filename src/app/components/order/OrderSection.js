@@ -14,6 +14,9 @@ export default function OrdersSection({
   filteredOrders,
 }) {
 
+  //console.log("🟡 Rendering OrdersSection:", orders);
+
+
   const renderOrderFilter = () => (
     <div className="mb-4 text-primary">
       <label
