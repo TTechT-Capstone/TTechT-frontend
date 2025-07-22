@@ -72,3 +72,42 @@ export const getOrderByIdAPI = async (orderId) => {
     throw new Error('Unable to retrieve order details. Please try again.');
   }
 };
+
+/**
+ * Update an order's status.
+ * @param {string|number} orderId
+ * @param {string} newStatus - e.g., "COMPLETED", "CANCELLED", etc.
+ * @returns {Promise<Object>}
+ */
+export const updateOrderStatusAPI = async (orderId, newStatus) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/orders/${orderId}/status`,
+      { orderStatus: newStatus },
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error updating order status:', error.response?.data || error.message);
+    throw new Error('Unable to update order status. Please try again.');
+  }
+};
+
+/**
+ * Cancel an order.
+ * @param {string|number} orderId
+ * @returns {Promise<Object>}
+ */
+export const cancelOrderAPI = async (orderId) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/orders/${orderId}/cancel`,
+      {},
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error cancelling order:', error.response?.data || error.message);
+    throw new Error('Unable to cancel order. Please try again.');
+  }
+};

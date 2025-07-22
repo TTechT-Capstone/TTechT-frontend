@@ -61,7 +61,7 @@ export default function OrdersSection({
               onClick={() => handleOrderClick(order.id)}
             >
               <div className="flex justify-between items-center">
-                <p className="text-lg font-semibold text-gray-600">
+                <p className="text-lg font-semibold text-secondary">
                   Order Number:
                 </p>
                 <p className="text-lg font-bold text-green-600">
@@ -82,7 +82,7 @@ export default function OrdersSection({
                 <p className="text-sm text-gray-500">
                   Total Amount:
                   <span
-                    className={`font-medium ${
+                    className={`font-medium text-red-600 ${
                       order.discountAmount ? "text-green-600" : ""
                     }`}
                   >
@@ -101,7 +101,7 @@ export default function OrdersSection({
                 orderDetails &&
                 Array.isArray(orderDetails.orderItems) && (
                   <div className="mt-2">
-                    <h2 className="text-lg font-semibold">Order Items:</h2>
+                    <h2 className="text-lg font-semibold text-secondary">Order Items:</h2>
                     <ul className="list-disc pl-5">
                       {(orderDetails.orderItems || []).map((item) => (
                         <li key={item.id} className="text-sm text-gray-600">
