@@ -3,7 +3,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeClosed } from "lucide-react";
-import { registerUser, createSeller } from "@/app/apis/auth.api"; 
+import { registerUser} from "@/app/apis/auth.api"; 
+import { createSeller } from "@/app/apis/seller.api";
 
 export default function SignUp() {
   const [errors, setErrors] = useState({});

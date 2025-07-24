@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { ChevronDown, Search, Pencil, Trash2, SquarePen } from "lucide-react";
-import { getOrdersAPI } from "@/app/apis/order.api";
+import { getAllOrdersAPI } from "@/app/apis/order.api";
 import useAuth from "@/app/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
@@ -17,7 +17,7 @@ export default function AdminOrders() {
 
     const fetchOrders = async () => {
       try {
-        const data = await getOrdersAPI();
+        const data = await getAllOrdersAPI();
         setOrders(data.result || []);
         //console.log(data.result);
       } catch (error) {
