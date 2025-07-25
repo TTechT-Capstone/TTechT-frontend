@@ -8,6 +8,7 @@ import { updateOrderStatusAPI, getOrderByIdAPI } from "@/app/apis/order.api";
 import { useParams, useSearchParams } from "next/navigation";
 import { getUserByIdAPI } from "@/app/apis/user.api";
 import { updateUser } from "@/app/apis/auth.api";
+import EditUser from "@/app/components/profile/EditUser";
 
 export default function AdminEditUser() {
   const { idToken, user, isAuthenticated, loading } = useAuth();

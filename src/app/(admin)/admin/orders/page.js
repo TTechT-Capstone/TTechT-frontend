@@ -32,7 +32,7 @@ export default function AdminOrders() {
   }, []);
 
   const handleEditOrder = (order) => {
-  router.push(`/seller/orders/${order.id}`);
+  router.push(`/admin/orders/${order.id}`);
 };
 
   const handleDeleteOrder = async (orderId) => {
