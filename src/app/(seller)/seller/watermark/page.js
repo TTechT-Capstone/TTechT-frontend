@@ -103,7 +103,7 @@ export default function SellerWatermarkImageGenerator() {
   return (
     <section className="font-roboto p-6 max-w-5xl mx-auto rounded-xl">
       <h1 className="font-urbanist text-3xl font-bold text-primary mb-1">
-        Watermarking Image
+        Watermark Image
       </h1>
       <p className="text-gray-600 text-sm mb-8">
         This image will be used as your watermark to protect your products from

@@ -13,6 +13,26 @@ export default function EditOrder({
   const router = useRouter();
   const { user } = useAuth();
 
+  const handleEditSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    await handleSubmit(e); // Call the passed-in handleSubmit
+
+    // Redirect after successful submission
+    const role = user?.roles?.[0]?.name || "UNKNOWN";
+    if (role === "ADMIN") {
+      router.push("/admin/orders");
+    } else if (role === "SELLER") {
+      router.push("/seller/orders");
+    } else {
+      console.warn("Unknown role or not logged in");
+    }
+  } catch (error) {
+    console.error("Error submitting the form:", error);
+  }
+};
+
+
   const handleCancel = () => {
     const role = user?.roles?.[0]?.name || "UNKNOWN";
     
@@ -33,7 +53,7 @@ export default function EditOrder({
         </p>
       ) : (
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleEditSubmit}
           className="flex flex-col md:flex-row gap-6"
         >
           <div className="w-full bg-[#F4F4F4] p-6 rounded-2xl shadow space-y-6">

@@ -11,6 +11,9 @@ export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const { idToken, user, isAuthenticated } = useAuth();
+  const [searchTerm, setSearchTerm] = useState("");
+    const [sortBy, setSortBy] = useState("createdAt");
+    const [sortOrder, setSortOrder] = useState("desc");
 
   useEffect(() => {
     const fetchUsers = async () => {

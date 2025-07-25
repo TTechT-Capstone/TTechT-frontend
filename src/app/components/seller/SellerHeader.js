@@ -41,7 +41,7 @@ export default function SellerHeader() {
 
             <Link href="/seller/watermark">
               <button className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100">
-                Watermarking Image
+                Watermark Image
               </button>
             </Link>
 

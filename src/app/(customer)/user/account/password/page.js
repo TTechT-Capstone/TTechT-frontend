@@ -5,7 +5,7 @@ import { updatePassword, updateUser } from "@/app/apis/auth.api";
 import ProfileForm from "@/app/components/profile/ProfileForm";
 import ChangePasswordForm from "@/app/components/profile/ChangePasswordForm";
 
-export default function RightSide({ activeSection }) {
+export default function PasswordPage() {
   const { idToken, user, isAuthenticated, loading } = useAuth();
   const [profile, setProfile] = useState({
     firstName: "",
