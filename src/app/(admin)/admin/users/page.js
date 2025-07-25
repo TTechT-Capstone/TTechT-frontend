@@ -17,7 +17,7 @@ export default function AdminUsers() {
       try {
         if (!idToken) return;
         const data = await getAllUsersAPI(idToken);
-        console.log("Fetched users:", data);
+        //console.log("Fetched users:", data);
         setUsers(data.result);
       } catch (error) {
         console.error("Error fetching users:", error);
