@@ -40,14 +40,15 @@ export const createSeller = async (sellerInfo) => {
  * @param {string|number} sellerId - Seller ID.
  * @returns {Promise<Object>} - Seller data.
  */
-export const getSellerById = async (userId) => {
+export const getSellerById = async (sellerId) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/sellers/user/${userId}`, {
+    //const response = await axios.get(`${API_BASE_URL}/sellers/user/${userId}`, {
+    const response = await axios.get(`${API_BASE_URL}/sellers/${sellerId}`, {
       headers: getAuthHeaders(),
     });
     return response.data.result;
   } catch (error) {
-    console.error(`Failed to get seller by user ID ${userId}:`, error);
+    console.error(`Failed to get seller by user ID ${sellerId}:`, error);
     throw error.response?.data || error;
   }
 };
