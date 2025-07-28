@@ -11,13 +11,13 @@ export default function EditUser({
   loadingUser,
 }) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { idToken, user, isAuthenticated, loading } = useAuth();
+  const roleName = users.roles?.[0]?.name;
 
   const handleCancel = () => {
     router.push("/admin/users");
   };
 
-  
   return (
     <>
       {loadingUser ? (
@@ -33,33 +33,111 @@ export default function EditUser({
             <div className="flex flex-col md:flex-row gap-4">
               <div className="w-full">
                 <label className="block text-gray-700 font-medium mb-1">
-                  User Name
+                  User ID
                 </label>
                 <input
-                  name="name"
-                  value={users.name}
-                  onChange={(e) =>
-                    setUsers({ ...users, name: e.target.value })
-                  }
-                  className="input-field"
+                  name="id"
+                  value={users.id}
+                  onChange={(e) => setUsers({ ...users, id: e.target.value })}
+                  className="input-field cursor-not-allowed"
+                  readOnly
                 />
               </div>
 
               <div className="w-full">
                 <label className="block text-gray-700 font-medium mb-1">
-                  Email
+                  User Name
                 </label>
                 <input
-                  name="email"
-                  value={users.email}
-                  onChange={(e) =>
-                    setUsers({ ...users, email: e.target.value })
-                  }
-                  className="input-field"
+                  name="name"
+                  value={users.username}
+                  onChange={(e) => setUsers({ ...users, name: e.target.value })}
+                  className="input-field cursor-not-allowed"
+                  readOnly
                 />
               </div>
             </div>
 
+            {roleName !== "ADMIN" && (
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="w-full">
+                  <label className="block text-gray-700 font-medium mb-1">
+                    First Name
+                  </label>
+                  <input
+                    name="firstName"
+                    value={users.firstName}
+                    onChange={(e) =>
+                      setUsers({ ...users, firstName: e.target.value })
+                    }
+                    className="input-field"
+                  />
+                </div>
+                <div className="w-full">
+                  <label className="block text-gray-700 font-medium mb-1">
+                    Last Name
+                  </label>
+                  <input
+                    name="lastName"
+                    value={users.lastName}
+                    onChange={(e) =>
+                      setUsers({ ...users, lastName: e.target.value })
+                    }
+                    className="input-field"
+                  />
+                </div>
+              </div>
+            )}
+
+            {roleName !== "ADMIN" && (
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="w-full">
+                  <label className="block text-gray-700 font-medium mb-1">
+                    Email
+                  </label>
+                  <input
+                    name="email"
+                    value={users.email}
+                    onChange={(e) =>
+                      setUsers({ ...users, email: e.target.value })
+                    }
+                    className="input-field"
+                  />
+                </div>
+                <div className="w-full">
+                  <label className="block text-gray-700 font-medium mb-1">
+                    Phone Number
+                  </label>
+                  <input
+                    name="phone"
+                    value={users.phoneNumber}
+                    onChange={(e) =>
+                      setUsers({ ...users, phone: e.target.value })
+                    }
+                    className="input-field"
+                  />
+                </div>
+              </div>
+            )}
+
+            {roleName !== "ADMIN" && roleName !== "SELLER" && (
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="w-full">
+                  <label className="block text-gray-700 font-medium mb-1">
+                    Address
+                  </label>
+                  <input
+                    name="address"
+                    value={users.address}
+                    onChange={(e) =>
+                      setUsers({ ...users, address: e.target.value })
+                    }
+                    className="input-field"
+                  />
+                </div>
+              </div>
+            )}
+            
             <div className="flex flex-col md:flex-row gap-4">
               <div className="w-full">
                 <label className="block text-gray-700 font-medium mb-1">
@@ -67,22 +145,25 @@ export default function EditUser({
                 </label>
                 <input
                   name="role"
-                  value={users.role}
+                  value={users.roles[0]?.name}
                   className="input-field cursor-not-allowed"
                   readOnly
                 />
               </div>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-center gap-4">
               <button
                 type="button"
                 onClick={handleCancel}
-                className="btn-secondary mr-4"
+                className="w-full px-6 py-2 bg-[#FFFFFD] text-gray-700 rounded-xl"
               >
                 Cancel
               </button>
-              <button type="submit" className="btn-primary">
+              <button
+                type="submit"
+                className="w-full px-6 py-2 bg-secondary text-white rounded-xl"
+              >
                 Save Changes
               </button>
             </div>

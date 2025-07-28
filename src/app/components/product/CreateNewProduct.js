@@ -63,7 +63,14 @@ export default function CreateNewProduct() {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    const previews = files.map((file) => URL.createObjectURL(file));
+
+    // Check how many more images can be added
+    const remainingSlots = 4 - formData.images.length;
+    if (remainingSlots <= 0) return;
+
+    // Limit selected files to remaining slots
+    const allowedFiles = files.slice(0, remainingSlots);
+    const previews = allowedFiles.map((file) => URL.createObjectURL(file));
     setFormData((prev) => ({
       ...prev,
       images: [...prev.images, ...previews],
@@ -329,16 +336,18 @@ export default function CreateNewProduct() {
               </div>
             ))}
 
-            <label className="w-16 h-16 border border-dashed border-gray-400 flex items-center justify-center rounded-lg cursor-pointer hover:border-gray-600">
-              <UploadCloud className="w-5 h-5 text-gray-500" />
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-            </label>
+            {formData.images.length < 4 && (
+              <label className="w-16 h-16 border border-dashed border-gray-400 flex items-center justify-center rounded-lg cursor-pointer hover:border-gray-600">
+                <UploadCloud className="w-5 h-5 text-gray-500" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </label>
+            )}
           </div>
         </div>
       </form>

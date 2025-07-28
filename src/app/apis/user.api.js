@@ -39,7 +39,7 @@ export const getUserByIdAPI = async (userId) => {
 export const getAllUsersAPI = async () => {
     try {
         const response = await axios.get(
-            `${API_BASE_URL}/users/`,
+            `${API_BASE_URL}/users`,
             { headers: getAuthHeaders() }
         );
         return response.data;
