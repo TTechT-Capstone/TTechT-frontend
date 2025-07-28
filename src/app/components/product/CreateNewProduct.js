@@ -4,18 +4,19 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, UploadCloud, Trash2 } from "lucide-react";
 import { getAllCategoriesAPI } from "@/app/apis/category.api";
+import { createProductAPI } from "@/app/apis/product.api";
 
 export default function CreateNewProduct() {
   const [sizeInput, setSizeInput] = useState("");
   const [colorInput, setColorInput] = useState("");
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
+  //const [selectedCategory, setSelectedCategory] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
     price: "",
-    inventory: "",
-    category: "",
+    stockQuantity: "",
+    categoryId: "",
     brand: "",
     size: [],
     color: [],
@@ -27,7 +28,8 @@ export default function CreateNewProduct() {
     const fetchCategories = async () => {
       try {
         const data = await getAllCategoriesAPI(0, 50);
-        setCategories(data.categories || []);
+        setCategories(data);
+        //console.log("Fetched categories:", data);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
       }
@@ -61,7 +63,14 @@ export default function CreateNewProduct() {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    const previews = files.map((file) => URL.createObjectURL(file));
+
+    // Check how many more images can be added
+    const remainingSlots = 4 - formData.images.length;
+    if (remainingSlots <= 0) return;
+
+    // Limit selected files to remaining slots
+    const allowedFiles = files.slice(0, remainingSlots);
+    const previews = allowedFiles.map((file) => URL.createObjectURL(file));
     setFormData((prev) => ({
       ...prev,
       images: [...prev.images, ...previews],
@@ -77,12 +86,21 @@ export default function CreateNewProduct() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!user?.storeName) {
+      alert("Missing store name.");
+      return;
+    }
+
     const finalData = {
       ...formData,
-      category: selectedCategory,
+      storeName: user.storeName,
+      price: parseFloat(Number(formData.price).toFixed(2)),
+      stockQuantity: parseInt(formData.stockQuantity),
     };
+
     console.log("Submitting product:", finalData);
-    // Submit via API...
+    createProductAPI(finalData);
   };
 
   return (
@@ -111,13 +129,14 @@ export default function CreateNewProduct() {
                 Category
               </label>
               <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                name="category"
+                value={formData.categoryId}
+                onChange={handleInputChange}
                 className="input-field"
               >
                 <option value="">Select a category</option>
                 {categories.map((cat) => (
-                  <option key={cat._id} value={cat._id}>
+                  <option key={cat.categoryId} value={cat.categoryId}>
                     {cat.name}
                   </option>
                 ))}
@@ -222,29 +241,38 @@ export default function CreateNewProduct() {
             {/* Price and Inventory */}
             <div className="w-full">
               <label className="block text-gray-700 font-medium mb-1">
-                Price (₫)
+                Price (USD)
               </label>
               <input
                 type="number"
                 name="price"
                 value={formData.price}
                 onChange={handleInputChange}
+                onBlur={() => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    price: parseFloat(prev.price || 0).toFixed(2),
+                  }));
+                }}
                 placeholder="Enter price"
+                step="0.01"
+                min="0"
                 className="input-field"
               />
             </div>
 
             <div className="w-full">
               <label className="block text-gray-700 font-medium mb-1">
-                Inventory
+                Stock Quantity
               </label>
               <input
                 type="number"
-                name="inventory"
-                value={formData.inventory}
+                name="stockQuantity"
+                value={formData.stockQuantity}
                 onChange={handleInputChange}
                 placeholder="Available stock"
                 className="input-field"
+                min="1"
               />
             </div>
           </div>
@@ -308,16 +336,18 @@ export default function CreateNewProduct() {
               </div>
             ))}
 
-            <label className="w-16 h-16 border border-dashed border-gray-400 flex items-center justify-center rounded-lg cursor-pointer hover:border-gray-600">
-              <UploadCloud className="w-5 h-5 text-gray-500" />
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-            </label>
+            {formData.images.length < 4 && (
+              <label className="w-16 h-16 border border-dashed border-gray-400 flex items-center justify-center rounded-lg cursor-pointer hover:border-gray-600">
+                <UploadCloud className="w-5 h-5 text-gray-500" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </label>
+            )}
           </div>
         </div>
       </form>
