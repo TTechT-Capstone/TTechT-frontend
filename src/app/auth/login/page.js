@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
 import { loginAsUser } from "@/app/apis/auth.api";
+import useUserStore from "@/app/stores/userStore";
 
 export default function Login() {
   const [errors, setErrors] = useState({});
@@ -12,6 +13,64 @@ export default function Login() {
   const [loginError, setLoginError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+
+  const setIdToken = useUserStore((state) => state.setIdToken);
+  const setSellerId = useUserStore((state) => state.setSellerId);
+  const fetchUser = useUserStore((state) => state.fetchUser);
+  const fetchSeller = useUserStore((state) => state.fetchSeller);
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   const newErrors = {};
+  //   if (!username.trim()) newErrors.username = "Username is required.";
+  //   if (!password.trim()) newErrors.password = "Password is required.";
+
+  //   if (Object.keys(newErrors).length > 0) {
+  //     setErrors(newErrors);
+  //     //setLoginError("Please correct the errors above.");
+  //     return;
+  //   }
+
+  //   try {
+  //     setErrors({});
+  //     setLoginError("");
+
+  //     const res = await loginAsUser({ username, password });
+  //     const { token, role, authenticated } = res?.result || {};
+
+  //     if (!token || !authenticated) {
+  //       setLoginError(
+  //         "Login failed. Invalid credentials or no token received."
+  //       );
+  //       return;
+  //     }
+
+  //     localStorage.setItem("idToken", token);
+  //     localStorage.setItem("userRole", role || "");
+
+  //     switch (role) {
+  //       case "USER":
+  //         router.push("/");
+  //         break;
+  //       case "SELLER":
+  //         router.push("/seller/products");
+  //         break;
+  //       case "ADMIN":
+  //         router.push("/admin/products");
+  //         break;
+  //       default:
+  //         setLoginError("Unknown user role. Cannot redirect.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Login error:", error);
+  //     const errorMsg =
+  //       error?.response?.data?.message ||
+  //       error?.message ||
+  //       "Login failed. Please try again.";
+  //     setLoginError(errorMsg);
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +81,6 @@ export default function Login() {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      //setLoginError("Please correct the errors above.");
       return;
     }
 
@@ -40,10 +98,10 @@ export default function Login() {
         return;
       }
 
-      localStorage.setItem("idToken", token);
+      setIdToken(token);
       localStorage.setItem("userRole", role || "");
-      console.log(role);
 
+      // ✅ Redirect based on role
       switch (role) {
         case "USER":
           router.push("/");
@@ -126,7 +184,7 @@ export default function Login() {
               >
                 {showPassword ? <EyeClosed /> : <Eye />}
               </button>
-              
+
               {errors.password && (
                 <p className="text-red-500 text-sm mt-1">{errors.password}</p>
               )}

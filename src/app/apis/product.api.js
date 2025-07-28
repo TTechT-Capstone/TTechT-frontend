@@ -52,6 +52,18 @@ export const getProductByIdAPI = async (productId) => {
  * 3. Create Product
  * http://localhost:8082/api/products
  */
+// export const createProductAPI = async (productData) => {
+//   try {
+//     const response = await axios.post(`${API_BASE_URL}/products`, productData, {
+//       headers: getAuthHeaders(),
+//     });
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error creating product:", error);
+//     throw error;
+//   }
+// };
+
 export const createProductAPI = async (productData) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/products`, productData, {
@@ -60,9 +72,25 @@ export const createProductAPI = async (productData) => {
     return response.data;
   } catch (error) {
     console.error("Error creating product:", error);
-    throw error;
+
+    // Extract detailed error message
+    const errorMessage =
+      error.response?.data?.message || 
+      error.response?.data?.error || 
+      error.message || 
+      "Unknown error occurred while creating product";
+
+    // Optional: include status code and server errors
+    const detailedError = {
+      status: error.response?.status,
+      data: error.response?.data,
+      message: errorMessage,
+    };
+
+    throw detailedError;
   }
 };
+
 
 /**
  * 4. Update existing product

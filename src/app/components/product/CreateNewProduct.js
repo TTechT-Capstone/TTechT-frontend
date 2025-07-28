@@ -5,6 +5,8 @@ import Link from "next/link";
 import { ArrowLeft, UploadCloud, Trash2 } from "lucide-react";
 import { getAllCategoriesAPI } from "@/app/apis/category.api";
 import { createProductAPI } from "@/app/apis/product.api";
+import useAuth from "@/app/hooks/useAuth";
+import { getSellerById, getSellerByUserId } from "@/app/apis/seller.api";
 
 export default function CreateNewProduct() {
   const [sizeInput, setSizeInput] = useState("");
@@ -12,17 +14,46 @@ export default function CreateNewProduct() {
   const [categories, setCategories] = useState([]);
   //const [selectedCategory, setSelectedCategory] = useState("");
 
+  const [seller, setSeller] = useState(null);
+
+  const { idToken, user, userId, isAuthenticated } = useAuth();
+
+  
   const [formData, setFormData] = useState({
     name: "",
     price: "",
     stockQuantity: "",
     categoryId: "",
     brand: "",
-    size: [],
-    color: [],
+    sizes: [],
+    colors: [],
     description: "",
     images: [],
   });
+
+  useEffect(() => {
+  const fetchSellers = async () => {
+    try {
+      const userId = localStorage.getItem("userId"); // Make sure this is not null
+      if (!userId) {
+        console.error("Missing userId in localStorage");
+        return;
+      }
+
+      console.log("Fetching seller for user ID:", userId);
+
+      const sellerData = await getSellerByUserId(userId); // token is handled internally
+      setSeller(sellerData);
+
+      console.log("Fetched seller:", sellerData);
+    } catch (error) {
+      console.error("Failed to fetch seller:", error);
+    }
+  };
+
+  fetchSellers();
+}, []);
+
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -43,7 +74,7 @@ export default function CreateNewProduct() {
   };
 
   const addToList = (type) => {
-    const value = type === "size" ? sizeInput.trim() : colorInput.trim();
+    const value = type === "sizes" ? sizeInput.trim() : colorInput.trim();
     if (!value) return;
 
     setFormData((prev) => ({
@@ -51,7 +82,7 @@ export default function CreateNewProduct() {
       [type]: prev[type].includes(value) ? prev[type] : [...prev[type], value],
     }));
 
-    type === "size" ? setSizeInput("") : setColorInput("");
+    type === "sizes" ? setSizeInput("") : setColorInput("");
   };
 
   const removeFromList = (type, value) => {
@@ -61,7 +92,7 @@ export default function CreateNewProduct() {
     }));
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
 
     // Check how many more images can be added
@@ -70,11 +101,28 @@ export default function CreateNewProduct() {
 
     // Limit selected files to remaining slots
     const allowedFiles = files.slice(0, remainingSlots);
-    const previews = allowedFiles.map((file) => URL.createObjectURL(file));
-    setFormData((prev) => ({
-      ...prev,
-      images: [...prev.images, ...previews],
-    }));
+
+    // Convert to base64
+    const convertToBase64 = (file) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+      });
+
+    try {
+      const base64Images = await Promise.all(
+        allowedFiles.map((file) => convertToBase64(file))
+      );
+
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...base64Images],
+      }));
+    } catch (error) {
+      console.error("Error converting image to base64:", error);
+    }
   };
 
   const removeImage = (index) => {
@@ -87,14 +135,14 @@ export default function CreateNewProduct() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!user?.storeName) {
+    if (!seller?.storeName) {
       alert("Missing store name.");
       return;
     }
 
     const finalData = {
       ...formData,
-      storeName: user.storeName,
+      storeName: seller.storeName,
       price: parseFloat(Number(formData.price).toFixed(2)),
       stockQuantity: parseInt(formData.stockQuantity),
     };
@@ -129,7 +177,7 @@ export default function CreateNewProduct() {
                 Category
               </label>
               <select
-                name="category"
+                name="categoryId"
                 value={formData.categoryId}
                 onChange={handleInputChange}
                 className="input-field"
@@ -172,21 +220,21 @@ export default function CreateNewProduct() {
                 />
                 <button
                   type="button"
-                  onClick={() => addToList("size")}
+                  onClick={() => addToList("sizes")}
                   className="px-4 py-2 bg-secondary text-white rounded-xl"
                 >
                   Add
                 </button>
               </div>
               <div className="flex flex-wrap gap-2 mt-2">
-                {formData.size.map((s, idx) => (
+                {formData.sizes.map((s, idx) => (
                   <span
                     key={idx}
                     className="bg-gray-200 px-3 py-1 rounded-full text-sm flex items-center"
                   >
                     {s}
                     <button
-                      onClick={() => removeFromList("size", s)}
+                      onClick={() => removeFromList("sizes", s)}
                       className="ml-2 text-red-500"
                       type="button"
                     >
@@ -211,21 +259,21 @@ export default function CreateNewProduct() {
                 />
                 <button
                   type="button"
-                  onClick={() => addToList("color")}
+                  onClick={() => addToList("colors")}
                   className="px-4 py-2 bg-secondary text-white rounded-xl"
                 >
                   Add
                 </button>
               </div>
               <div className="flex flex-wrap gap-2 mt-2">
-                {formData.color.map((c, idx) => (
+                {formData.colors.map((c, idx) => (
                   <span
                     key={idx}
                     className="bg-gray-200 px-3 py-1 rounded-full text-sm flex items-center"
                   >
                     {c}
                     <button
-                      onClick={() => removeFromList("color", c)}
+                      onClick={() => removeFromList("colors", c)}
                       className="ml-2 text-red-500"
                       type="button"
                     >

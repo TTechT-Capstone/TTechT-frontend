@@ -40,13 +40,30 @@ export const createSeller = async (sellerInfo) => {
  * @param {string|number} sellerId - Seller ID.
  * @returns {Promise<Object>} - Seller data.
  */
-export const getSellerById = async (sellerId) => {
+// export const getSellerById = async (sellerId) => {
+//   try {
+//   const response = await axios.get(`${API_BASE_URL}/sellers/user/${sellerId}`, {
+//       headers: getAuthHeaders(),
+//     });
+//     return response.data.result;
+//   } catch (error) {
+//     console.error(`Failed to get seller by user ID ${sellerId}:`, error);
+//     throw error.response?.data || error;
+//   }
+// };
+
+/**
+ * Get seller information by seller ID.
+ * @param {string|number} sellerId - Seller ID.
+ * @returns {Promise<Object>} - Seller data.
+ */
+export const getSellerByUserId = async (sellerId) => {
   try {
-    //const response = await axios.get(`${API_BASE_URL}/sellers/user/${userId}`, {
-    const response = await axios.get(`${API_BASE_URL}/sellers/${sellerId}`, {
+  const response = await axios.get(`${API_BASE_URL}/sellers/user/${sellerId}`, {
       headers: getAuthHeaders(),
     });
     return response.data.result;
+    console.log("Seller data:", response.data.result);
   } catch (error) {
     console.error(`Failed to get seller by user ID ${sellerId}:`, error);
     throw error.response?.data || error;

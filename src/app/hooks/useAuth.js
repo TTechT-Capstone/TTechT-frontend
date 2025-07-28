@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import useUserStore from "../stores/userStore";
 
 const useAuth = () => {
-  const { user, idToken, fetchUser, loading, logout, initializeToken} = useUserStore();
+  const { user, seller, idToken, fetchUser, fetchSeller, loading, logout, initializeToken} = useUserStore();
 
   const [initialized, setInitialized] = useState(false);
 
@@ -21,6 +21,13 @@ const useAuth = () => {
       fetchUser();
     }
   }, [initialized, idToken, user, fetchUser]);
+
+  useEffect(() => {
+    // Once initialized and token exists, fetch user if not already
+    if (initialized && idToken && !seller) {
+      fetchSeller();
+    }
+  }, [initialized, idToken, seller, fetchSeller]);
 
   return {
     user,
