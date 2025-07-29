@@ -42,7 +42,7 @@ export default function CreateNewProduct() {
 
       console.log("Fetching seller for user ID:", userId);
 
-      const sellerData = await getSellerByUserId(userId); // token is handled internally
+      const sellerData = await getSellerByUserId(userId);
       setSeller(sellerData);
 
       console.log("Fetched seller:", sellerData);

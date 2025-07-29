@@ -5,8 +5,8 @@ import { getSellerById } from '@/app/apis/seller.api';
 const useUserStore = create((set, get) => ({
   user: null,
   idToken: null,
-  sellerId: null,
-  seller: null,
+  //sellerId: null,
+  //seller: null,
   loading: false,
   error: null,
 
@@ -31,23 +31,23 @@ const useUserStore = create((set, get) => ({
     }
   },
 
-  fetchSeller: async (sellerId) => {
-    if (typeof window === "undefined") return;
-    try {
-      const data = await getSellerById(sellerId);
-      set({ user: data.result, loading: false, sellerId: data.result.id });
-      localStorage.setItem("sellerId", data.result.id);
-    } catch (err) {
-      set({ error: "Failed to fetch seller info" });
-    }
-  },
+  // fetchSeller: async (sellerId) => {
+  //   if (typeof window === "undefined") return;
+  //   try {
+  //     const data = await getSellerById(sellerId);
+  //     set({ user: data.result, loading: false, sellerId: data.result.id });
+  //     localStorage.setItem("sellerId", data.result.id);
+  //   } catch (err) {
+  //     set({ error: "Failed to fetch seller info" });
+  //   }
+  // },
 
-  setSellerId: (id) => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("sellerId", id.toString());
-    }
-    set({ sellerId: id });
-  },
+  // setSellerId: (id) => {
+  //   if (typeof window !== "undefined") {
+  //     localStorage.setItem("sellerId", id.toString());
+  //   }
+  //   set({ sellerId: id });
+  // },
 
 
   setIdToken: (token) => {
@@ -70,8 +70,8 @@ const useUserStore = create((set, get) => ({
   initializeToken: () => {
     if (typeof window !== "undefined") {
       const storedToken = localStorage.getItem("idToken");
-      const storedSellerId = localStorage.getItem("sellerId");
-      set({ idToken: storedToken, sellerId: storedSellerId });
+      //const storedSellerId = localStorage.getItem("sellerId");
+      set({ idToken: storedToken });
     }
   }
 }));

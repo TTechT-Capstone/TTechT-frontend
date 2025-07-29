@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Eye, EyeClosed } from "lucide-react";
 import { loginAsUser } from "@/app/apis/auth.api";
-import useUserStore from "@/app/stores/userStore";
 
 export default function Login() {
   const [errors, setErrors] = useState({});
@@ -13,11 +12,6 @@ export default function Login() {
   const [loginError, setLoginError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-
-  const setIdToken = useUserStore((state) => state.setIdToken);
-  const setSellerId = useUserStore((state) => state.setSellerId);
-  const fetchUser = useUserStore((state) => state.fetchUser);
-  const fetchSeller = useUserStore((state) => state.fetchSeller);
 
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
@@ -98,7 +92,7 @@ export default function Login() {
         return;
       }
 
-      setIdToken(token);
+      localStorage.setItem("idToken", token);
       localStorage.setItem("userRole", role || "");
 
       // ✅ Redirect based on role

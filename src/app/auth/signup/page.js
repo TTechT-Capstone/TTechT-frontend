@@ -104,8 +104,6 @@ export default function SignUp() {
           storeName,
           storeDescription,
         });
-        // const sellerId = response?.result?.id;
-        // localStorage.setItem('sellerId', sellerId);
 
       } else {
         response = await registerUser(payload);

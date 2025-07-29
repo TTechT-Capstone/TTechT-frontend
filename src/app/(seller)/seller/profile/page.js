@@ -5,7 +5,7 @@ import useAuth from "@/app/hooks/useAuth";
 import { updatePassword, updateUser } from "@/app/apis/auth.api";
 import ChangePasswordForm from "@/app/components/profile/ChangePasswordForm";
 import SellerProfileForm from "@/app/components/profile/SellerProfileForm";
-import { getSellerById } from "@/app/apis/seller.api";
+import { getSellerByUserId } from "@/app/apis/seller.api";
 
 export default function SellerProfile() {
   const { idToken, user, isAuthenticated, loading } = useAuth();
@@ -39,7 +39,7 @@ export default function SellerProfile() {
     if (!user || !user.id) return;
 
     try {
-      const sellerData = await getSellerById(user.id);
+      const sellerData = await getSellerByUserId(user.id);
       console.log("Seller data fetched:", sellerData);
       setSeller(sellerData);
     } catch (err) {
