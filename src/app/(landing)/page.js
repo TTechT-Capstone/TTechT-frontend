@@ -143,7 +143,7 @@ export default function LandingPage() {
               key={collection.name}
               name={collection.name}
               price={collection.price}
-              img={collection.img}
+              img={collection.images[0]}
               onClick={() => handleNewArrivalProductClick(collection.productId)}
             />
           ))}

@@ -2,23 +2,26 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, UploadCloud, Trash2 } from "lucide-react";
 import { getAllCategoriesAPI } from "@/app/apis/category.api";
 import { createProductAPI } from "@/app/apis/product.api";
 import useAuth from "@/app/hooks/useAuth";
-import { getSellerById, getSellerByUserId } from "@/app/apis/seller.api";
+import { getSellerByUserId } from "@/app/apis/seller.api";
 
 export default function CreateNewProduct() {
+  const router = useRouter();
   const [sizeInput, setSizeInput] = useState("");
   const [colorInput, setColorInput] = useState("");
   const [categories, setCategories] = useState([]);
   //const [selectedCategory, setSelectedCategory] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [seller, setSeller] = useState(null);
 
   const { idToken, user, userId, isAuthenticated } = useAuth();
 
-  
   const [formData, setFormData] = useState({
     name: "",
     price: "",
@@ -32,28 +35,27 @@ export default function CreateNewProduct() {
   });
 
   useEffect(() => {
-  const fetchSellers = async () => {
-    try {
-      const userId = localStorage.getItem("userId"); // Make sure this is not null
-      if (!userId) {
-        console.error("Missing userId in localStorage");
-        return;
+    const fetchSellers = async () => {
+      try {
+        const userId = localStorage.getItem("userId"); // Make sure this is not null
+        if (!userId) {
+          console.error("Missing userId in localStorage");
+          return;
+        }
+
+        console.log("Fetching seller for user ID:", userId);
+
+        const sellerData = await getSellerByUserId(userId);
+        setSeller(sellerData);
+
+        console.log("Fetched seller:", sellerData);
+      } catch (error) {
+        console.error("Failed to fetch seller:", error);
       }
+    };
 
-      console.log("Fetching seller for user ID:", userId);
-
-      const sellerData = await getSellerByUserId(userId);
-      setSeller(sellerData);
-
-      console.log("Fetched seller:", sellerData);
-    } catch (error) {
-      console.error("Failed to fetch seller:", error);
-    }
-  };
-
-  fetchSellers();
-}, []);
-
+    fetchSellers();
+  }, []);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -132,13 +134,16 @@ export default function CreateNewProduct() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!seller?.storeName) {
       alert("Missing store name.");
       return;
     }
+
+    setIsLoading(true);
+    setSuccessMessage("");
 
     const finalData = {
       ...formData,
@@ -147,12 +152,41 @@ export default function CreateNewProduct() {
       stockQuantity: parseInt(formData.stockQuantity),
     };
 
-    console.log("Submitting product:", finalData);
-    createProductAPI(finalData);
+    try {
+      console.log("Submitting product:", finalData);
+      await createProductAPI(finalData);
+      setSuccessMessage("✅ Product created successfully!");
+
+      // Redirect after a short delay
+      setTimeout(() => {
+        if (user?.role === "ADMIN") {
+          router.push("/admin/products");
+        } else {
+          router.push("/seller/products");
+        }
+      }, 1500);
+    } catch (error) {
+      console.error("Failed to create product:", error);
+      alert("❌ Failed to create product.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <>
+      {isLoading && (
+        <div className="text-center text-blue-600 font-medium mb-4">
+          Creating product, please wait...
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="text-center text-green-600 font-medium mb-4">
+          {successMessage}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6">
         {/* Left Side */}
         <div className="w-full md:w-2/3 bg-[#F4F4F4] p-6 rounded-2xl shadow space-y-6">
@@ -343,13 +377,28 @@ export default function CreateNewProduct() {
           <div className="flex justify-center gap-4">
             <button
               type="button"
+              onClick={() => {
+                if (user?.role === "ADMIN") {
+                  router.push("/admin/products");
+                } else {
+                  router.push("/seller/products");
+                }
+              }}
               className="w-full px-6 py-2 bg-[#FFFFFD] text-gray-700 rounded-xl"
             >
               Cancel
             </button>
+
             <button
               type="submit"
-              className="w-full px-6 py-2 bg-secondary text-white rounded-xl"
+              disabled={formData.images.length === 0}
+              className={`w-full px-6 py-2 rounded-xl transition 
+                  ${
+                    formData.images.length === 0
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-secondary text-white"
+                  }
+                `}
             >
               Add New Product
             </button>

@@ -52,18 +52,6 @@ export const getProductByIdAPI = async (productId) => {
  * 3. Create Product
  * http://localhost:8082/api/products
  */
-// export const createProductAPI = async (productData) => {
-//   try {
-//     const response = await axios.post(`${API_BASE_URL}/products`, productData, {
-//       headers: getAuthHeaders(),
-//     });
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error creating product:", error);
-//     throw error;
-//   }
-// };
-
 export const createProductAPI = async (productData) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/products`, productData, {
