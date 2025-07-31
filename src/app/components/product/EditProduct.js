@@ -43,7 +43,7 @@ export default function EditProduct({
   useEffect(() => {
     const fetchSellers = async () => {
       try {
-        const userId = localStorage.getItem("userId"); // Make sure this is not null
+        const userId = localStorage.getItem("userId"); 
         if (!userId) {
           console.error("Missing userId in localStorage");
           return;
