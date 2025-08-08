@@ -15,6 +15,25 @@ const getAuthHeaders = () => {
     Authorization: `Bearer ${token}`,
   };
 };
+
+/**
+ * Get all orders.
+ * @param {string|number} orderId
+ * @returns {Promise<Object>}
+ */
+export const getAllOrdersAPI = async () => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/orders/all`,
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error fetching orders:', error.response?.data || error.message);
+    throw new Error('Unable to retrieve order details. Please try again.');
+  }
+};
+
 /**
  * Create a new order.
  * @param {string|number} userId - The user placing the order

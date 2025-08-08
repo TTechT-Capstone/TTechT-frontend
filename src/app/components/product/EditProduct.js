@@ -2,26 +2,64 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import useAuth from "@/app/hooks/useAuth";
 import { ArrowLeft, UploadCloud, Trash2 } from "lucide-react";
 import { getAllCategoriesAPI } from "@/app/apis/category.api";
 import { updateProductAPI } from "@/app/apis/product.api";
+import { getSellerByUserId } from "@/app/apis/seller.api";
 
-export default function EditProduct() {
+
+export default function EditProduct({
+  product,
+  setProduct,
+  loadingProduct,
+  handleSubmit,
+}) {
+  const router = useRouter();
+  const { idToken, user, userId, isAuthenticated } = useAuth();
+
   const [sizeInput, setSizeInput] = useState("");
   const [colorInput, setColorInput] = useState("");
   const [categories, setCategories] = useState([]);
+  //const [selectedCategory, setSelectedCategory] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
-  const [formData, setFormData] = useState({
-    name: "",
-    price: "",
-    stockQuantity: "",
-    categoryId: "",
-    brand: "",
-    size: [],
-    color: [],
-    description: "",
-    images: [],
-  });
+  const [seller, setSeller] = useState(null);
+
+  const handleCancel = () => {
+    const role = user?.roles?.[0]?.name || "UNKNOWN";
+
+    if (role === "ADMIN") {
+      router.push("/admin/products");
+    } else if (role === "SELLER") {
+      router.push("/seller/products");
+    } else {
+      console.warn("Unknown role or not logged in");
+    }
+  };
+
+  useEffect(() => {
+    const fetchSellers = async () => {
+      try {
+        const userId = localStorage.getItem("userId"); 
+        if (!userId) {
+          console.error("Missing userId in localStorage");
+          return;
+        }
+
+        const sellerData = await getSellerByUserId(userId);
+        setSeller(sellerData);
+
+        console.log("Fetched seller:", sellerData);
+      } catch (error) {
+        console.error("Failed to fetch seller:", error);
+      }
+    };
+
+    fetchSellers();
+  }, []);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -38,310 +76,344 @@ export default function EditProduct() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setProduct((prev) => ({ ...prev, [name]: value }));
   };
 
   const addToList = (type) => {
-    const value = type === "size" ? sizeInput.trim() : colorInput.trim();
-    if (!value) return;
+    const value = type === "sizes" ? sizeInput.trim() : colorInput.trim();
+    if (!value || product[type].includes(value)) return;
 
-    setFormData((prev) => ({
+    setProduct((prev) => ({
       ...prev,
-      [type]: prev[type].includes(value) ? prev[type] : [...prev[type], value],
+      [type]: [...prev[type], value],
     }));
 
-    type === "size" ? setSizeInput("") : setColorInput("");
+    type === "sizes" ? setSizeInput("") : setColorInput("");
   };
 
   const removeFromList = (type, value) => {
-    setFormData((prev) => ({
+    setProduct((prev) => ({
       ...prev,
       [type]: prev[type].filter((item) => item !== value),
     }));
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
-    const previews = files.map((file) => URL.createObjectURL(file));
-    setFormData((prev) => ({
-      ...prev,
-      images: [...prev.images, ...previews],
-    }));
+
+    // Check how many more images can be added
+    const remainingSlots = 4 - (product.images?.length || 0);
+    if (remainingSlots <= 0) return;
+
+    // Limit selected files to remaining slots
+    const allowedFiles = files.slice(0, remainingSlots);
+
+    // Convert to base64
+    const convertToBase64 = (file) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+      });
+
+    try {
+      const base64Images = await Promise.all(
+        allowedFiles.map((file) => convertToBase64(file))
+      );
+
+      setProduct((prev) => ({
+        ...prev,
+        images: [...prev.images, ...base64Images],
+      }));
+    } catch (error) {
+      console.error("Error converting image to base64:", error);
+    }
   };
 
   const removeImage = (index) => {
-    setFormData((prev) => ({
+    setProduct((prev) => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== index),
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!user?.storeName) {
-      alert("Missing store name.");
-      return;
-    }
-
-    const finalData = {
-      ...formData,
-      storeName: user.storeName,
-      price: parseFloat(Number(formData.price).toFixed(2)),
-      stockQuantity: parseInt(formData.stockQuantity),
-    };
-
-
-    console.log("Updating product:", finalData);
-    updateProductAPI(finalData);
-  };
-
   return (
     <>
-      <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6">
-        {/* Left Side */}
-        <div className="w-full md:w-2/3 bg-[#F4F4F4] p-6 rounded-2xl shadow space-y-6">
-          {/* Product Name */}
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Product Name
-            </label>
-            <input
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              placeholder="Enter product name"
-              className="input-field"
-            />
-          </div>
+      {isLoading && (
+        <div className="text-center text-blue-600 font-medium mb-4">
+          Updating product, please wait...
+        </div>
+      )}
 
-          {/* Category and Brand */}
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="w-full">
+      {successMessage && (
+        <div className="text-center text-green-600 font-medium mb-4">
+          {successMessage}
+        </div>
+      )}
+
+      {loadingProduct ? (
+        <p className="font-roboto text-lg text-gray-600 text-center">
+          Loading product...
+        </p>
+      ) : (
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col md:flex-row gap-6"
+        >
+          {/* Left Side */}
+          <div className="w-full md:w-2/3 bg-[#F4F4F4] p-6 rounded-2xl shadow space-y-6">
+            {/* Product Name */}
+            <div>
               <label className="block text-gray-700 font-medium mb-1">
-                Category
+                Product Name
               </label>
-              <select
-                name="category"
-                value={formData.categoryId}
+              <input
+                name="name"
+                value={product.name}
                 onChange={handleInputChange}
+                placeholder="Enter product name"
                 className="input-field"
+              />
+            </div>
+
+            {/* Category and Brand */}
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="w-full">
+                <label className="block text-gray-700 font-medium mb-1">
+                  Category
+                </label>
+                <select
+                  name="categoryId"
+                  value={product.categoryId}
+                  onChange={handleInputChange}
+                  className="input-field"
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.categoryId} value={cat.categoryId}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="w-full">
+                <label className="block text-gray-700 font-medium mb-1">
+                  Brand
+                </label>
+                <input
+                  name="brand"
+                  value={product.brand}
+                  onChange={handleInputChange}
+                  placeholder="Brand name"
+                  className="input-field"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* Sizes */}
+              <div className="w-full">
+                <label className="block text-gray-700 font-medium mb-1">
+                  Sizes
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    value={sizeInput}
+                    onChange={(e) => setSizeInput(e.target.value)}
+                    placeholder="Add size"
+                    className="input-field"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => addToList("sizes")}
+                    className="px-4 py-2 bg-secondary text-white rounded-xl"
+                  >
+                    Add
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {product.sizes.map((s, idx) => (
+                    <span
+                      key={idx}
+                      className="bg-gray-200 px-3 py-1 rounded-full text-sm flex items-center"
+                    >
+                      {s}
+                      <button
+                        onClick={() => removeFromList("sizes", s)}
+                        className="ml-2 text-red-500"
+                        type="button"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Colors */}
+              <div className="w-full">
+                <label className="block text-gray-700 font-medium mb-1">
+                  Colors
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    value={colorInput}
+                    onChange={(e) => setColorInput(e.target.value)}
+                    placeholder="Add color"
+                    className="input-field"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => addToList("colors")}
+                    className="px-4 py-2 bg-secondary text-white rounded-xl"
+                  >
+                    Add
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {product.colors.map((c, idx) => (
+                    <span
+                      key={idx}
+                      className="bg-gray-200 px-3 py-1 rounded-full text-sm flex items-center"
+                    >
+                      {c}
+                      <button
+                        onClick={() => removeFromList("colors", c)}
+                        className="ml-2 text-red-500"
+                        type="button"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* Price and Inventory */}
+              <div className="w-full">
+                <label className="block text-gray-700 font-medium mb-1">
+                  Price (USD)
+                </label>
+                <input
+                  type="number"
+                  name="price"
+                  value={product.price}
+                  onChange={handleInputChange}
+                  onBlur={() => {
+                    setProduct((prev) => ({
+                      ...prev,
+                      price: parseFloat(prev.price || 0).toFixed(2),
+                    }));
+                  }}
+                  placeholder="Enter price"
+                  step="0.01"
+                  min="0"
+                  className="input-field"
+                />
+              </div>
+
+              <div className="w-full">
+                <label className="block text-gray-700 font-medium mb-1">
+                  Stock Quantity
+                </label>
+                <input
+                  type="number"
+                  name="stockQuantity"
+                  value={product.stockQuantity}
+                  onChange={handleInputChange}
+                  placeholder="Available stock"
+                  className="input-field"
+                  min="1"
+                />
+              </div>
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-1">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={product.description}
+                onChange={handleInputChange}
+                placeholder="Write product description..."
+                className="input-field h-32 resize-none"
+              />
+            </div>
+
+            {/* Submit Buttons */}
+            <div className="flex justify-center gap-4">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="w-full px-6 py-2 bg-[#FFFFFD] text-gray-700 rounded-xl"
               >
-                <option value="">Select a category</option>
-                {categories.map((cat) => (
-                  <option key={cat.categoryId} value={cat.categoryId}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+                Cancel
+              </button>
 
-            <div className="w-full">
-              <label className="block text-gray-700 font-medium mb-1">
-                Brand
-              </label>
-              <input
-                name="brand"
-                value={formData.brand}
-                onChange={handleInputChange}
-                placeholder="Brand name"
-                className="input-field"
-              />
+              <button
+                type="submit"
+                disabled={product.images.length === 0}
+                className={`w-full px-6 py-2 rounded-xl transition 
+                  ${
+                    product.images.length === 0
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-secondary text-white"
+                  }
+                `}
+              >
+                Edit Product
+              </button>
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Sizes */}
-            <div className="w-full">
-              <label className="block text-gray-700 font-medium mb-1">
-                Sizes
-              </label>
-              <div className="flex gap-2">
-                <input
-                  value={sizeInput}
-                  onChange={(e) => setSizeInput(e.target.value)}
-                  placeholder="Add size"
-                  className="input-field"
-                />
-                <button
-                  type="button"
-                  onClick={() => addToList("size")}
-                  className="px-4 py-2 bg-secondary text-white rounded-xl"
-                >
-                  Add
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {formData.size.map((s, idx) => (
-                  <span
-                    key={idx}
-                    className="bg-gray-200 px-3 py-1 rounded-full text-sm flex items-center"
-                  >
-                    {s}
-                    <button
-                      onClick={() => removeFromList("size", s)}
-                      className="ml-2 text-red-500"
-                      type="button"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Colors */}
-            <div className="w-full">
-              <label className="block text-gray-700 font-medium mb-1">
-                Colors
-              </label>
-              <div className="flex gap-2">
-                <input
-                  value={colorInput}
-                  onChange={(e) => setColorInput(e.target.value)}
-                  placeholder="Add color"
-                  className="input-field"
-                />
-                <button
-                  type="button"
-                  onClick={() => addToList("color")}
-                  className="px-4 py-2 bg-secondary text-white rounded-xl"
-                >
-                  Add
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {formData.color.map((c, idx) => (
-                  <span
-                    key={idx}
-                    className="bg-gray-200 px-3 py-1 rounded-full text-sm flex items-center"
-                  >
-                    {c}
-                    <button
-                      onClick={() => removeFromList("color", c)}
-                      className="ml-2 text-red-500"
-                      type="button"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Price and Inventory */}
-            <div className="w-full">
-              <label className="block text-gray-700 font-medium mb-1">
-                Price (USD)
-              </label>
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleInputChange}
-                onBlur={() => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    price: parseFloat(prev.price || 0).toFixed(2),
-                  }));
-                }}
-                placeholder="Enter price"
-                step="0.01"
-                min="0"
-                className="input-field"
-              />
-            </div>
-
-            <div className="w-full">
-              <label className="block text-gray-700 font-medium mb-1">
-                Stock Quantity
-              </label>
-              <input
-                type="number"
-                name="stockQuantity"
-                value={formData.stockQuantity}
-                onChange={handleInputChange}
-                placeholder="Available stock"
-                className="input-field"
-                min="1"
-              />
-            </div>
-          </div>
-
-          {/* Description */}
-          <div>
+          {/* Right Side - Image Upload */}
+          <div className="w-full md:w-1/3 bg-[#F4F4F4] p-6 rounded-2xl shadow space-y-4">
             <label className="block text-gray-700 font-medium mb-1">
-              Description
+              Product Images
             </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              placeholder="Write product description..."
-              className="input-field h-32 resize-none"
-            />
-          </div>
 
-          {/* Submit Buttons */}
-          <div className="flex justify-center gap-4">
-            <button
-              type="button"
-              className="w-full px-6 py-2 bg-[#FFFFFD] text-gray-700 rounded-xl"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="w-full px-6 py-2 bg-secondary text-white rounded-xl"
-            >
-              Edit Product
-            </button>
-          </div>
-        </div>
-
-        {/* Right Side - Image Upload */}
-        <div className="w-full md:w-1/3 bg-[#F4F4F4] p-6 rounded-2xl shadow space-y-4">
-          <label className="block text-gray-700 font-medium mb-1">
-            Product Images
-          </label>
-
-          {formData.images[0] && (
-            <img
-              src={formData.images[0]}
-              className="w-full h-48 object-cover rounded-lg"
-              alt="Main"
-            />
-          )}
-
-          <div className="flex flex-wrap gap-3">
-            {formData.images.map((src, idx) => (
-              <div key={idx} className="relative group">
-                <img src={src} className="w-16 h-16 object-cover rounded" />
-                <button
-                  onClick={() => removeImage(idx)}
-                  className="absolute top-0 right-0 p-1 bg-black bg-opacity-60 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
-                  type="button"
-                >
-                  <Trash2 size={12} />
-                </button>
-              </div>
-            ))}
-
-            <label className="w-16 h-16 border border-dashed border-gray-400 flex items-center justify-center rounded-lg cursor-pointer hover:border-gray-600">
-              <UploadCloud className="w-5 h-5 text-gray-500" />
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageUpload}
-                className="hidden"
+            {product.images[0] && (
+              <img
+                src={product.images[0]}
+                className="w-full h-48 object-cover rounded-lg"
+                alt="Main"
               />
-            </label>
+            )}
+
+            <div className="flex flex-wrap gap-3">
+              {product.images.map((src, idx) => (
+                <div key={idx} className="relative group">
+                  <img src={src} className="w-16 h-16 object-cover rounded" />
+                  <button
+                    onClick={() => removeImage(idx)}
+                    className="absolute top-0 right-0 p-1 bg-black bg-opacity-60 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
+                    type="button"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
+              ))}
+
+              <label className="w-16 h-16 border border-dashed border-gray-400 flex items-center justify-center rounded-lg cursor-pointer hover:border-gray-600">
+                <UploadCloud className="w-5 h-5 text-gray-500" />
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </label>
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      )}
     </>
   );
 }

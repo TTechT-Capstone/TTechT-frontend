@@ -5,29 +5,15 @@ import { getSellerById } from "@/app/apis/seller.api";
 import { useEffect, useRef, useState } from "react";
 import { createWatermarkAPI } from "@/app/apis/watermark.api";
 
-export default function SellerWatermarkImageGenerator() {
+export default function AdminWatermarkImageGenerator() {
   const { idToken, user } = useAuth();
   const canvasRef = useRef(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [storeName, setStoreName] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
 
-  useEffect(() => {
-    const fetchSeller = async () => {
-      if (user?.id) {
-        try {
-          const sellerData = await getSellerById(user.id);
-          setStoreName(sellerData.storeName);
-        } catch (err) {
-          console.error("Failed to fetch store name:", err);
-        }
-      }
-    };
-    fetchSeller();
-  }, [user]);
 
   useEffect(() => {
-    if (!storeName) return;
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -45,12 +31,14 @@ export default function SellerWatermarkImageGenerator() {
     ctx.fillStyle = "#333";
     ctx.font = "bold 32px sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(storeName, width / 2, height / 2);
+    ctx.fillText("Admin", width / 2, height / 2);
 
     // Export image
     const url = canvas.toDataURL("image/png");
     setImageUrl(url);
-  }, [storeName]);
+  }, []);
+
+
 
   //   const handleUseImage = async () => {
   //   setSelectedImage(imageUrl);
@@ -86,18 +74,6 @@ export default function SellerWatermarkImageGenerator() {
   const handleUseImage = async () => {
     setSelectedImage(imageUrl);
     console.log("Selected image ready to be sent to API:", imageUrl);
-
-    try {
-      const payload = {
-        store_name: storeName,
-        watermark_url_image: imageUrl, // base64 data URL
-      };
-
-      const result = await createWatermarkAPI(payload);
-      console.log("✅ Watermark created via API:", result);
-    } catch (err) {
-      console.error("❌ Failed to create watermark:", err);
-    }
   };
 
   return (

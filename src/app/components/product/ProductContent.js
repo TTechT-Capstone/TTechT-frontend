@@ -56,7 +56,7 @@ export default function ProductContent() {
               key={product.productId || product.name}
               name={product.name}
               price={product.price}
-              img={product.img || "/placeholder.jpg"}
+              img={product.images[0]}
               onClick={() => handleProductClick(product.productId)}
             />
           ))

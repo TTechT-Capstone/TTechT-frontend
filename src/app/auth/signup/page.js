@@ -3,7 +3,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeClosed } from "lucide-react";
-import { registerUser, createSeller } from "@/app/apis/auth.api"; 
+import { registerUser } from "@/app/apis/auth.api";
+import { createSeller } from "@/app/apis/seller.api";
+import useUserStore from "@/app/stores/userStore";
 
 export default function SignUp() {
   const [errors, setErrors] = useState({});
@@ -22,6 +24,8 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const route = useRouter();
+
+  const { setSellerId } = useUserStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -100,11 +104,12 @@ export default function SignUp() {
           storeName,
           storeDescription,
         });
+
       } else {
         response = await registerUser(payload);
       }
 
-      route.push("/auth/login");
+     route.push("/auth/login");
     } catch (error) {
       console.error("Signup error:", error);
 

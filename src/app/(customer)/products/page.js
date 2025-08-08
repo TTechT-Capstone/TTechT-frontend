@@ -90,7 +90,7 @@ export default function ProductPage() {
               key={bestseller.name}
               name={bestseller.name}
               price={bestseller.price}
-              img={bestseller.img}
+              img={bestseller.images[0]}
               onClick={() => handleBestSellerProductClick(bestseller.productId)}
             />
           ))}

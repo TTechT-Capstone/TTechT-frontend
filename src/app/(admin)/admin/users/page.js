@@ -11,13 +11,17 @@ export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const { idToken, user, isAuthenticated } = useAuth();
+  const [searchTerm, setSearchTerm] = useState("");
+    const [sortBy, setSortBy] = useState("createdAt");
+    const [sortOrder, setSortOrder] = useState("desc");
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         if (!idToken) return;
         const data = await getAllUsersAPI(idToken);
-        setUsers(data);
+        //console.log("Fetched users:", data);
+        setUsers(data.result);
       } catch (error) {
         console.error("Error fetching users:", error);
       } finally {
@@ -94,8 +98,8 @@ export default function AdminUsers() {
             }`}
           >
             <div className="font-medium">{user.id}</div>
-            <div>{user.name}</div>
-            <div>{user.role}</div>
+            <div>{user.username}</div>
+            <div>{user.roles[0]?.name}</div>
 
             <div className="flex space-x-3">
               <SquarePen

@@ -8,16 +8,21 @@ import { updateOrderStatusAPI, getOrderByIdAPI } from "@/app/apis/order.api";
 import { useParams, useSearchParams } from "next/navigation";
 import { getUserByIdAPI } from "@/app/apis/user.api";
 import { updateUser } from "@/app/apis/auth.api";
+import EditUser from "@/app/components/profile/EditUser";
 
 export default function AdminEditUser() {
   const { idToken, user, isAuthenticated, loading } = useAuth();
 
-    const [users, setUsers] = useState({
-    name: "",
-    email: "",
-    role: "",
+  const [users, setUsers] = useState({
     id: "",
-    });
+    username: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    address: "",
+    roles: [],
+  });
 
   const params = useParams();
   const userId = params.id;
@@ -46,26 +51,27 @@ export default function AdminEditUser() {
   }, [userId, idToken]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!users.name || !users.email || !users.role) {
-      alert("Please fill in all required fields.");
-      return;
-    }
+  e.preventDefault();
 
-    if (!users || !user.id) {
-      alert("User not found or not authenticated.");
-      return;
-    }
+  if (!users.username || !users.roles?.[0]?.name) {
+    alert("Please fill in all required fields.");
+    return;
+  }
 
-    try {
-      await updateUser(users.id, users, idToken);
-
-      alert("User updated successfully!");
-    } catch (error) {
-      console.error("Error updating user:", error);
-      alert(error.message || "Failed to update user.");
-    }
+  const payload = {
+    ...users,
+    roles: [users.roles[0].name], // send as array of strings
   };
+
+  try {
+    await updateUser(users.id, payload, idToken);
+    alert("User updated successfully!");
+  } catch (error) {
+    console.error("Error updating user:", error);
+    alert(error.message || "Failed to update user.");
+  }
+};
+
 
   return (
     <main className="min-h-screen p-8 font-roboto">

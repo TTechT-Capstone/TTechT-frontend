@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import useUserStore from "../stores/userStore";
 
 const useAuth = () => {
-  const { user, idToken, fetchUser, loading, logout, initializeToken} = useUserStore();
+  const { user, seller, idToken, fetchUser, loading, logout, initializeToken} = useUserStore();
 
   const [initialized, setInitialized] = useState(false);
 

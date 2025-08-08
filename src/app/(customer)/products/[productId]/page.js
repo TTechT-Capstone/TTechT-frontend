@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import useAuth from "@/app/hooks/useAuth";
 import Link from "next/link";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import ProductCard from "../../../components/product/ProductCard";
 import { getProductByIdAPI } from "@/app/apis/product.api";
@@ -26,10 +27,13 @@ export default function ProductDetail() {
         setLoading(true);
         const productData = await getProductByIdAPI(productId);
 
-        setMainImage(productData.imageUrls?.[0] || "");
+        if (productData?.images?.length > 0) {
+          setMainImage(productData.images[0]);
+        }
+
         setProduct({
           ...productData,
-          imageUrls: productData.imageUrls || [],
+          imageUrls: productData.images || [],
         });
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -74,6 +78,8 @@ export default function ProductDetail() {
             src={mainImage}
             alt="Main Product"
             className="rounded-lg shadow w-full max-h-[600px] object-cover"
+            // width={800}
+            // height={600}
           />
 
           {/* Thumbnails */}
@@ -84,6 +90,8 @@ export default function ProductDetail() {
                 src={url}
                 alt={`Thumbnail ${index + 1}`}
                 onClick={() => setMainImage(url)}
+                // width={64}
+                // height={64}
                 className={`w-16 h-16 rounded-md object-cover cursor-pointer border ${
                   mainImage === url ? "border-primary" : "border-gray-200"
                 }`}
@@ -175,7 +183,7 @@ export default function ProductDetail() {
         <h2 className="text-2xl font-bold text-center mb-8 font-urbanist">
           You May Also Like
         </h2>
-        <div className="py-2 grid grid-cols-2 md:grid-cols-4 gap-6">
+        {/* <div className="py-2 grid grid-cols-2 md:grid-cols-4 gap-6">
           <ProductCard
             name="White T-Shirt"
             price="150,000 VND"
@@ -196,7 +204,7 @@ export default function ProductDetail() {
             price="290,000 VND"
             img="/product.jpg"
           />
-        </div>
+        </div> */}
 
         <div className="flex justify-center mt-6">
           <Link href="/products">
