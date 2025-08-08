@@ -102,23 +102,6 @@ export default function SearchProductPage() {
         <h1 className="font-semibold text-2xl">NEW COLLECTION</h1>
       </section> */}
 
-      {/* Best Seller Section */}
-      <section className="px-8 py-12">
-        <h1 className="font-urbanist text-gray-800 font-extrabold text-3xl mb-8">
-          BEST SELLER
-        </h1>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {bestSellers.map((bestseller) => (
-            <BestSellerCard
-              key={bestseller.name}
-              name={bestseller.name}
-              price={bestseller.price}
-              img={bestseller.img}
-              onClick={() => handleBestSellerProductClick(bestseller.productId)}
-            />
-          ))}
-        </div>
-      </section>
 
       {/* Filter and Sort Section */}
       <section className="flex justify-between items-center px-8 py-2 rounded-lg">

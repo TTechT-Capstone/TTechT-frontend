@@ -13,6 +13,7 @@ import {
   getAllProductsAPI,
   getBestSellingProductsAPI,
 } from "@/app/apis/product.api";
+import useMediaQuery from "@/app/hooks/useMediaQuery";
 
 export default function ProductPage() {
   const router = useRouter();
@@ -21,25 +22,26 @@ export default function ProductPage() {
   const toggleSidebar = () => setSidebarVisible(!isSidebarVisible);
   const toggleDropdown = () => setDropdownOpen(!isDropdownOpen);
   const closeSidebar = () => setSidebarVisible(false);
-  const [isMdScreen, setIsMdScreen] = useState(false);
+  //const [isMdScreen, setIsMdScreen] = useState(false);
   const [bestSellers, setBestSellers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   const handleClearFilters = () => {
     console.log("Filters cleared!");
   };
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMdScreen(window.innerWidth >= 768);
-    };
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     setIsMdScreen(window.innerWidth >= 768);
+  //   };
 
-    handleResize(); // Initial check
-    window.addEventListener("resize", handleResize);
+  //   handleResize(); // Initial check
+  //   window.addEventListener("resize", handleResize);
 
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener("resize", handleResize);
+  //   };
+  // }, []);
 
   const handleBestSellerProductClick = (id) => {
     router.push(`/products/${id}`);
@@ -49,7 +51,7 @@ export default function ProductPage() {
     try {
       setLoading(true);
 
-      const data = await getBestSellingProductsAPI(4);
+      const data = await getBestSellingProductsAPI(isMobile ? 2 : 4);
       setBestSellers(data);
     } catch (error) {
       console.error("Failed to fetch bestsellers:", error);
@@ -102,9 +104,9 @@ export default function ProductPage() {
         <div
           className={`flex items-center space-x-4 font-urbanist font-bold text-gray-700 
       hover:text-primary transition-colors ${
-        isMdScreen ? "pointer-events-none" : ""
+        isMobile ? "pointer-events-none" : ""
       }`}
-          onClick={!isMdScreen ? toggleSidebar : undefined}
+          onClick={!isMobile ? toggleSidebar : undefined}
         >
           <h1>FILTERS</h1>
           <Funnel className="h-5 w-5" />

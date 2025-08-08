@@ -9,36 +9,33 @@ import NewCollectionCard from "../components/product/NewCollectionCard";
 import { getAllCategoriesAPI } from "@/app/apis/category.api";
 import { getBestNewArrivalsAPI } from "@/app/apis/product.api";
 import CategoryCard from "../components/product/CategoryCard";
+import useMediaQuery from "../hooks/useMediaQuery";
+import CategorySlider from "../components/product/CategorySlider";
 
 export default function LandingPage() {
   const router = useRouter();
-  const [randomCategories, setRandomCategories] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [newArrivalProduct, setNewArrivalProduct] = useState([]);
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await getAllCategoriesAPI(0, 100); // fetch all, or adjust limit
-        //const allCategories = res?.content ?? [];
-        console.log("Fetched categories:", res);
-
-        // Random pick 4 categories
-        const shuffled = res.sort(() => 0.5 - Math.random());
-        const selected = shuffled.slice(0, 4);
-
-        setRandomCategories(selected);
+        const res = await getAllCategoriesAPI(0, 100);
+        setCategories(res);
       } catch (err) {
         console.error("Failed to load categories", err);
       }
     };
 
     fetchCategories();
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
     const fetchNewArrival = async () => {
       try {
         const data = await getBestNewArrivalsAPI(4);
+
         setNewArrivalProduct(data);
       } catch (err) {
         console.error("Failed to fetch new arrival products", err);
@@ -46,7 +43,7 @@ export default function LandingPage() {
     };
 
     fetchNewArrival();
-  }, []);
+  }, [isMobile]);
 
   const handleNewArrivalProductClick = (id) => {
     router.push(`/products/${id}`);
@@ -117,20 +114,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Category Tiles Section */}
-      <section className="px-4 sm:px-8 py-8 sm:py-12 bg-white">
-        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-4 gap-4">
-          {randomCategories.map((category) => (
-            <CategoryCard
-              key={category.categoryId}
-              title={category.name}
-              img={category.img}
-              id={category.categoryId}
-              onClick={() => handleCategoryClick(category.categoryId)}
-            />
-          ))}
-        </div>
+      {/* Categories Section */}
+      <section>
+        <CategorySlider
+          categories={categories}
+          handleCategoryClick={handleCategoryClick}
+        />
       </section>
+
 
       {/* Divider */}
       <div className="my-3 border-t border-black opacity-20 mx-12"></div>
