@@ -7,6 +7,7 @@ import { X, ChevronDown, ChevronRight, Funnel } from "lucide-react";
 import ProductCard from "@/app/components/product/ProductCard";
 
 import { getProductsByCategoryAPI } from "@/app/apis/product.api";
+import useMediaQuery from "@/app/hooks/useMediaQuery";
 
 export default function ProductsByCategory({ setCategory }) {
   const router = useRouter();
@@ -17,6 +18,8 @@ export default function ProductsByCategory({ setCategory }) {
   const backendPage = currentPage - 1;
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 767px)");
+  
 
   useEffect(() => {
     if (!categoryId) return;

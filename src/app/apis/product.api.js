@@ -212,10 +212,10 @@ export const updateProductStockAPI = async (productId, stock) => {
  * 11. Get best selling products
  * http://localhost:8082/api/products/best-sellers?limit=10
  */
-export const getBestSellingProductsAPI = async (limit = 4) => {
+export const getBestSellingProductsAPI = async () => {
   try {
     const response = await axios.get(
-      `${API_BASE_URL}/products/best-sellers?limit=${limit}`
+      `${API_BASE_URL}/products/best-sellers`
     );
     return response.data;
   } catch (error) {

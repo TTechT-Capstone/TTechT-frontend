@@ -1,11 +1,11 @@
 export default function Footer() {
   return (
-    <footer className="bg-primary font-urbanist font-bold text-white py-6">
-      <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <footer className="bg-primary font-inter font-semibold text-white py-6">
+      <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Brand Section */}
         <div>
-          <h1 className="text-3xl">Origity</h1>
-          <h2 className="text-sm italic font-semibold mt-2">
+          <h1 className="text-3xl font-playfair">Origity</h1>
+          <h2 className="text-sm italic font-playfair font-thin mt-2">
             Original. Protected. Trusted.
           </h2>
         </div>
@@ -13,15 +13,15 @@ export default function Footer() {
         {/* Company Section */}
         <div>
           <p className="text-lg mb-3">OUR COMPANY</p>
-          <p className="text-sm hover:underline cursor-pointer">About Us</p>
+          <p className="text-sm font-normal hover:underline cursor-pointer">About Us</p>
         </div>
 
-        {/* Support Section */}
+        {/* Support Section
         <div>
           <p className="text-lg mb-3">SUPPORT</p>
-          <p className="text-sm hover:underline cursor-pointer">Contact Us</p>
-          <p className="text-sm hover:underline cursor-pointer">FAQ</p>
-        </div>
+          <p className="text-sm font-normal hover:underline cursor-pointer">Contact Us</p>
+          <p className="text-sm font-normal hover:underline cursor-pointer">FAQ</p>
+        </div> */}
       </div>
 
       {/* Divider */}
@@ -29,7 +29,7 @@ export default function Footer() {
 
 
       {/* Copyright Section */}
-      <div className="text-center text-sm">
+      <div className="text-center font-light text-sm">
         <p>Copyright © Origity 2025.</p>
       </div>
     </footer>

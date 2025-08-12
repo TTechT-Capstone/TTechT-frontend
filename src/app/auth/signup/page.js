@@ -1,11 +1,12 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeClosed } from "lucide-react";
+import { ArrowLeft, Eye, EyeClosed } from "lucide-react";
 import { registerUser } from "@/app/apis/auth.api";
 import { createSeller } from "@/app/apis/seller.api";
 import useUserStore from "@/app/stores/userStore";
+import useMediaQuery from "@/app/hooks/useMediaQuery";
 
 export default function SignUp() {
   const [errors, setErrors] = useState({});
@@ -23,15 +24,49 @@ export default function SignUp() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const route = useRouter();
 
-  const { setSellerId } = useUserStore();
+  const isMobile = useMediaQuery("(max-width: 767px)");
+  const [showPopup, setShowPopup] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Show popup if signUpError changes on mobile
+    if (isMobile && signUpError) {
+      setShowPopup(true);
+    } else {
+      setShowPopup(false);
+    }
+  }, [signUpError, isMobile]);
+
+  useEffect(() => {
+    if (showPopup) {
+      const timer = setTimeout(() => {
+        setShowPopup(false);
+        setSignUpError("");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showPopup]);
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\d{10,15}$/;
+
+  const isSubmitDisabled =
+    !firstName.trim() ||
+    !lastName.trim() ||
+    !phoneNumber.trim() ||
+    !phoneRegex.test(phoneNumber.trim()) ||
+    !email.trim() ||
+    !emailRegex.test(email.trim()) ||
+    !username.trim() ||
+    !password ||
+    password.length < 6 ||
+    !confirmPassword ||
+    password !== confirmPassword ||
+    (role === "Seller" && !storeName.trim());
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\d{10,15}$/;
 
     const newErrors = {};
 
@@ -104,12 +139,11 @@ export default function SignUp() {
           storeName,
           storeDescription,
         });
-
       } else {
         response = await registerUser(payload);
       }
 
-     route.push("/auth/login");
+      router.push("/auth/login");
     } catch (error) {
       console.error("Signup error:", error);
 
@@ -122,28 +156,28 @@ export default function SignUp() {
     }
   };
 
-  return (
-    <div className="h-screen w-screen grid grid-cols-1 md:grid-cols-2">
+  return !isMobile ? (
+    <div className="h-screen w-screen grid grid-cols-2">
       <div className="flex flex-col justify-center items-center bg-white text-secondary px-8">
         <form
           className="w-full max-w-lg mx-auto flex flex-col space-y-6 p-6 border md:border-0 md:shadow-none shadow-lg rounded-2xl bg-white"
           onSubmit={handleSubmit}
         >
           <Link href="/" aria-label="Home">
-            <h1 className="font-urbanist text-secondary text-2xl font-bold cursor-pointer text-center">
+            <h1 className="font-playfair text-secondary text-xl sm:text-2xl font-bold cursor-pointer text-center">
               Origity
             </h1>
           </Link>
 
-          <h2 className="font-urbanist font-bold text-3xl text-primary text-center">
+          <h2 className="font-inter font-semibold text-xl sm:text-3xl text-primary text-center">
             Sign up
           </h2>
 
-          <div>
+          <div className="font-inter text-sm sm:text-md ">
             <label htmlFor="role" className="block font-medium mb-2">
               Role:
             </label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 text-sm sm:text-md">
               {["Customer", "Seller"].map((roleType) => (
                 <button
                   key={roleType}
@@ -162,7 +196,7 @@ export default function SignUp() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 font-inter text-sm sm:text-md">
             <div>
               <label htmlFor="firstName" className="block font-medium mb-2">
                 First Name:
@@ -197,7 +231,7 @@ export default function SignUp() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 font-inter text-sm sm:text-md">
             <div>
               <label htmlFor="phoneNumber" className="block font-medium mb-2">
                 Phone Number:
@@ -217,20 +251,6 @@ export default function SignUp() {
               )}
             </div>
 
-            {/* <div>
-              <label htmlFor="address" className="block font-medium mb-2">
-                Address:
-              </label>
-              <input
-                type="text"
-                id="address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
-                placeholder="Enter your address"
-              />
-            </div> */}
-
             <div>
               <label htmlFor="email" className="block font-medium mb-2">
                 Email:
@@ -249,10 +269,10 @@ export default function SignUp() {
             </div>
           </div>
 
-          <div className="">
+          <div className="font-inter text-sm sm:text-md ">
             <div>
               <label htmlFor="username" className="block font-medium mb-2">
-                Username:
+                Username: <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -268,10 +288,10 @@ export default function SignUp() {
             </div>
           </div>
 
-          <div className="">
+          <div className="font-inter text-sm sm:text-md ">
             <div className="relative">
               <label htmlFor="password" className="block font-medium mb-2">
-                Password:
+                Password: <span className="text-red-500">*</span>
               </label>
               <input
                 type={showPassword ? "text" : "password"}
@@ -284,7 +304,7 @@ export default function SignUp() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[46px] text-sm text-gray-500 hover:text-primary focus:outline-none"
+                className="absolute right-3 top-[38px] text-sm text-gray-500 hover:text-primary focus:outline-none"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeClosed /> : <Eye />}
@@ -296,12 +316,12 @@ export default function SignUp() {
           </div>
 
           <div>
-            <div className="relative">
+            <div className="relative font-inter text-sm sm:text-md">
               <label
                 htmlFor="confirmPassword"
                 className="block font-medium mb-2"
               >
-                Confirm Password:
+                Confirm Password: <span className="text-red-500">*</span>
               </label>
               <input
                 type={showConfirmPassword ? "text" : "password"}
@@ -332,10 +352,10 @@ export default function SignUp() {
           </div>
 
           {role === "Seller" && (
-            <div>
+            <div className="font-inter text-sm sm:text-md">
               <div className="mb-4">
                 <label htmlFor="storename" className="block font-medium mb-2">
-                  Store Name:
+                  Store Name: <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -375,30 +395,35 @@ export default function SignUp() {
           )}
 
           {signUpError && (
-            <div className="text-red-500 text-center font-medium">
+            <div className="text-red-500 text-center text-sm sm:text-md font-inter font-medium">
               {signUpError}
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full py-3 px-4 rounded-xl text-white bg-secondary hover:bg-[#6C7A84] transition shadow-lg"
+            disabled={isSubmitDisabled}
+            className={`w-full py-3 px-4 rounded-xl text-sm sm:text-md font-inter text-white transition shadow-lg ${
+              isSubmitDisabled
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-secondary hover:bg-[#6C7A84]"
+            }`}
           >
             Create Account
           </button>
 
-          <p className="text-center text-gray-600">
+          <p className="text-center text-gray-600 font-inter text-sm sm:text-md ">
             Already have an account?{" "}
             <Link
               href="/auth/login"
-              className="text-primary font-bold hover:underline"
+              className="text-primary font-bold text-sm sm:text-md hover:underline"
             >
               Login here
             </Link>
           </p>
         </form>
       </div>
-      <div className="hidden md:block">
+      <div className="block">
         <img
           src="/herobanner.jpg"
           alt="Sign Up Image"
@@ -406,5 +431,258 @@ export default function SignUp() {
         />
       </div>
     </div>
+  ) : (
+    // Mobile View
+<>
+  <div
+    className="fixed text-primary font-inter font-semibold z-50 w-full border-b bg-white border-gray-300 px-4 py-2"
+    onClick={() => router.push("/")}
+  >
+    <div className="flex flex-row items-center gap-2 text-sm sm:text-md text-black">
+      <ArrowLeft />
+      Sign Up
+    </div>
+  </div>
+
+  <div className="min-h-screen flex flex-col justify-center items-center bg-white text-secondary px-4 sm:px-8 py-6">
+    <form
+      className="w-full max-w-md mx-auto flex flex-col space-y-3 p-6 bg-white font-inter"
+      onSubmit={handleSubmit}
+    >
+      <Link href="/" aria-label="Home">
+        <h1 className="font-playfair text-secondary text-xl sm:text-2xl font-bold cursor-pointer text-center">
+          Origity
+        </h1>
+      </Link>
+
+      <h2 className="font-inter font-bold text-xl sm:text-3xl text-primary text-center">
+        Sign up
+      </h2>
+
+      <div className="text-sm sm:text-md">
+        <label htmlFor="role" className="block font-medium mb-2">
+          Role:
+        </label>
+        <div className="grid grid-cols-2 gap-4 text-sm sm:text-md">
+          {["Customer", "Seller"].map((roleType) => (
+            <button
+              key={roleType}
+              type="button"
+              className={`py-3 px-4 rounded-xl font-medium text-sm sm:text-base ${
+                role === roleType
+                  ? "bg-secondary text-white shadow-lg"
+                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+              }`}
+              onClick={() => setRole(roleType)}
+              aria-pressed={role === roleType}
+            >
+              {roleType}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-6 text-sm sm:text-md">
+        <div>
+          <label htmlFor="firstName" className="block font-medium mb-2">
+            First Name:
+          </label>
+          <input
+            type="text"
+            id="firstName"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+            placeholder="First name"
+          />
+          {errors.firstName && (
+            <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
+          )}
+        </div>
+        <div>
+          <label htmlFor="lastName" className="block font-medium mb-2">
+            Last Name:
+          </label>
+          <input
+            type="text"
+            id="lastName"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+            placeholder="Last name"
+          />
+          {errors.lastName && (
+            <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-6 text-sm sm:text-md">
+        <div>
+          <label htmlFor="phoneNumber" className="block font-medium mb-2">
+            Phone Number:
+          </label>
+          <input
+            type="text"
+            id="phoneNumber"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+            placeholder="Phone number"
+          />
+          {errors.phoneNumber && (
+            <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
+          )}
+        </div>
+
+        <div>
+          <label htmlFor="email" className="block font-medium mb-2">
+            Email:
+          </label>
+          <input
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+            placeholder="Email"
+          />
+          {errors.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="text-sm sm:text-md">
+        <label htmlFor="username" className="block font-medium mb-2">
+          Username: <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+          placeholder="Username"
+        />
+        {errors.username && (
+          <p className="text-red-500 text-sm mt-1">{errors.username}</p>
+        )}
+      </div>
+
+      <div className="relative text-sm sm:text-md">
+        <label htmlFor="password" className="block font-medium mb-2">
+          Password: <span className="text-red-500">*</span>
+        </label>
+        <input
+          type={showPassword ? "text" : "password"}
+          id="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary pr-10"
+          placeholder="Your password"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-[38px] text-sm text-gray-500 hover:text-primary focus:outline-none"
+          aria-label={showPassword ? "Hide password" : "Show password"}
+        >
+          {showPassword ? <EyeClosed /> : <Eye />}
+        </button>
+        {errors.password && (
+          <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+        )}
+      </div>
+
+      <div className="relative text-sm sm:text-md">
+        <label htmlFor="confirmPassword" className="block font-medium mb-2">
+          Confirm Password: <span className="text-red-500">*</span>
+        </label>
+        <input
+          type={showConfirmPassword ? "text" : "password"}
+          id="confirmPassword"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary pr-10"
+          placeholder="Re-enter your password"
+        />
+        <button
+          type="button"
+          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+          className="absolute right-3 top-[38px] text-sm text-gray-500 hover:text-primary focus:outline-none"
+          aria-label={
+            showConfirmPassword ? "Hide confirm password" : "Show confirm password"
+          }
+        >
+          {showConfirmPassword ? <EyeClosed /> : <Eye />}
+        </button>
+        {errors.confirmPassword && (
+          <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+        )}
+      </div>
+
+      {role === "Seller" && (
+        <>
+          <div className="text-sm sm:text-md">
+            <label htmlFor="storename" className="block font-medium mb-2">
+              Store Name: <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="storename"
+              value={storeName}
+              onChange={(e) => setStoreName(e.target.value)}
+              className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+              placeholder="Enter your store name"
+            />
+            {errors.storeName && (
+              <p className="text-red-500 text-sm mt-1">{errors.storeName}</p>
+            )}
+          </div>
+          <div className="text-sm sm:text-md">
+            <label htmlFor="storeDescription" className="block font-medium mb-2">
+              Store Description:
+            </label>
+            <input
+              id="storeDescription"
+              value={storeDescription}
+              onChange={(e) => setStoreDescription(e.target.value)}
+              className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+              placeholder="Enter your store description"
+            />
+            {errors.storeDescription && (
+              <p className="text-red-500 text-sm mt-1">{errors.storeDescription}</p>
+            )}
+          </div>
+        </>
+      )}
+
+      {signUpError && (
+        <div className="text-red-500 text-center font-medium">{signUpError}</div>
+      )}
+
+      <button
+        type="submit"
+        disabled={isSubmitDisabled}
+        className={`w-full text-sm sm:text-md py-3 px-4 mt-2 rounded-xl text-white transition shadow-lg ${
+          isSubmitDisabled
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-secondary hover:bg-[#6C7A84]"
+        }`}
+      >
+        Create Account
+      </button>
+
+      <p className="text-center text-gray-600 text-sm sm:text-md">
+        Already have an account?{" "}
+        <Link href="/auth/login" className="text-primary font-bold hover:underline">
+          Login here
+        </Link>
+      </p>
+    </form>
+  </div>
+</>
+
   );
 }

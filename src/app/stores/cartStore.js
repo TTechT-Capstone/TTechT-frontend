@@ -110,6 +110,77 @@ const useCartStore = create(
         }
       },
 
+//       addToCart: async (newItem) => {
+//   try {
+//     set({ status: "loading" });
+//     let { cartId, cart } = get();
+
+//     if (!cartId) {
+//       const userId = localStorage.getItem("userId");
+//       if (!userId) throw new Error("User ID not found");
+
+//       const newCart = await createNewCart(userId);
+//       cartId = newCart.id;
+//       set({ cartId });
+//       localStorage.setItem("cartId", String(cartId));
+//     }
+
+//     if (
+//       !newItem?.productId ||
+//       !newItem?.quantity ||
+//       !newItem.color ||
+//       !newItem.size ||
+//       !newItem.image  // bắt buộc có ảnh
+//     ) {
+//       throw new Error(
+//         "Invalid item: productId, quantity, color, size, and image are required"
+//       );
+//     }
+
+//     const existingItem = cart.find(
+//       (item) =>
+//         item.productId === newItem.productId &&
+//         item.color === newItem.color &&
+//         item.size === newItem.size &&
+//         item.image === newItem.image // nếu hình cũng khác thì coi item khác
+//     );
+
+//     let updatedCart;
+
+//     if (existingItem) {
+//       const updatedQuantity = existingItem.quantity + newItem.quantity;
+
+//       await updateItemQuantityAPI(cartId, existingItem.id, updatedQuantity);
+
+//       updatedCart = cart.map((item) =>
+//         item.productId === newItem.productId &&
+//         item.color === newItem.color &&
+//         item.size === newItem.size &&
+//         item.image === newItem.image
+//           ? { ...item, quantity: updatedQuantity }
+//           : item
+//       );
+//     } else {
+//       const response = await addItemToCartAPI(cartId, newItem);
+//       const newCartItem = response.result;
+
+//       updatedCart = [...cart, newCartItem];
+//     }
+
+//     const totals = calculateCartTotals(updatedCart);
+
+//     set({
+//       cart: updatedCart,
+//       totalQuantity: totals.totalQuantity,
+//       totalPrice: totals.totalPrice,
+//       status: "succeeded",
+//     });
+//   } catch (err) {
+//     console.error("❌ Failed to add item to cart:", err);
+//     set({ status: "failed", error: err.message });
+//   }
+// },
+
       // Remove item from cart
       removeItemFromCart: async (productId) => {
         const { cartId, loadCart } = get();

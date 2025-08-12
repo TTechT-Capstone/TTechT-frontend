@@ -3,7 +3,7 @@ import "@/app/globals.css";
 
 export default function UserLayout({ children }) {
   return (
-    <div className="flex bg-[#F4F4F4] min-h-screen">
+    <div className="mt-5 flex bg-[#F4F4F4] min-h-screen">
       {/* Sidebar */}
       <ProfileSidebar />
 

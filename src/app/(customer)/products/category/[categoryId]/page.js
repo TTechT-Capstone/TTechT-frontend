@@ -72,13 +72,13 @@ export default function ProductPage() {
   return (
     <main className="bg-white">
       {/* Header Section */}
-      <section className="flex py-4 items-center justify-center bg-secondary font-urbanist text-white">
-        <h1 className="font-semibold text-2xl">
+      <section className="flex px-8 py-8 items-center justify-start font-playfair text-black">
+        <h1 className="font-semibold text-2xl uppercase">
           {category?.name || "Products"}
         </h1>
       </section>
 
-      {/* Best Seller Section */}
+      {/* Best Seller Section
       <section className="px-8 py-12">
         <h1 className="font-urbanist text-gray-800 font-extrabold text-3xl mb-8">
           BEST SELLER
@@ -94,7 +94,7 @@ export default function ProductPage() {
             />
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* Filter and Sort Section */}
       <section className="flex justify-between items-center px-8 py-2 rounded-lg">

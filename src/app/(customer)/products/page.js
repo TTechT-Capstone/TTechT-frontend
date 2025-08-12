@@ -3,7 +3,13 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { X, ChevronDown, ChevronRight, Funnel } from "lucide-react";
+import {
+  X,
+  ChevronDown,
+  ChevronRight,
+  Funnel,
+  ListFilterIcon,
+} from "lucide-react";
 import Image from "next/image";
 import ProductContent from "@/app/components/product/ProductContent";
 import FilterSidebar from "@/app/components/filter/FilterSidebar";
@@ -13,6 +19,9 @@ import {
   getAllProductsAPI,
   getBestSellingProductsAPI,
 } from "@/app/apis/product.api";
+import useMediaQuery from "@/app/hooks/useMediaQuery";
+import BestSellerSlider from "@/app/components/product/BestSellerSlider";
+import FilterDrawer from "@/app/components/filter/FilterDrawer";
 
 export default function ProductPage() {
   const router = useRouter();
@@ -21,25 +30,32 @@ export default function ProductPage() {
   const toggleSidebar = () => setSidebarVisible(!isSidebarVisible);
   const toggleDropdown = () => setDropdownOpen(!isDropdownOpen);
   const closeSidebar = () => setSidebarVisible(false);
-  const [isMdScreen, setIsMdScreen] = useState(false);
   const [bestSellers, setBestSellers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 767px)");
+  const [isFilterOpen, setFilterOpen] = useState(false);
+  const [isFilterAnimating, setFilterAnimating] = useState(false);
+
+  const openFilter = () => {
+    setFilterOpen(true);
+  };
+
+  const closeFilter = () => {
+    setFilterAnimating(false);
+    setTimeout(() => {
+      setFilterOpen(false);
+    }, 300);
+  };
+
+  useEffect(() => {
+    if (isFilterOpen) {
+      requestAnimationFrame(() => setFilterAnimating(true));
+    }
+  }, [isFilterOpen]);
 
   const handleClearFilters = () => {
     console.log("Filters cleared!");
   };
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMdScreen(window.innerWidth >= 768);
-    };
-
-    handleResize(); // Initial check
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
 
   const handleBestSellerProductClick = (id) => {
     router.push(`/products/${id}`);
@@ -49,8 +65,9 @@ export default function ProductPage() {
     try {
       setLoading(true);
 
-      const data = await getBestSellingProductsAPI(4);
+      const data = await getBestSellingProductsAPI();
       setBestSellers(data);
+      console.log("Best sellers fetched:", data);
     } catch (error) {
       console.error("Failed to fetch bestsellers:", error);
     } finally {
@@ -74,42 +91,20 @@ export default function ProductPage() {
 
   return (
     <main className="bg-white">
-      {/* Header Section */}
-      {/* <section className="flex py-4 items-center justify-center bg-secondary font-urbanist text-white">
-        <h1 className="font-semibold text-2xl">NEW COLLECTION</h1>
-      </section> */}
-
       {/* Best Seller Section */}
       <section className="px-8 py-12">
-        <h1 className="font-urbanist text-gray-800 font-extrabold text-3xl mb-8">
+        <h1 className="font-playfair text-gray-800 font-normal text-3xl mb-2">
           BEST SELLER
         </h1>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {bestSellers.map((bestseller) => (
-            <BestSellerCard
-              key={bestseller.name}
-              name={bestseller.name}
-              price={bestseller.price}
-              img={bestseller.images[0]}
-              onClick={() => handleBestSellerProductClick(bestseller.productId)}
-            />
-          ))}
-        </div>
+
+        <BestSellerSlider
+          bestSellers={bestSellers}
+          handleBestSellerProductClick={handleBestSellerProductClick}
+        />
       </section>
 
       {/* Filter and Sort Section */}
       <section className="flex justify-between items-center px-8 py-2 rounded-lg">
-        <div
-          className={`flex items-center space-x-4 font-urbanist font-bold text-gray-700 
-      hover:text-primary transition-colors ${
-        isMdScreen ? "pointer-events-none" : ""
-      }`}
-          onClick={!isMdScreen ? toggleSidebar : undefined}
-        >
-          <h1>FILTERS</h1>
-          <Funnel className="h-5 w-5" />
-        </div>
-
         {/* Sort By */}
         <div className="relative">
           <div
@@ -117,7 +112,7 @@ export default function ProductPage() {
             onClick={toggleDropdown}
             aria-expanded={isDropdownOpen}
           >
-            <h1>SORT BY</h1>
+            <h1 className="font-inter text-md sm:text-lg">SORT BY</h1>
             <ChevronDown className="h-5 w-5" />
           </div>
 
@@ -135,39 +130,32 @@ export default function ProductPage() {
             </div>
           )}
         </div>
+
+        <div
+          className="flex items-center space-x-4 font-urbanist font-bold text-gray-700 
+                      hover:text-primary transition-colors"
+          onClick={openFilter}
+        >
+          <h1 className="font-inter text-md sm:text-lg">FILTERS</h1>
+          <ListFilterIcon className="h-5 w-5" />
+
+          {isFilterOpen && (
+            <FilterDrawer
+              isOpen={isFilterOpen}
+              isAnimating={isFilterAnimating}
+              onClose={closeFilter}
+              filters={filters}
+              onClear={handleClearFilters}
+              isMobile={isMobile}
+            />
+          )}
+        </div>
       </section>
 
       {/* Divider */}
       <div className="my-4 border-t border-black opacity-80 mx-8"></div>
 
       <section className="flex flex-row px-8 py-4 items-start">
-        {/* Filter sidebar */}
-
-        <div className="hidden md:block w-[20%]">
-          <FilterSidebar filters={filters} onClear={handleClearFilters} />
-        </div>
-
-        {/* Sidebar Dropdown for Smaller Screens */}
-        {isSidebarVisible && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-20 flex justify-center items-center"
-            onClick={closeSidebar}
-          >
-            <div
-              className="bg-white p-4 rounded-lg shadow-lg w-3/4 max-w-md"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div
-                className="flex justify-end text-gray-700 cursor-pointer"
-                onClick={toggleSidebar}
-              >
-                <X className="h-5 w-5" />
-              </div>
-              <FilterSidebar filters={filters} onClear={handleClearFilters} />
-            </div>
-          </div>
-        )}
-
         <Suspense fallback={<p>Loading products...</p>}>
           <ProductContent />
         </Suspense>
