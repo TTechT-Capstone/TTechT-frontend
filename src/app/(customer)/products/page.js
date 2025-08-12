@@ -14,6 +14,7 @@ import {
   getBestSellingProductsAPI,
 } from "@/app/apis/product.api";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
+import BestSellerSlider from "@/app/components/product/BestSellerSlider";
 
 export default function ProductPage() {
   const router = useRouter();
@@ -30,18 +31,6 @@ export default function ProductPage() {
   const handleClearFilters = () => {
     console.log("Filters cleared!");
   };
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     setIsMdScreen(window.innerWidth >= 768);
-  //   };
-
-  //   handleResize(); // Initial check
-  //   window.addEventListener("resize", handleResize);
-
-  //   return () => {
-  //     window.removeEventListener("resize", handleResize);
-  //   };
-  // }, []);
 
   const handleBestSellerProductClick = (id) => {
     router.push(`/products/${id}`);
@@ -51,8 +40,9 @@ export default function ProductPage() {
     try {
       setLoading(true);
 
-      const data = await getBestSellingProductsAPI(isMobile ? 2 : 4);
+      const data = await getBestSellingProductsAPI();
       setBestSellers(data);
+      console.log("Best sellers fetched:", data);
     } catch (error) {
       console.error("Failed to fetch bestsellers:", error);
     } finally {
@@ -76,27 +66,16 @@ export default function ProductPage() {
 
   return (
     <main className="bg-white">
-      {/* Header Section */}
-      {/* <section className="flex py-4 items-center justify-center bg-secondary font-urbanist text-white">
-        <h1 className="font-semibold text-2xl">NEW COLLECTION</h1>
-      </section> */}
-
       {/* Best Seller Section */}
       <section className="px-8 py-12">
-        <h1 className="font-urbanist text-gray-800 font-extrabold text-3xl mb-8">
+        <h1 className="font-playfair text-gray-800 font-normal text-3xl mb-2">
           BEST SELLER
         </h1>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {bestSellers.map((bestseller) => (
-            <BestSellerCard
-              key={bestseller.name}
-              name={bestseller.name}
-              price={bestseller.price}
-              img={bestseller.images[0]}
-              onClick={() => handleBestSellerProductClick(bestseller.productId)}
-            />
-          ))}
-        </div>
+
+        <BestSellerSlider
+          bestSellers={bestSellers}
+          handleBestSellerProductClick={handleBestSellerProductClick}
+        />
       </section>
 
       {/* Filter and Sort Section */}

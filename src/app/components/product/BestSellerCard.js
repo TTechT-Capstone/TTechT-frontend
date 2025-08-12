@@ -5,7 +5,7 @@ export default function BestSellerCard({ name, price, img, onClick }) {
   const isMobile = useMediaQuery("(max-width: 767px)");
   
     return (
-      <div className="text-center cursor-pointer" onClick={onClick}>
+      <div className="text-left cursor-pointer font-inter" onClick={onClick}>
         {isMobile ? (
           <div className="relative w-full h-[200px] overflow-hidden">
             <Image
@@ -29,10 +29,12 @@ export default function BestSellerCard({ name, price, img, onClick }) {
           </div>
         )}
   
-        <p className="mt-2 text-primary font-semibold">{name}</p>
-        <p className="text-sm text-gray-600">
+        <div className="flex flex-col px-2 mt-2 ">
+        <p className="text-primary font-normal">{name}</p>
+        <p className="text-sm font-semibold text-black">
           {price ? Number(price).toFixed(2) : "0.00"} USD
         </p>
+      </div>
       </div>
     );
   }

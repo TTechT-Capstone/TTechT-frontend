@@ -1,9 +1,10 @@
+
 "use client";
 import { useRef, useState, useEffect } from "react";
-import CategoryCard from "./CategoryCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import BestSellerCard from "./BestSellerCard";
 
-export default function CategorySlider({ categories, handleCategoryClick }) {
+export default function BestSellerSlider({ bestSellers, handleBestSellerProductClick }) {
   const containerRef = useRef(null);
   const [showButtons, setShowButtons] = useState(false);
 
@@ -24,10 +25,10 @@ export default function CategorySlider({ categories, handleCategoryClick }) {
     checkOverflow();
     window.addEventListener("resize", checkOverflow);
     return () => window.removeEventListener("resize", checkOverflow);
-  }, [categories]);
+  }, [bestSellers]);
 
   return (
-    <section className="px-4 py-8 relative">
+    <section className="py-2 relative">
       {showButtons && (
         <>
           <button
@@ -52,16 +53,17 @@ export default function CategorySlider({ categories, handleCategoryClick }) {
         ref={containerRef}
         className="flex overflow-x-auto space-x-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
       >
-        {categories.map((category) => (
+        {bestSellers.map((bestseller) => (
           <div
-            key={category.categoryId}
-            className="flex-shrink-0 w-48 snap-center cursor-pointer"
-            onClick={() => handleCategoryClick(category.categoryId)}
+            key={bestseller.productId}
+            className="flex-shrink-0 snap-center cursor-pointer"
+            onClick={() => handleBestSellerProductClick(bestseller.productId)}
           >
-            <CategoryCard
-              title={category.name}
-              img={category.img}
-              id={category.categoryId}
+            <BestSellerCard
+              key={bestseller.name}
+              name={bestseller.name}
+              price={bestseller.price}
+              img={bestseller.images[0]}
             />
           </div>
         ))}

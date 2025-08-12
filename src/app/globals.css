@@ -16,8 +16,14 @@
   --color-secondary-light: #5d6c78;
   --color-secondary-dark: #37434b;
 
+  --color-cream:#FAF8F6;
+  --color-brown:#4B3C31;
+
   --font-urbanist: 'Urbanist', sans-serif;
   --font-roboto: 'Roboto', sans-serif;
+  --font-playfair-display: 'Playfair Display', serif;
+  --font-inter: 'Inter', sans-serif;
+
 }
 
 /* --- Dark mode --- */
@@ -37,6 +43,14 @@ body {
 /* --- Utility classes --- */
 .bg-primary {
   background-color: var(--color-primary);
+}
+
+.bg-cream {
+  background-color: var(--color-cream);
+}
+
+.bg-brown {
+  background-color: var(--color-brown);
 }
 
 .bg-primary-light {
@@ -76,6 +90,14 @@ body {
   font-family: var(--font-roboto);
 }
 
+.font-playfair {
+  font-family: var(--font-playfair-display);
+}
+
+.font-inter {
+  font-family: var(--font-inter);
+}
+
 .input-field {
   @apply w-full px-4 py-3 border border-gray-300 rounded-md bg-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300;
 }
@@ -87,3 +109,19 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+@keyframes pressDown {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.95);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  .animate-pressDown {
+    animation: pressDown 0.2s ease-in-out;
+  }
+  

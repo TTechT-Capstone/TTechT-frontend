@@ -20,7 +20,7 @@ export default function CategoryCard({ title, img, id, onClick }) {
                    flex flex-row sm:flex-col items-center justify-center gap-2 sm:gap-4 
                    text-white px-2 sm:px-0"
       >
-        <h4 className="text-md sm:text-lg font-bold font-urbanist truncate max-w-[calc(100%-80px)] sm:max-w-full">
+        <h4 className="text-md sm:text-lg font-normal font-inter truncate max-w-[calc(100%-80px)] sm:max-w-full">
           {title}
         </h4>
         {/* <button
