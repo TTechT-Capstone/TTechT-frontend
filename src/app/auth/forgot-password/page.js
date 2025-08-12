@@ -30,12 +30,12 @@ export default function ForgotPasswordPage() {
     <div className="h-screen w-screen flex items-center justify-center bg-gray-50 text-primary px-4">
       <div className="w-full max-w-md bg-white p-8 shadow-md rounded-xl font-roboto">
         <Link href="/">
-          <h1 className="font-urbanist text-secondary text-2xl font-bold text-center mb-4">
+          <h1 className="font-playfair text-secondary text-xl sm:text-2xl font-bold text-center mb-4">
             Origity
           </h1>
         </Link>
 
-        <h2 className="font-urbanist text-2xl font-semibold text-center text-primary mb-6">
+        <h2 className="font-inter text-xl sm:text-2xl font-semibold text-center text-primary mb-6">
           Forgot Password
         </h2>
 
@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
             ✅ A password reset link has been sent to your email.
           </p>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5 text-sm sm:text-md font-inter">
             <div>
               <label htmlFor="email" className="block mb-2 font-medium">
                 Email Address
@@ -60,17 +60,17 @@ export default function ForgotPasswordPage() {
             </div>
 
             {error && (
-              <p className="text-red-500 text-sm text-center">{error}</p>
+              <p className="text-red-500 text-sm sm:text-md text-center">{error}</p>
             )}
 
             <button
               type="submit"
-              className="w-full py-3 bg-secondary text-white font-bold rounded-lg hover:bg-secondary-dark transition"
+              className="w-full py-3 text-sm sm:text-md bg-secondary text-white font-bold rounded-lg hover:bg-secondary-dark transition"
             >
               Send Reset Link
             </button>
 
-            <p className="text-center text-sm text-gray-600">
+            <p className="text-center text-sm sm:text-md text-gray-600">
               Remember your password?{" "}
               <Link
                 href="/auth/login"

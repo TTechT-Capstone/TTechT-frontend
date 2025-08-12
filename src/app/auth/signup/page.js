@@ -164,20 +164,20 @@ export default function SignUp() {
           onSubmit={handleSubmit}
         >
           <Link href="/" aria-label="Home">
-            <h1 className="font-urbanist text-secondary text-2xl font-bold cursor-pointer text-center">
+            <h1 className="font-playfair text-secondary text-xl sm:text-2xl font-bold cursor-pointer text-center">
               Origity
             </h1>
           </Link>
 
-          <h2 className="font-urbanist font-bold text-3xl text-primary text-center">
+          <h2 className="font-inter font-semibold text-xl sm:text-3xl text-primary text-center">
             Sign up
           </h2>
 
-          <div>
+          <div className="font-inter text-sm sm:text-md ">
             <label htmlFor="role" className="block font-medium mb-2">
               Role:
             </label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 text-sm sm:text-md">
               {["Customer", "Seller"].map((roleType) => (
                 <button
                   key={roleType}
@@ -196,7 +196,7 @@ export default function SignUp() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 font-inter text-sm sm:text-md">
             <div>
               <label htmlFor="firstName" className="block font-medium mb-2">
                 First Name:
@@ -231,7 +231,7 @@ export default function SignUp() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 font-inter text-sm sm:text-md">
             <div>
               <label htmlFor="phoneNumber" className="block font-medium mb-2">
                 Phone Number:
@@ -269,7 +269,7 @@ export default function SignUp() {
             </div>
           </div>
 
-          <div className="">
+          <div className="font-inter text-sm sm:text-md ">
             <div>
               <label htmlFor="username" className="block font-medium mb-2">
                 Username: <span className="text-red-500">*</span>
@@ -288,7 +288,7 @@ export default function SignUp() {
             </div>
           </div>
 
-          <div className="">
+          <div className="font-inter text-sm sm:text-md ">
             <div className="relative">
               <label htmlFor="password" className="block font-medium mb-2">
                 Password: <span className="text-red-500">*</span>
@@ -304,7 +304,7 @@ export default function SignUp() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[46px] text-sm text-gray-500 hover:text-primary focus:outline-none"
+                className="absolute right-3 top-[38px] text-sm text-gray-500 hover:text-primary focus:outline-none"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeClosed /> : <Eye />}
@@ -316,7 +316,7 @@ export default function SignUp() {
           </div>
 
           <div>
-            <div className="relative">
+            <div className="relative font-inter text-sm sm:text-md">
               <label
                 htmlFor="confirmPassword"
                 className="block font-medium mb-2"
@@ -352,7 +352,7 @@ export default function SignUp() {
           </div>
 
           {role === "Seller" && (
-            <div>
+            <div className="font-inter text-sm sm:text-md">
               <div className="mb-4">
                 <label htmlFor="storename" className="block font-medium mb-2">
                   Store Name: <span className="text-red-500">*</span>
@@ -395,7 +395,7 @@ export default function SignUp() {
           )}
 
           {signUpError && (
-            <div className="text-red-500 text-center font-medium">
+            <div className="text-red-500 text-center text-sm sm:text-md font-inter font-medium">
               {signUpError}
             </div>
           )}
@@ -403,7 +403,7 @@ export default function SignUp() {
           <button
             type="submit"
             disabled={isSubmitDisabled}
-            className={`w-full py-3 px-4 rounded-xl text-white transition shadow-lg ${
+            className={`w-full py-3 px-4 rounded-xl text-sm sm:text-md font-inter text-white transition shadow-lg ${
               isSubmitDisabled
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-secondary hover:bg-[#6C7A84]"
@@ -412,11 +412,11 @@ export default function SignUp() {
             Create Account
           </button>
 
-          <p className="text-center text-gray-600">
+          <p className="text-center text-gray-600 font-inter text-sm sm:text-md ">
             Already have an account?{" "}
             <Link
               href="/auth/login"
-              className="text-primary font-bold hover:underline"
+              className="text-primary font-bold text-sm sm:text-md hover:underline"
             >
               Login here
             </Link>
@@ -435,10 +435,10 @@ export default function SignUp() {
     // Mobile View
 <>
   <div
-    className="fixed text-primary font-semibold z-50 w-full border-b bg-white border-gray-300 px-4 py-2"
+    className="fixed text-primary font-inter font-semibold z-50 w-full border-b bg-white border-gray-300 px-4 py-2"
     onClick={() => router.push("/")}
   >
-    <div className="flex flex-row items-center gap-2 text-black">
+    <div className="flex flex-row items-center gap-2 text-sm sm:text-md text-black">
       <ArrowLeft />
       Sign Up
     </div>
@@ -446,24 +446,24 @@ export default function SignUp() {
 
   <div className="min-h-screen flex flex-col justify-center items-center bg-white text-secondary px-4 sm:px-8 py-6">
     <form
-      className="w-full max-w-md mx-auto flex flex-col space-y-3 p-6 bg-white"
+      className="w-full max-w-md mx-auto flex flex-col space-y-3 p-6 bg-white font-inter"
       onSubmit={handleSubmit}
     >
       <Link href="/" aria-label="Home">
-        <h1 className="font-urbanist text-secondary text-2xl font-bold cursor-pointer text-center">
+        <h1 className="font-playfair text-secondary text-xl sm:text-2xl font-bold cursor-pointer text-center">
           Origity
         </h1>
       </Link>
 
-      <h2 className="font-urbanist font-bold text-3xl text-primary text-center">
+      <h2 className="font-inter font-bold text-xl sm:text-3xl text-primary text-center">
         Sign up
       </h2>
 
-      <div>
+      <div className="text-sm sm:text-md">
         <label htmlFor="role" className="block font-medium mb-2">
           Role:
         </label>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 text-sm sm:text-md">
           {["Customer", "Seller"].map((roleType) => (
             <button
               key={roleType}
@@ -482,7 +482,7 @@ export default function SignUp() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-6 text-sm sm:text-md">
         <div>
           <label htmlFor="firstName" className="block font-medium mb-2">
             First Name:
@@ -517,7 +517,7 @@ export default function SignUp() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-6 text-sm sm:text-md">
         <div>
           <label htmlFor="phoneNumber" className="block font-medium mb-2">
             Phone Number:
@@ -553,7 +553,7 @@ export default function SignUp() {
         </div>
       </div>
 
-      <div>
+      <div className="text-sm sm:text-md">
         <label htmlFor="username" className="block font-medium mb-2">
           Username: <span className="text-red-500">*</span>
         </label>
@@ -570,7 +570,7 @@ export default function SignUp() {
         )}
       </div>
 
-      <div className="relative">
+      <div className="relative text-sm sm:text-md">
         <label htmlFor="password" className="block font-medium mb-2">
           Password: <span className="text-red-500">*</span>
         </label>
@@ -585,7 +585,7 @@ export default function SignUp() {
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-[46px] text-sm text-gray-500 hover:text-primary focus:outline-none"
+          className="absolute right-3 top-[38px] text-sm text-gray-500 hover:text-primary focus:outline-none"
           aria-label={showPassword ? "Hide password" : "Show password"}
         >
           {showPassword ? <EyeClosed /> : <Eye />}
@@ -595,7 +595,7 @@ export default function SignUp() {
         )}
       </div>
 
-      <div className="relative">
+      <div className="relative text-sm sm:text-md">
         <label htmlFor="confirmPassword" className="block font-medium mb-2">
           Confirm Password: <span className="text-red-500">*</span>
         </label>
@@ -610,7 +610,7 @@ export default function SignUp() {
         <button
           type="button"
           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-          className="absolute right-3 top-[46px] text-sm text-gray-500 hover:text-primary focus:outline-none"
+          className="absolute right-3 top-[38px] text-sm text-gray-500 hover:text-primary focus:outline-none"
           aria-label={
             showConfirmPassword ? "Hide confirm password" : "Show confirm password"
           }
@@ -624,7 +624,7 @@ export default function SignUp() {
 
       {role === "Seller" && (
         <>
-          <div>
+          <div className="text-sm sm:text-md">
             <label htmlFor="storename" className="block font-medium mb-2">
               Store Name: <span className="text-red-500">*</span>
             </label>
@@ -640,7 +640,7 @@ export default function SignUp() {
               <p className="text-red-500 text-sm mt-1">{errors.storeName}</p>
             )}
           </div>
-          <div>
+          <div className="text-sm sm:text-md">
             <label htmlFor="storeDescription" className="block font-medium mb-2">
               Store Description:
             </label>
@@ -665,7 +665,7 @@ export default function SignUp() {
       <button
         type="submit"
         disabled={isSubmitDisabled}
-        className={`w-full py-3 px-4 mt-2 rounded-xl text-white transition shadow-lg ${
+        className={`w-full text-sm sm:text-md py-3 px-4 mt-2 rounded-xl text-white transition shadow-lg ${
           isSubmitDisabled
             ? "bg-gray-400 cursor-not-allowed"
             : "bg-secondary hover:bg-[#6C7A84]"
@@ -674,7 +674,7 @@ export default function SignUp() {
         Create Account
       </button>
 
-      <p className="text-center text-gray-600 text-sm sm:text-base">
+      <p className="text-center text-gray-600 text-sm sm:text-md">
         Already have an account?{" "}
         <Link href="/auth/login" className="text-primary font-bold hover:underline">
           Login here

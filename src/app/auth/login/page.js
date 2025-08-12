@@ -102,13 +102,13 @@ export default function Login() {
         >
           {/* Logo */}
           <Link href="/" aria-label="Home">
-            <h1 className="font-urbanist text-secondary text-2xl font-bold cursor-pointer text-center">
+            <h1 className="font-playfair text-secondary text-xl sm:text-2xl font-bold cursor-pointer text-center">
               Origity
             </h1>
           </Link>
 
           {/* Title */}
-          <h2 className="font-urbanist font-bold text-3xl text-primary text-center">
+          <h2 className="font-inter font-semibold text:xl sm:text-3xl text-primary text-center">
             Welcome back
           </h2>
 
@@ -121,7 +121,7 @@ export default function Login() {
           )}
 
           {/* Inputs */}
-          <div className="font-roboto text-primary space-y-4">
+          <div className="font-inter text-sm sm:text-md text-primary space-y-4">
             <div>
               <label htmlFor="username" className="block font-medium mb-2">
                 Username: <span className="text-red-500">*</span>
@@ -151,7 +151,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[46px] text-sm text-gray-500 hover:text-primary focus:outline-none"
+                className="absolute right-3 top-[38px] text-sm text-gray-500 hover:text-primary focus:outline-none"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeClosed /> : <Eye />}
@@ -172,7 +172,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={isSubmitDisabled}
-            className={`w-full py-3 px-4 rounded-lg text-white bg-secondary transition shadow-lg font-bold ${
+            className={`w-full py-3 px-4 text-sm sm:text-md rounded-lg text-white bg-secondary transition shadow-lg font-bold ${
               isSubmitDisabled
                 ? "opacity-50 cursor-not-allowed hover:bg-secondary"
                 : "hover:bg-[#6C7A84]"
@@ -182,11 +182,11 @@ export default function Login() {
           </button>
 
           {/* Sign Up Redirect */}
-          <p className="flex justify-center mt-2 font-roboto text-gray-600">
+          <p className="flex justify-center text-sm sm:text-md font-inter text-gray-600">
             Don’t have an account?
             <Link
               href="/auth/signup"
-              className="text-primary font-bold hover:underline ml-2"
+              className="text-primary text-sm sm:text-md font-bold hover:underline ml-2"
             >
               Register here
             </Link>
@@ -210,7 +210,7 @@ export default function Login() {
         className="fixed text-primary font-semibold z-50 w-full bg-white border-b-1 border-gray-300 px-4 py-2"
         onClick={() => router.push("/")} 
       >
-        <div className="flex flex-row items-center gap-2 text-black">
+        <div className="font-inter text-sm sm:text-md flex flex-row items-center gap-2 text-black">
           <ArrowLeft />
           Back to Origity
         </div>
@@ -223,18 +223,18 @@ export default function Login() {
         >
           {/* Logo */}
           <Link href="/" aria-label="Home">
-            <h1 className="font-urbanist text-secondary text-2xl font-bold cursor-pointer text-center">
+            <h1 className="font-playfair text-secondary text-xl sm:text-2xl font-bold cursor-pointer text-center">
               Origity
             </h1>
           </Link>
 
           {/* Title */}
-          <h2 className="font-urbanist font-bold text-3xl text-primary text-center">
+          <h2 className="font-inter font-semibold text-xl sm:text-3xl text-primary text-center">
             Welcome back
           </h2>
 
           {/* Inputs */}
-          <div className="font-roboto text-primary space-y-4">
+          <div className="font-inter text-primary text-sm sm:text-md space-y-4">
             <div>
               <label htmlFor="username" className="block font-medium mb-2">
                 Username: <span className="text-red-500">*</span>
@@ -264,7 +264,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[46px] text-sm text-gray-500 hover:text-primary focus:outline-none"
+                className="absolute right-3 top-[38px] text-sm text-gray-500 hover:text-primary focus:outline-none"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeClosed /> : <Eye />}
@@ -285,7 +285,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={isSubmitDisabled}
-            className={`w-full py-3 px-4 rounded-lg text-white bg-secondary transition shadow-lg font-bold ${
+            className={`w-full py-3 px-4 text-sm sm:text-md rounded-lg text-white bg-secondary transition shadow-lg font-bold ${
               isSubmitDisabled
                 ? "opacity-50 cursor-not-allowed hover:bg-secondary"
                 : "hover:bg-[#6C7A84]"
@@ -295,11 +295,11 @@ export default function Login() {
           </button>
 
           {/* Sign Up Redirect */}
-          <p className="flex justify-center mt-2 font-roboto text-gray-600">
+          <p className="flex justify-center text-sm sm:text-md font-inter text-gray-600">
             Don’t have an account?
             <Link
               href="/auth/signup"
-              className="text-primary font-bold hover:underline ml-2"
+              className="text-primary text-sm sm:text-md font-bold hover:underline ml-2"
             >
               Register here
             </Link>

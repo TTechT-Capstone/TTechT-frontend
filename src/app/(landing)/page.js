@@ -98,8 +98,8 @@ export default function LandingPage() {
       </section>
 
       {/* New Collection Section */}
-      <section className="sm:px-8 md:px-16 py-8 text-left text-secondary">
-        <div className="flex flex-row items-center justify-between px-10 sm:px-4 mb-6 sm:mb-8">
+      <section className="py-8 text-left text-secondary">
+        <div className="px-4 sm:px-8 md:px-16 flex flex-row items-center justify-between mb-6 sm:mb-8">
           <h2 className="text-xl sm:text-2xl font-semibold font-playfair">
             OUR NEW ARRIVAL
           </h2>
@@ -109,7 +109,7 @@ export default function LandingPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+        <div className="px-4 sm:px-8 md:px-16 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
           {newArrivalProduct.map((collection) => (
             <NewCollectionCard
               key={collection.name}

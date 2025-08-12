@@ -30,8 +30,8 @@ export default function BestSellerCard({ name, price, img, onClick }) {
         )}
   
         <div className="flex flex-col px-2 mt-2 ">
-        <p className="text-primary font-normal">{name}</p>
-        <p className="text-sm font-semibold text-black">
+        <p className="text-primary text-sm sm:text-md font-normal">{name}</p>
+        <p className="text-sm sm:text-md font-semibold text-black">
           {price ? Number(price).toFixed(2) : "0.00"} USD
         </p>
       </div>

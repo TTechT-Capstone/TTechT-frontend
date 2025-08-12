@@ -97,9 +97,9 @@ export default function Header() {
   };
 
   return (
-    <>
-      <header className="relative flex items-center justify-between px-6 py-4 bg-white text-secondary font-inter border-b border-gray-200">
-        <h1 className="text-4xl font-bold font-playfair">
+    <header className="fixed top-0 w-full z-100">
+      <div className="relative flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 bg-white text-secondary font-inter border-b border-gray-200">
+        <h1 className="text-2xl sm:text-4xl font-bold font-playfair">
           <Link href="/" className="hover:text-primary transition-colors">
             Origity
           </Link>
@@ -118,18 +118,20 @@ export default function Header() {
               </Link>
 
               <div className="relative group">
-                <User className="h-6 w-6 cursor-pointer hover:text-primary transition-colors" />
+                <Link href="/user/account/profile">
+                  <User className="h-6 w-6 cursor-pointer hover:text-primary transition-colors" />
+                </Link>
 
                 <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 font-bold rounded-lg shadow-md z-50 opacity-0 group-hover:opacity-100 group-hover:visible invisible transition-all duration-200">
                   <Link href="/user/account/profile">
-                    <button className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100">
+                    <button className="w-full px-4 py-2 text-xs sm:text-sm text-left hover:bg-gray-100">
                       My Profile
                     </button>
                   </Link>
 
                   <button
                     onClick={logoutAccount}
-                    className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100"
+                    className="w-full px-4 py-2 text-xs sm:text-sm text-left hover:bg-gray-100"
                   >
                     Logout
                   </button>
@@ -139,13 +141,13 @@ export default function Header() {
           ) : (
             <div className="flex items-center space-x-4">
               <Link href="/auth/signup">
-                <button className="text-primary font-regular hover:underline">
+                <button className="text-primary text-xs sm:text-sm font-regular hover:underline">
                   Signup
                 </button>
               </Link>
               <div className="w-px h-6 bg-gray-300"></div>
               <Link href="/auth/login">
-                <button className="text-secondary font-regular hover:underline">
+                <button className="text-secondary text-xs sm:text-sm font-regular hover:underline">
                   Login
                 </button>
               </Link>
@@ -159,7 +161,7 @@ export default function Header() {
             />
           )}
         </div>
-      </header>
+      </div>
 
       {isSearchOpen && (
         <>
@@ -174,7 +176,7 @@ export default function Header() {
           {/* Drawer */}
           <div
             className={`fixed inset-y-0 right-0 w-full sm:w-1/3 bg-white shadow-lg z-50 transform transition-transform duration-300 ${
-              isAnimating ? "translate-x-0" : "translate-x-full"
+              isSearchAnimating ? "translate-x-0" : "translate-x-full"
             }`}
           >
             <div className="flex items-center p-4 border-b border-gray-200">
@@ -242,6 +244,6 @@ export default function Header() {
           </div>
         </>
       )}
-    </>
+    </header>
   );
 }

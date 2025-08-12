@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import useAuth from "@/app/hooks/useAuth";
 import { loadStripe } from "@stripe/stripe-js";
@@ -15,6 +16,8 @@ import {
 } from "@/app/apis/payment.api";
 import { createOrderAPI } from "@/app/apis/order.api";
 import { useRouter } from "next/navigation";
+import useMediaQuery from "@/app/hooks/useMediaQuery";
+import { ChevronLeft } from "lucide-react";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ""
@@ -23,13 +26,20 @@ const stripePromise = loadStripe(
 export default function CheckoutPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { cartId, cart, loadCart, totalPrice, selectedItems, calculatePriceOfSelectedItems} = useCartStore();
-  
-  const selectedCartItems = cart.filter(item =>
-  selectedItems.includes(item.productId)
-);
+  const {
+    cartId,
+    cart,
+    loadCart,
+    totalPrice,
+    selectedItems,
+    calculatePriceOfSelectedItems,
+  } = useCartStore();
 
+  const selectedCartItems = cart.filter((item) =>
+    selectedItems.includes(item.productId)
+  );
 
+  const isMobile = useMediaQuery("(max-width: 767px)");
   const [isProcessing, setIsProcessing] = useState(false);
   const [clientSecret, setClientSecret] = useState(null);
   const [loadingClientSecret, setLoadingClientSecret] = useState(false);
@@ -52,7 +62,7 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState({});
   //const cartTotal = totalPrice;
   const cartTotal = calculatePriceOfSelectedItems();
-  
+
   useEffect(() => {
     loadCart();
   }, []);
@@ -122,7 +132,6 @@ export default function CheckoutPage() {
       setTimeout(() => {
         startPaymentStatusPolling(sessionIdResponse);
       }, 2000);
-
     } catch (error) {
       setPaymentError("Unable to load payment form. Try again.");
       //setPaymentStatus("");
@@ -138,15 +147,15 @@ export default function CheckoutPage() {
 
     const pollInterval = setInterval(async () => {
       pollCount++;
-      
+
       try {
         //... (${pollCount})`);
-        
+
         const statusResponse = await getPaymentStatusAPI(sessionId);
         const status = statusResponse?.result?.status;
-        
+
         console.log(`Payment status check ${pollCount}:`, status);
-        
+
         if (status === "SUCCEEDED") {
           clearInterval(pollInterval);
           setPaymentCompleted(true);
@@ -157,13 +166,12 @@ export default function CheckoutPage() {
           setPaymentError("Payment failed. Please try again.");
           setPaymentStatus("");
         }
-        
+
         // Stop polling after max attempts
         if (pollCount >= maxPolls) {
           clearInterval(pollInterval);
           //setPaymentStatus("Payment verification timeout");
         }
-        
       } catch (error) {
         console.error("Error checking payment status:", error);
       }
@@ -234,23 +242,23 @@ export default function CheckoutPage() {
     router.push("/user/order");
   };
 
-  return (
-    <div className="min-h-screen w-full bg-[#f5f5f5] text-primary py-10 px-4 font-roboto">
-      <h1 className="text-3xl text-secondary font-bold font-urbanist text-center mb-10">
+  return !isMobile ? (
+    <div className="mt-5 min-h-screen w-full bg-[#f5f5f5] text-primary py-10 px-4 font-inter">
+      <h1 className="text-3xl text-black font-bold font-playfair text-center mb-10">
         CHECKOUT
       </h1>
 
       <div className="flex md:flex-col flex-row gap-8 max-w-7xl mx-auto">
         {/* Delivery Info */}
         <div className="bg-white shadow-md p-6 space-y-4 flex-1">
-          <h2 className="text-xl font-bold mb-4 font-urbanist">
+          <h2 className="text-xl font-bold mb-4 font-playfair">
             Delivery Information
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Name
+                Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -265,7 +273,7 @@ export default function CheckoutPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number
+                Phone Number <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -283,7 +291,7 @@ export default function CheckoutPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Address
+                Address <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -300,7 +308,7 @@ export default function CheckoutPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
+                Email <span className="text-red-500">*</span>
               </label>
               <input
                 type="email"
@@ -318,8 +326,8 @@ export default function CheckoutPage() {
 
         {/* Order Summary */}
         <div className="bg-white shadow-md p-6 space-y-4 flex-1">
-          <div className="grid grid-cols-5 font-semibold text-sm pb-2">
-            <h2 className="col-span-2 text-left font-urbanist">Product</h2>
+          <div className="grid grid-cols-5 font-semibold font-inter text-sm pb-2">
+            <h2 className="col-span-2 text-left">Product</h2>
             <p className="text-center">Unit Price</p>
             <p className="text-center">Quantity</p>
             <p className="text-center">Total</p>
@@ -337,6 +345,14 @@ export default function CheckoutPage() {
                   className="w-14 h-14 object-cover rounded"
                 />
                 <span className="font-medium">{item.productName}</span>
+
+                {(item.colors || item.sizes) && (
+                    <p className="font-medium"> Type:{" "}
+                      {item.colors}
+                      {item.colors && item.sizes && <span>, </span>}
+                      {item.sizes}
+                    </p>
+                  )}
               </div>
               <div className="text-center">
                 {item.price
@@ -348,7 +364,7 @@ export default function CheckoutPage() {
                 USD
               </div>
               <div className="text-center">{item.quantity}</div>
-              <div className="text-center text-red-500 font-semibold">
+              <div className="text-center text-black font-semibold">
                 {item.price && item.quantity
                   ? (Number(item.price) * Number(item.quantity)).toLocaleString(
                       undefined,
@@ -365,7 +381,7 @@ export default function CheckoutPage() {
 
           <div className="flex justify-between font-semibold pt-4 border-t border-dashed border-[#EDEDED]">
             <span>Total:</span>
-            <span className="text-red-500 text-xl">
+            <span className="text-black text-xl">
               {cartTotal
                 ? Number(cartTotal).toLocaleString("en-US", {
                     minimumFractionDigits: 2,
@@ -377,7 +393,7 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        {/* Voucher */}
+        {/* Voucher
         <div className="bg-white shadow-md p-6 space-y-4 flex-1">
           <h2 className="text-xl font-bold font-urbanist">Origity Voucher</h2>
           <div className="flex gap-2">
@@ -392,11 +408,11 @@ export default function CheckoutPage() {
               Apply
             </button>
           </div>
-        </div>
+        </div> */}
 
         {/* Payment Method */}
-        <div className="bg-white shadow-md rounded-lg p-6 space-y-4 flex-1">
-          <h2 className="text-xl font-bold font-urbanist text-gray-800">
+        <div className="bg-white shadow-md p-6 space-y-4 flex-1">
+          <h2 className="text-xl font-bold font-playfair text-gray-800">
             Payment Method
           </h2>
 
@@ -412,7 +428,8 @@ export default function CheckoutPage() {
             {paymentCompleted && (
               <div className="p-3 bg-green-50 border border-green-200 rounded-md">
                 <p className="text-sm text-green-700 font-semibold">
-                  ✅ Payment completed successfully! You can now place your order.
+                  ✅ Payment completed successfully! You can now place your
+                  order.
                 </p>
               </div>
             )}
@@ -436,7 +453,7 @@ export default function CheckoutPage() {
               <button
                 onClick={handlePayClick}
                 disabled={loadingClientSecret || isFormIncomplete}
-                className={`w-full sm:w-auto bg-secondary text-white px-6 py-2 rounded-md font-semibold transition duration-200 hover:bg-[#3d4a54] disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`font-inter w-full sm:w-auto bg-secondary text-white px-6 py-2 font-normal transition duration-200 hover:bg-[#3d4a54] disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {loadingClientSecret ? "Loading..." : "Pay with Card"}
               </button>
@@ -453,10 +470,10 @@ export default function CheckoutPage() {
 
         {/* Place Order Button */}
         <button
-          className={`mt-4 w-full py-3 font-medium transition duration-200 rounded-md ${
+          className={`mt-4 w-full py-3 font-medium transition duration-200 ${
             isFormIncomplete || isProcessing || !paymentCompleted
               ? "bg-gray-300 cursor-not-allowed text-gray-600"
-              : "bg-primary text-white hover:opacity-90"
+              : "bg-black text-white hover:opacity-90"
           }`}
           onClick={handleCheckout}
           disabled={isFormIncomplete || isProcessing || !paymentCompleted}
@@ -491,15 +508,317 @@ export default function CheckoutPage() {
             </div>
             <h2
               id="modalTitle"
-              className="text-2xl font-urbanist text-[#008080] font-bold text-center"
+              className="text-2xl font-playfair text-[#008080] font-bold text-center"
             >
               Thank You For Your Order
             </h2>
-            <p className="text-center font-roboto text-gray-700">
+            <p className="text-center font-inter text-gray-700">
               Your order has been successfully placed. You can continue shopping
               or review your orders.
             </p>
-            <div className="flex flex-row space-x-4 font-roboto">
+            <div className="flex flex-row space-x-4 font-inter">
+              <button
+                onClick={handleContinueShopping}
+                className="bg-secondary text-white px-6 py-2 rounded-md hover:bg-[#3d4a54] transition duration-200"
+              >
+                Continue Shopping
+              </button>
+              <button
+                onClick={handleViewOrder}
+                className="bg-white text-secondary px-6 py-2 border border-secondary rounded-md hover:bg-[#f2f7fb] transition duration-200"
+              >
+                View Order
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  ) : (
+    <div className="min-h-screen w-full bg-[#f5f5f5] text-primary py-5 px-4 font-inter">
+      {/* Heading */}
+      <div className="flex flex-row">
+        <div className="flex items-center">
+          <Link href="/cart">
+            <ChevronLeft className="h-6 w-6" />
+          </Link>
+        </div>
+
+        <h1 className="font-playfair text-black text-xl font-bold text-left px-2 py-6">
+          CHECKOUT
+        </h1>
+      </div>
+
+      <div className="flex flex-col gap-3 mx-auto">
+        {/* Delivery Info */}
+        <div className="bg-white shadow-md p-6 space-y-4 flex-1">
+          <h2 className="text-xl font-bold mb-4 font-playfair">
+            Delivery Information
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="Your first name"
+                value={contactName}
+                onChange={(e) => setFormData({ contactName: e.target.value })}
+              />
+              {errors.contactName && (
+                <p className="text-sm text-red-500">{errors.contactName}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Phone Number <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="Phone number"
+                value={contactPhone}
+                onChange={(e) => setFormData({ contactPhone: e.target.value })}
+              />
+              {errors.contactPhone && (
+                <p className="text-sm text-red-500">{errors.contactPhone}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Address <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="Address"
+                value={deliveryAddress}
+                onChange={(e) =>
+                  setFormData({ deliveryAddress: e.target.value })
+                }
+              />
+              {errors.deliveryAddress && (
+                <p className="text-sm text-red-500">{errors.deliveryAddress}</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                className="input-field"
+                placeholder="Email"
+                value={contactEmail}
+                onChange={(e) => setFormData({ contactEmail: e.target.value })}
+              />
+              {errors.contactEmail && (
+                <p className="text-sm text-red-500">{errors.contactEmail}</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Order Summary */}
+        <div className="bg-white shadow-md p-6 space-y-4 flex-1">
+          <h2 className="text-xl font-bold font-playfair text-gray-800">
+            Order Summary
+          </h2>
+
+          {selectedCartItems.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-left px-2 py-4 text-sm w-full"
+            >
+              {/* Product image */}
+              <div className="flex items-left gap-4">
+                <img
+                  src={item.image}
+                  alt={item.productName}
+                  className="w-24 h-24 object-cover rounded"
+                />
+              </div>
+
+              {/* Product details */}
+              <div className="flex flex-col w-full justify-between">
+                {/* Product name */}
+                <div className="flex flex-col">
+                  <p className="font-medium">{item.productName}</p>
+                  {(item.colors || item.sizes) && (
+                    <p className="font-medium">
+                      {item.colors}
+                      {item.colors && item.sizes && <span>, </span>}
+                      {item.sizes}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex flex-row justify-between">
+                  {/* Unit price */}
+                  <div className="text-center">
+                    {item.price
+                      ? Number(item.price).toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })
+                      : "0.00"}{" "}
+                    USD
+                  </div>
+
+                  {/* Quantity */}
+                  <div className="text-center">
+                    {"x"}
+                    {item.quantity}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <div className="flex justify-between font-semibold pt-4 border-t border-dashed border-[#EDEDED]">
+            <span>Total:</span>
+            <span className="text-black text-xl">
+              {cartTotal
+                ? Number(cartTotal).toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                : "0.00"}{" "}
+              USD
+            </span>
+          </div>
+        </div>
+
+        {/* Voucher
+        <div className="bg-white shadow-md p-6 space-y-4 flex-1">
+          <h2 className="text-xl font-bold font-urbanist">Origity Voucher</h2>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Enter Coupon Code"
+              className="input-field w-full"
+              value={promotionCode}
+              onChange={(e) => setFormData({ promotionCode: e.target.value })}
+            />
+            <button className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded text-sm font-medium">
+              Apply
+            </button>
+          </div>
+        </div> */}
+
+        {/* Payment Method */}
+        <div className="bg-white shadow-md p-6 space-y-4 flex-1">
+          <h2 className="text-xl font-bold font-playfair text-gray-800">
+            Payment Method
+          </h2>
+
+          <div className="space-y-3">
+            {/* Payment Status */}
+            {paymentStatus && (
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <p className="text-sm text-blue-700">{paymentStatus}</p>
+              </div>
+            )}
+
+            {/* Payment Completed Indicator */}
+            {paymentCompleted && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                <p className="text-sm text-green-700 font-semibold">
+                  ✅ Payment completed successfully! You can now place your
+                  order.
+                </p>
+              </div>
+            )}
+
+            {/* Stripe Checkout UI */}
+            {loadingClientSecret ? (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                <p className="text-sm text-gray-500">Loading payment form...</p>
+              </div>
+            ) : showEmbeddedCheckout && clientSecret ? (
+              <div className="border rounded-lg overflow-hidden">
+                <EmbeddedCheckoutProvider
+                  options={{ clientSecret }}
+                  stripe={stripePromise}
+                >
+                  <EmbeddedCheckout />
+                </EmbeddedCheckoutProvider>
+              </div>
+            ) : (
+              <button
+                onClick={handlePayClick}
+                disabled={loadingClientSecret || isFormIncomplete}
+                className={`font-inter w-full sm:w-auto bg-secondary text-white px-6 py-2 font-normal transition duration-200 hover:bg-[#3d4a54] disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {loadingClientSecret ? "Loading..." : "Pay with Card"}
+              </button>
+            )}
+
+            {/* Error Message */}
+            {paymentError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-sm text-red-500">{paymentError}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Place Order Button */}
+        <button
+          className={`w-full py-3 font-medium transition duration-200 ${
+            isFormIncomplete || isProcessing || !paymentCompleted
+              ? "bg-gray-300 cursor-not-allowed text-gray-600"
+              : "bg-black text-white hover:opacity-90"
+          }`}
+          onClick={handleCheckout}
+          disabled={isFormIncomplete || isProcessing || !paymentCompleted}
+        >
+          {isProcessing ? (
+            <div className="flex items-center justify-center gap-2">
+              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+              Processing Order...
+            </div>
+          ) : paymentCompleted ? (
+            "Place Order"
+          ) : (
+            "Complete Payment First"
+          )}
+        </button>
+      </div>
+
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 bg-secondary bg-opacity-50 flex justify-center items-center z-50 transition-opacity duration-300"
+          role="dialog"
+          aria-labelledby="modalTitle"
+          aria-hidden={!isModalOpen}
+        >
+          <div className="bg-white p-10 rounded-lg shadow-lg w-full max-w-md flex flex-col items-center justify-center space-y-6 transform transition-transform duration-300">
+            <div>
+              <img
+                className="h-24 w-24"
+                src="/assets/check.png"
+                alt="Checkmark Icon"
+              />
+            </div>
+            <h2
+              id="modalTitle"
+              className="text-2xl font-playfair text-[#008080] font-bold text-center"
+            >
+              Thank You For Your Order
+            </h2>
+            <p className="text-center font-inter text-gray-700">
+              Your order has been successfully placed. You can continue shopping
+              or review your orders.
+            </p>
+            <div className="flex flex-row space-x-4 font-inter">
               <button
                 onClick={handleContinueShopping}
                 className="bg-secondary text-white px-6 py-2 rounded-md hover:bg-[#3d4a54] transition duration-200"
