@@ -334,7 +334,7 @@ export default function SignUp() {
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-[46px] text-sm text-gray-500 hover:text-primary focus:outline-none"
+                className="absolute right-3 top-[38px] text-sm text-gray-500 hover:text-primary focus:outline-none"
                 aria-label={
                   showConfirmPassword
                     ? "Hide confirm password"

@@ -64,12 +64,12 @@ export default function ProductContent() {
       </div>
 
       {/* Pagination Section */}
-      <section className="flex justify-center space-x-2 items-center py-4">
+      <section className="px-8 flex justify-center space-x-2 items-center py-4">
         {Array.from({ length: totalPages }, (_, i) => (
           <button
             key={i}
             onClick={() => handlePageChange(i + 1)}
-            className={`px-4 py-2 rounded ${
+            className={`px-2 sm:px-4 py-2 rounded ${
               i + 1 === currentPage
                 ? "bg-primary text-white"
                 : "text-primary hover:bg-gray-200"
@@ -85,7 +85,7 @@ export default function ProductContent() {
             <button
               aria-label="Next page"
               onClick={() => handlePageChange(currentPage + 1)}
-              className="px-4 py-2 rounded text-primary hover:bg-gray-200"
+              className="px-2 sm:px-4 py-2 rounded text-primary hover:bg-gray-200"
             >
               <ChevronRight className="h-5 w-5" />
             </button>

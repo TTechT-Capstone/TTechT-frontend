@@ -31,13 +31,13 @@ export default function ProfileSidebar() {
   const handleNavigation = (path) => router.push(path);
 
   return (
-    <aside className="bg-[#F4F4F4] shadow-sm min-h-screen w-72 px-6 py-8 flex flex-col justify-between border-r border-gray-200 font-urbanist">
+    <aside className="bg-[#F4F4F4] font-inter shadow-sm min-h-screen w-72 px-6 py-8 flex flex-col justify-between border-r border-gray-200 font-urbanist">
       {/* Top Section */}
       <div>
         {/* Logo or greeting */}
         <div className="mb-8">
-          <p className="text-gray-500 text-sm">Hi,</p>
-          <h1 className="text-xl font-semibold text-gray-800">
+          <p className="font-inter text-gray-500 text-sm">Hi,</p>
+          <h1 className="font-playfair text-xl font-semibold text-gray-800">
             {loading ? "Loading..." : username}
           </h1>
         </div>

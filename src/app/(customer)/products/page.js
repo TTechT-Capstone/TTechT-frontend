@@ -92,7 +92,7 @@ export default function ProductPage() {
   return (
     <main className="bg-white">
       {/* Best Seller Section */}
-      <section className="px-8 py-12">
+      <section className="px-8 pt-12 pb-6">
         <h1 className="font-playfair text-gray-800 font-normal text-3xl mb-2">
           BEST SELLER
         </h1>

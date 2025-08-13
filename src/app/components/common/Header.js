@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 
 import { getAllCategoriesAPI } from "@/app/apis/category.api";
+import useMediaQuery from "@/app/hooks/useMediaQuery";
+import ProfileSidebarMobile from "../profile/ProfileSiderBarMobile";
 
 export default function Header() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -20,6 +22,8 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const [categories, setCategories] = useState([]);
+  const isMobile = useMediaQuery("(max-width: 767px)");
+  const [isProfileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -117,26 +121,35 @@ export default function Header() {
                 <ShoppingCart className="h-6 w-6 cursor-pointer hover:text-primary transition-colors" />
               </Link>
 
-              <div className="relative group">
-                <Link href="/user/account/profile">
-                  <User className="h-6 w-6 cursor-pointer hover:text-primary transition-colors" />
-                </Link>
+              {isMobile ? (
+                <>
+                  <User
+                    className="h-6 w-6 cursor-pointer hover:text-primary transition-colors"
+                    onClick={() => setProfileOpen(true)}
+                  />
+                </>
+              ) : (
+                <>
+                  <div className="relative group">
+                    <User className="h-6 w-6 cursor-pointer hover:text-primary transition-colors" />
 
-                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 font-bold rounded-lg shadow-md z-50 opacity-0 group-hover:opacity-100 group-hover:visible invisible transition-all duration-200">
-                  <Link href="/user/account/profile">
-                    <button className="w-full px-4 py-2 text-xs sm:text-sm text-left hover:bg-gray-100">
-                      My Profile
-                    </button>
-                  </Link>
+                    <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 font-bold rounded-lg shadow-md z-50 opacity-0 group-hover:opacity-100 group-hover:visible invisible transition-all duration-200">
+                      <Link href="/user/account/profile">
+                        <button className="w-full px-4 py-2 text-xs sm:text-sm text-left hover:bg-gray-100">
+                          My Profile
+                        </button>
+                      </Link>
 
-                  <button
-                    onClick={logoutAccount}
-                    className="w-full px-4 py-2 text-xs sm:text-sm text-left hover:bg-gray-100"
-                  >
-                    Logout
-                  </button>
-                </div>
-              </div>
+                      <button
+                        onClick={logoutAccount}
+                        className="w-full px-4 py-2 text-xs sm:text-sm text-left hover:bg-gray-100"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </>
           ) : (
             <div className="flex items-center space-x-4">
@@ -168,7 +181,9 @@ export default function Header() {
           {/* Backdrop */}
           <div
             className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${
-              isSearchAnimating ? "opacity-100" : "opacity-0 pointer-events-none"
+              isSearchAnimating
+                ? "opacity-100"
+                : "opacity-0 pointer-events-none"
             }`}
             onClick={closeSearch}
           ></div>
@@ -244,6 +259,7 @@ export default function Header() {
           </div>
         </>
       )}
+      <ProfileSidebarMobile open={isProfileOpen} onClose={() => setProfileOpen(false)} />
     </header>
   );
 }
