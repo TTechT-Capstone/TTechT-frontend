@@ -1,7 +1,14 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 export default function SellerDashboard() {
-  return (
-    <div className="">
-      <h1>Seller Dashboard</h1>
-    </div>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/seller/products");
+  }, [router]);
+
+  return null; // nothing is shown while redirecting
 }
