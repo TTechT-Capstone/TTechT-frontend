@@ -800,25 +800,25 @@ export default function CheckoutPage() {
           aria-labelledby="modalTitle"
           aria-hidden={!isModalOpen}
         >
-          <div className="bg-white p-10 rounded-lg shadow-lg w-full max-w-md flex flex-col items-center justify-center space-y-6 transform transition-transform duration-300">
+          <div className="bg-white px-5 py-10 sm:p-10 rounded-lg shadow-lg sm:w-full w-[350px] flex flex-col items-center justify-center space-y-6 transform transition-transform duration-300">
             <div>
               <img
-                className="h-24 w-24"
+                className="w-20 h-20 sm:h-24 sm:w-24"
                 src="/assets/check.png"
                 alt="Checkmark Icon"
               />
             </div>
             <h2
               id="modalTitle"
-              className="text-2xl font-playfair text-[#008080] font-bold text-center"
+              className="text-xl font-playfair text-[#008080] font-bold text-center"
             >
               Thank You For Your Order
             </h2>
-            <p className="text-center font-inter text-gray-700">
+            <p className="text-center text-sm font-inter text-gray-700">
               Your order has been successfully placed. You can continue shopping
               or review your orders.
             </p>
-            <div className="flex flex-row space-x-4 font-inter">
+            <div className="flex flex-row space-x-4 text-sm font-inter">
               <button
                 onClick={handleContinueShopping}
                 className="bg-secondary text-white px-6 py-2 rounded-md hover:bg-[#3d4a54] transition duration-200"

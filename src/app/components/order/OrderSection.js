@@ -41,15 +41,15 @@ export default function OrdersSection({
   );
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-4 font-inter">
       <div className="bg-white p-4 shadow rounded-lg">
-        <h1 className="font-urbanist text-2xl font-semibold text-primary text-center">
+        <h1 className="mb-4 font-playfair text-xl sm:text-2xl font-semibold text-primary text-center">
           My Orders
         </h1>
         {renderOrderFilter()}
       </div>
       {loadingOrders ? (
-        <p className="font-roboto text-lg text-gray-600 text-center">
+        <p className="font-inter text-md sm:text-lg text-gray-600 text-center">
           Loading orders...
         </p>
       ) : filteredOrders().length > 0 ? (
@@ -61,25 +61,25 @@ export default function OrdersSection({
               onClick={() => handleOrderClick(order.id)}
             >
               <div className="flex justify-between items-center">
-                <p className="text-lg font-semibold text-secondary">
+                <p className="text-md sm:text-lg font-semibold text-secondary">
                   Order Number:
                 </p>
-                <p className="text-lg font-bold text-green-600">
+                <p className="text-xs sm:text-lg font-bold text-green-600">
                   {order.orderNumber}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">
+                <p className="text-xs sm:text-sm text-gray-500">
                   Order Status:{" "}
                   <span className="font-medium">{order.orderStatus}</span>
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-xs sm:text-sm text-gray-500">
                   Order Date:{" "}
                   <span className="font-medium">
                     {new Date(order.createdAt).toLocaleDateString()}
                   </span>
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-xs sm:text-sm text-gray-500">
                   Total Amount:
                   <span
                     className={`font-medium text-red-600 ${
@@ -101,10 +101,10 @@ export default function OrdersSection({
                 orderDetails &&
                 Array.isArray(orderDetails.orderItems) && (
                   <div className="mt-2">
-                    <h2 className="text-lg font-semibold text-secondary">Order Items:</h2>
+                    <h2 className="text-md sm:text-lg font-semibold text-secondary">Order Items:</h2>
                     <ul className="list-disc pl-5">
                       {(orderDetails.orderItems || []).map((item) => (
-                        <li key={item.id} className="text-sm text-gray-600">
+                        <li key={item.id} className="text-xs sm:text-sm text-gray-600">
                           {item.productName} - Quantity: {item.quantity} -
                           Price: $
                           {item.discountPrice
@@ -124,7 +124,7 @@ export default function OrdersSection({
                       setIsCancelModalOpen(true); // Open the cancel modal
                       setSelectedOrderId(order.id); // Set the selected order ID
                     }}
-                    className="mt-2 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition duration-200"
+                    className="text-sm sm:text-md mt-2 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition duration-200"
                   >
                     Cancel Order
                   </button>

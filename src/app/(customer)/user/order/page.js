@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import useAuth from "@/app/hooks/useAuth";
-import { getOrdersByUserIdAPI, getOrderByIdAPI } from "@/app/apis/order.api";
+import { getOrdersByUserIdAPI, getOrderByIdAPI, cancelOrderAPI } from "@/app/apis/order.api";
 import OrdersSection from "@/app/components/order/OrderSection";
 import CancelOrderModal from "@/app/components/order/CancelOrderModal";
 
@@ -104,6 +104,7 @@ export default function MyOrder() {
       <CancelOrderModal
         isOpen={isCancelModalOpen}
         onClose={() => setIsCancelModalOpen(false)}
+        selectedOrderId={selectedOrderId}
         onConfirm={handleCancelOrder}
         cancelReason={cancelReason}
         setCancelReason={setCancelReason}
