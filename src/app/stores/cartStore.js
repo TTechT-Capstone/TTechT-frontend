@@ -8,6 +8,7 @@ import {
   updateItemQuantityAPI,
   submitCartAPI,
 } from "@/app/apis/cart.api";
+import { getProductByIdAPI } from "../apis/product.api";
 
 const useCartStore = create(
   persist(
@@ -22,6 +23,29 @@ const useCartStore = create(
       setCartId: (id) => set({ cartId: id }),
 
       // Load cart by userId
+      // loadCart: async () => {
+      //   const userId = localStorage.getItem("userId");
+      //   if (!userId) return;
+
+      //   try {
+      //     const cart = await getCartAPI(userId);
+      //     if (cart?.id) {
+      //       const items = cart.cartItems || [];
+      //       const totals = calculateCartTotals(items);
+      //       set({
+      //         cartId: cart.id,
+      //         cart: items,
+      //         totalQuantity: totals.totalQuantity,
+      //         totalPrice: totals.totalPrice,
+      //         status: "succeeded",
+      //       });
+      //       localStorage.setItem("cartId", String(cart.id));
+      //     }
+      //   } catch (err) {
+      //     console.error("❌ Failed to load cart:", err);
+      //     set({ status: "failed", error: err.message });
+      //   }
+      // },
       loadCart: async () => {
         const userId = localStorage.getItem("userId");
         if (!userId) return;
@@ -29,8 +53,30 @@ const useCartStore = create(
         try {
           const cart = await getCartAPI(userId);
           if (cart?.id) {
-            const items = cart.cartItems || [];
+            let items = cart.cartItems || [];
+
+            // Enrich each cart item with image, color, and size if missing
+            items = await Promise.all(
+              items.map(async (item) => {
+                if (item.image && item.color && item.size) return item;
+
+                const productData = await getProductByIdAPI(item.productId);
+
+                return {
+                  ...item,
+                  // image:
+                  //   item.image || productData.mainImage || "/placeholder.png",
+                  // color: item.color || item.selectedColor || "",
+                  // size: item.size || item.selectedSize || "",
+                };
+              })
+            );
+
+            // Print cart items to console for debugging
+            console.log("✅ Loaded cart items:", items);
+
             const totals = calculateCartTotals(items);
+
             set({
               cartId: cart.id,
               cart: items,
@@ -38,6 +84,7 @@ const useCartStore = create(
               totalPrice: totals.totalPrice,
               status: "succeeded",
             });
+
             localStorage.setItem("cartId", String(cart.id));
           }
         } catch (err) {
@@ -46,7 +93,70 @@ const useCartStore = create(
         }
       },
 
-      // Add item to cart
+      // // Add item to cart
+      // addToCart: async (newItem) => {
+      //   try {
+      //     set({ status: "loading" });
+      //     let { cartId, cart } = get();
+
+      //     if (!cartId) {
+      //       const userId = localStorage.getItem("userId");
+      //       if (!userId) throw new Error("User ID not found");
+
+      //       const newCart = await createNewCart(userId);
+      //       cartId = newCart.id;
+      //       set({ cartId });
+      //       localStorage.setItem("cartId", String(cartId));
+      //     }
+
+      //     if (!newItem?.productId || !newItem?.quantity) {
+      //       throw new Error(
+      //         "Invalid item: productId and quantity are required"
+      //       );
+      //     }
+
+      //     const existingItem = cart.find(
+      //       (item) => item.productId === newItem.productId
+      //     );
+
+      //     let updatedCart;
+
+      //     if (existingItem) {
+      //       // 🛠 Call update API instead of add
+      //       const updatedQuantity = existingItem.quantity + newItem.quantity;
+      //       await updateItemQuantityAPI(
+      //         cartId,
+      //         existingItem.id,
+      //         updatedQuantity
+      //       );
+
+      //       updatedCart = cart.map((item) =>
+      //         item.productId === newItem.productId
+      //           ? { ...item, quantity: updatedQuantity }
+      //           : item
+      //       );
+      //     } else {
+      //       // 🛠 Call add API for new items only
+      //       const response = await addItemToCartAPI(cartId, newItem);
+      //       const newCartItem = response.result;
+
+      //       updatedCart = [...cart, newCartItem];
+      //     }
+
+      //     const totals = calculateCartTotals(updatedCart);
+
+      //     set({
+      //       cart: updatedCart,
+      //       totalQuantity: totals.totalQuantity,
+      //       totalPrice: totals.totalPrice,
+      //       status: "succeeded",
+      //     });
+      //   } catch (err) {
+      //     console.error("❌ Failed to add item to cart:", err);
+      //     set({ status: "failed", error: err.message });
+      //   }
+      // },
+
       addToCart: async (newItem) => {
         try {
           set({ status: "loading" });
@@ -62,20 +172,30 @@ const useCartStore = create(
             localStorage.setItem("cartId", String(cartId));
           }
 
-          if (!newItem?.productId || !newItem?.quantity) {
+          // Remove the strict image check
+          if (
+            !newItem?.productId ||
+            !newItem?.quantity ||
+            !newItem.color ||
+            !newItem.size
+          ) {
             throw new Error(
-              "Invalid item: productId and quantity are required"
+              "Invalid item: productId, quantity, color, and size are required"
             );
           }
 
+          console.log("✅ Added cart item:", newItem);
+
           const existingItem = cart.find(
-            (item) => item.productId === newItem.productId
+            (item) =>
+              item.productId === newItem.productId &&
+              item.color === newItem.color &&
+              item.size === newItem.size
           );
 
           let updatedCart;
 
           if (existingItem) {
-            // 🛠 Call update API instead of add
             const updatedQuantity = existingItem.quantity + newItem.quantity;
             await updateItemQuantityAPI(
               cartId,
@@ -84,12 +204,13 @@ const useCartStore = create(
             );
 
             updatedCart = cart.map((item) =>
-              item.productId === newItem.productId
+              item.productId === newItem.productId &&
+              item.color === newItem.color &&
+              item.size === newItem.size
                 ? { ...item, quantity: updatedQuantity }
                 : item
             );
           } else {
-            // 🛠 Call add API for new items only
             const response = await addItemToCartAPI(cartId, newItem);
             const newCartItem = response.result;
 
@@ -109,77 +230,6 @@ const useCartStore = create(
           set({ status: "failed", error: err.message });
         }
       },
-
-//       addToCart: async (newItem) => {
-//   try {
-//     set({ status: "loading" });
-//     let { cartId, cart } = get();
-
-//     if (!cartId) {
-//       const userId = localStorage.getItem("userId");
-//       if (!userId) throw new Error("User ID not found");
-
-//       const newCart = await createNewCart(userId);
-//       cartId = newCart.id;
-//       set({ cartId });
-//       localStorage.setItem("cartId", String(cartId));
-//     }
-
-//     if (
-//       !newItem?.productId ||
-//       !newItem?.quantity ||
-//       !newItem.color ||
-//       !newItem.size ||
-//       !newItem.image  // bắt buộc có ảnh
-//     ) {
-//       throw new Error(
-//         "Invalid item: productId, quantity, color, size, and image are required"
-//       );
-//     }
-
-//     const existingItem = cart.find(
-//       (item) =>
-//         item.productId === newItem.productId &&
-//         item.color === newItem.color &&
-//         item.size === newItem.size &&
-//         item.image === newItem.image // nếu hình cũng khác thì coi item khác
-//     );
-
-//     let updatedCart;
-
-//     if (existingItem) {
-//       const updatedQuantity = existingItem.quantity + newItem.quantity;
-
-//       await updateItemQuantityAPI(cartId, existingItem.id, updatedQuantity);
-
-//       updatedCart = cart.map((item) =>
-//         item.productId === newItem.productId &&
-//         item.color === newItem.color &&
-//         item.size === newItem.size &&
-//         item.image === newItem.image
-//           ? { ...item, quantity: updatedQuantity }
-//           : item
-//       );
-//     } else {
-//       const response = await addItemToCartAPI(cartId, newItem);
-//       const newCartItem = response.result;
-
-//       updatedCart = [...cart, newCartItem];
-//     }
-
-//     const totals = calculateCartTotals(updatedCart);
-
-//     set({
-//       cart: updatedCart,
-//       totalQuantity: totals.totalQuantity,
-//       totalPrice: totals.totalPrice,
-//       status: "succeeded",
-//     });
-//   } catch (err) {
-//     console.error("❌ Failed to add item to cart:", err);
-//     set({ status: "failed", error: err.message });
-//   }
-// },
 
       // Remove item from cart
       removeItemFromCart: async (productId) => {

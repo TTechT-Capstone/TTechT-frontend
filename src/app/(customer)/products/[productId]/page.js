@@ -72,11 +72,11 @@ export default function ProductDetail() {
       price: product.price,
       color: selectedColor,
       size: selectedSize,
-      mainImage,
     };
 
     try {
       await addToCart(newItem);
+      console.log("Product added to cart:", newItem);
 
       setAddedProductInfo(newItem);
       setSuccessModalOpen(true);

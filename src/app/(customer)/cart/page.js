@@ -7,6 +7,7 @@ import useCartStore from "@/app/stores/cartStore";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
 import useCheckoutStore from "@/app/stores/checkoutStore";
 import { useRouter } from "next/navigation";
+import { getProductByIdAPI } from "@/app/apis/product.api";
 
 export default function ShoppingCartPage() {
   const router = useRouter();
@@ -241,192 +242,163 @@ export default function ShoppingCartPage() {
       </div>
     </div>
   ) : (
-    <div className="min-h-screen w-full bg-[#f5f5f5]  text-primary py-5 px-4 font-roboto">
+    <div className="pt-10 min-h-screen w-full bg-[#f5f5f5] text-primary font-roboto flex flex-col">
       {/* Heading */}
-      <div className="flex flex-row">
-        <div className="flex items-center">
-          <Link href="/products">
-            <ChevronLeft className="h-6 w-6" />
-          </Link>
-        </div>
-
-        <h1 className="font-playfair text-black text-xl font-bold text-left px-2 py-6">
+      <div className="flex items-center px-4 py-4 ">
+        <Link href="/products">
+          <ChevronLeft className="h-6 w-6" />
+        </Link>
+        <h1 className="font-playfair text-black text-xl font-bold ml-3">
           SHOPPING CART
         </h1>
       </div>
 
-      <div>
-        <div className="w-full mx-auto overflow-hidden">
-          {cart && cart.length > 0 ? (
-            <>
-              <div className="grid grid-cols-1">
-                {cart.map((item) => (
-                  <div
-                    key={item.productId}
-                    className="flex flex-row items-center border-b border-gray-300 bg-white p-4 space-x-2 shadow-sm relative h-[150px]"
-                  >
-                    {/* Product Image */}
-                    <div className="flex-shrink-0 bg-gray-100 rounded-lg p-3">
-                      <img
-                        src={item.image}
-                        alt={item.productName}
-                        className="w-22 h-22 object-contain"
-                        onClick={() => handleProductClick(item.productId)}
-                      />
-                    </div>
-
-                    {/* Product Details */}
-                    <div className="flex flex-col flex-grow justify-between h-full">
-                      <div>
-                        <span className="font-semibold text-xs">
-                          {item.productName}
-                        </span>
-                        <div className="text-xs text-gray-600 mt-1">
-                          {item.size && (
-                            <p>
-                              Size:{" "}
-                              <span className="font-normal">{item.size}</span>
-                            </p>
-                          )}
-                          {item.color && (
-                            <p>
-                              Color:{" "}
-                              <span className="font-normal">{item.color}</span>
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <span className="font-semibold text-xs mt-2">
-                        ${item.price}
-                      </span>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex flex-col items-end justify-between h-full">
-                      <button
-                        onClick={() => removeItemFromCart(item.id)}
-                        className="text-black"
-                        aria-label="Remove item"
-                      >
-                        <Trash2 className="w-6 h-6" />
-                      </button>
-
-                      <div className="flex items-center space-x-3">
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.productId, item.quantity - 1)
-                          }
-                          className="w-8 h-8 border border-gray-300 rounded hover:bg-gray-200 text-lg font-bold"
-                        >
-                          -
-                        </button>
-                        <span className="w-8 text-center font-medium">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() =>
-                            updateQuantity(item.productId, item.quantity + 1)
-                          }
-                          className="w-8 h-8 border border-gray-300 rounded bg-gray-100 hover:bg-gray-800 hover:text-white text-lg font-bold"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+      {/* Cart Items */}
+      {cart && cart.length > 0 ? (
+        <>
+        <div className="flex-1 overflow-y-auto max-h-[600px] px-4 py-2">
+          {cart.map((item) => (
+            <div
+              key={item.productId}
+              className="flex flex-row items-center border-b border-gray-300 bg-white p-3 mb-2 rounded-lg shadow-sm h-[120px] sm:h-[150px]"
+            >
+              {/* Product Image */}
+              <div className="flex-shrink-0 bg-gray-100 rounded-lg p-2 w-20 h-20 sm:w-22 sm:h-22">
+                <img
+                  src={item.image}
+                  alt={item.productName}
+                  className="w-full h-full object-contain"
+                  onClick={() => handleProductClick(item.productId)}
+                />
               </div>
 
-              <div className="mt-10">
-                {/* Voucher Input */}
-                <div className="flex gap-3">
-                  <div className="relative flex-grow">
-                    <TicketPercent className="w-6 h-6 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                    <input
-                      type="text"
-                      placeholder="Enter Coupon Code"
-                      className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black transition"
-                      value={promotionCode}
-                      onChange={(e) =>
-                        setFormData({ promotionCode: e.target.value })
-                      }
-                    />
+              {/* Product Details */}
+              <div className="flex flex-col flex-grow justify-between h-full ml-3">
+                <div>
+                  <span className="font-semibold text-sm sm:text-xs">
+                    {item.productName}
+                  </span>
+                  <div className="text-xs text-gray-600 mt-1">
+                    {item.size && (
+                      <p>
+                        Size: <span className="font-normal">{item.size}</span>
+                      </p>
+                    )}
+                    {item.color && (
+                      <p>
+                        Color: <span className="font-normal">{item.color}</span>
+                      </p>
+                    )}
                   </div>
-                  <button className="px-5 py-2 bg-black text-white rounded-md text-sm font-semibold hover:bg-gray-800 transition">
-                    Apply
+                </div>
+                <span className="font-semibold text-sm mt-1">
+                  ${item.price}
+                </span>
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-col items-end justify-between h-full ml-2">
+                <button
+                  onClick={() => removeItemFromCart(item.id)}
+                  className="text-black mb-2"
+                  aria-label="Remove item"
+                >
+                  <Trash2 className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() =>
+                      updateQuantity(item.productId, item.quantity - 1)
+                    }
+                    className="w-7 h-7 sm:w-8 sm:h-8 border border-gray-300 rounded hover:bg-gray-200 text-base font-bold"
+                  >
+                    -
+                  </button>
+                  <span className="w-6 text-center font-medium">
+                    {item.quantity}
+                  </span>
+                  <button
+                    onClick={() =>
+                      updateQuantity(item.productId, item.quantity + 1)
+                    }
+                    className="w-7 h-7 sm:w-8 sm:h-8 border border-gray-300 rounded bg-gray-100 hover:bg-gray-800 hover:text-white text-base font-bold"
+                  >
+                    +
                   </button>
                 </div>
-
-                {/* Cart Summary */}
-                <div className="w-full bottom-0 bg-cream rounded-lg mx-auto mt-6 mb-4 flex flex-col justify-end items-start p-6 gap-4">
-                  <h2 className="font-inter font-semibold text-lg">
-                    {" "}
-                    Payment Details
-                  </h2>
-                  {/* Delivery Fee */}
-                  <div className="w-full flex justify-between text-gray-700 text-sm">
-                    <p>Delivery Fee:</p>
-                    <p className="font-medium">0$</p>
-                  </div>
-
-                  {/* Cart Total */}
-                  <div className="w-full flex justify-between font-semibold text-lg border-t border-dashed border-gray-300 pt-3">
-                    <div>Total:</div>
-                    <div className="text-black text-xl">
-                      {cartTotal
-                        ? Number(cartTotal).toLocaleString("en-US", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })
-                        : "0.00"}{" "}
-                      USD
-                    </div>
-                  </div>
-                </div>
-
-                {/* Checkout Buttons */}
-                <div className="flex gap-4 w-full">
-                  <Link
-                    href={{
-                      pathname: "/cart/checkout",
-                      query: { selected: JSON.stringify(selectedItems) },
-                    }}
-                    className="w-full"
-                  >
-                    <button
-                      className="px-6 py-2 bg-primary w-full text-white hover:opacity-90"
-                      disabled={selectedItems.length === 0}
-                    >
-                      Checkout ({selectedItems.length})
-                    </button>
-                  </Link>
-                </div>
               </div>
-            </>
-          ) : (
-            <>
-              <div className="flex flex-col h-[80vh] px-4">
-                <div className="flex-grow flex flex-col items-center justify-center text-center">
-                  <p className="text-xl font-semibold mb-4">
-                    Your cart is currently empty.
-                  </p>
-                  <p className="mb-6 text-gray-600">
-                    Explore exciting products now!
-                  </p>
-                </div>
-
-                <div className="w-full">
-                  <Link href="/products">
-                    <button className="w-full rounded-2xl bg-secondary text-white px-6 py-2 hover:bg-gray-800 transition">
-                      Shopping Now
-                    </button>
-                  </Link>
-                </div>
-              </div>
-            </>
-          )}
+            </div>
+          ))}
         </div>
-      </div>
+        <div className="w-full bg-cream px-4 py-4  flex flex-col gap-3">
+          {/* Voucher Input */}
+          <div className="flex gap-2">
+            <div className="relative flex-grow">
+              <TicketPercent className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Enter Coupon Code"
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                value={promotionCode}
+                onChange={(e) => setFormData({ promotionCode: e.target.value })}
+              />
+            </div>
+            <button className="px-3 py-2 bg-black text-white rounded-md text-sm font-semibold hover:bg-gray-800 transition">
+              Apply
+            </button>
+          </div>
+
+          {/* Cart Summary */}
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between text-gray-700 text-sm">
+              <span>Delivery Fee:</span>
+              <span className="font-medium">0$</span>
+            </div>
+            <div className="flex justify-between font-semibold text-lg border-t border-dashed border-gray-300 pt-2">
+              <span>Total:</span>
+              <span className="text-black text-lg">
+                {cartTotal
+                  ? Number(cartTotal).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  : "0.00"}{" "}
+                USD
+              </span>
+            </div>
+          </div>
+
+          {/* Checkout Button */}
+          <Link
+            href={{
+              pathname: "/cart/checkout",
+              query: { selected: JSON.stringify(selectedItems) },
+            }}
+            className="w-full mt-2"
+          >
+            <button
+              className="w-full px-4 py-2 bg-primary text-white rounded-md text-base font-semibold hover:opacity-90 disabled:opacity-50"
+              disabled={selectedItems.length === 0}
+            >
+              Checkout ({selectedItems.length})
+            </button>
+          </Link>
+        </div>
+        </>
+      ) : (
+        <div className="flex-1 flex flex-col items-center justify-center px-4 text-center">
+          <p className="text-lg font-semibold mb-2">
+            Your cart is currently empty.
+          </p>
+          <p className="mb-4 text-gray-600">Explore exciting products now!</p>
+          <Link href="/products">
+            <button className="w-full max-w-xs rounded-2xl bg-secondary text-white px-6 py-2 hover:bg-gray-800 transition">
+              Shopping Now
+            </button>
+          </Link>
+        </div>
+      )}
     </div>
+
   );
 }

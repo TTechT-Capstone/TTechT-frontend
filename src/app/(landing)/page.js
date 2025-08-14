@@ -23,6 +23,7 @@ export default function LandingPage() {
       try {
         const res = await getAllCategoriesAPI(0, 100);
         setCategories(res);
+        console.log("Fetched categories:", res);
       } catch (err) {
         console.error("Failed to load categories", err);
       }

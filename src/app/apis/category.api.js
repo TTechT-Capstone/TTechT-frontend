@@ -25,6 +25,7 @@ export const getAllCategoriesAPI = async (page = 0, limit = 10) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/categories?page=${page}&limit=${limit}`);
     return response.data;
+    //console.log('Fetched categories:', response.data);
   } catch (error) {
     console.error('Error fetching categories:', error);
     throw error;
