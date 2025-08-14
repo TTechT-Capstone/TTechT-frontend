@@ -5,7 +5,7 @@ import Link from "next/link";
 import useAuth from "@/app/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { ChevronDown, Search, Pencil, Trash2, SquarePen } from "lucide-react";
-import { deleteProductAPI, getAllProductsAPI } from "@/app/apis/product.api";
+import { deleteProductAPI, getAllProductsByUser } from "@/app/apis/product.api";
 
 export default function SellerProducts() {
   const router = useRouter();
@@ -16,12 +16,13 @@ export default function SellerProducts() {
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortProduct, setSortProduct] = useState("desc");
 
+  console.log("user.userId:", user.userId);
   // Fetch products from API
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         //setLoading(true);
-        const data = await getAllProductsAPI();
+        const data = await getAllProductsByUser(user.userId);
         console.log(data.content);
         setProducts(data.content || []);
       } catch (error) {

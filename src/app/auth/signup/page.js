@@ -2,11 +2,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Eye, EyeClosed } from "lucide-react";
+import { ArrowLeft, CircleX, Eye, EyeClosed } from "lucide-react";
 import { registerUser } from "@/app/apis/auth.api";
 import { createSeller } from "@/app/apis/seller.api";
 import useUserStore from "@/app/stores/userStore";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
+import ErrorPopup from "@/app/components/pop-up/ErrorPopUp";
 
 export default function SignUp() {
   const [errors, setErrors] = useState({});
@@ -15,7 +16,6 @@ export default function SignUp() {
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
-  //const [address, setAddress] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [storeName, setStoreName] = useState("");
@@ -48,33 +48,32 @@ export default function SignUp() {
     }
   }, [showPopup]);
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\d{10,15}$/;
+  const emailRegex = /^[^\s@]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  const phoneRegex = /^\d{10,15}$/;
 
   const isSubmitDisabled =
-    !firstName.trim() ||
-    !lastName.trim() ||
-    !phoneNumber.trim() ||
-    !phoneRegex.test(phoneNumber.trim()) ||
-    !email.trim() ||
-    !emailRegex.test(email.trim()) ||
-    !username.trim() ||
+    !firstName ||
+    !lastName ||
+    !phoneNumber ||
+    !email ||
+    !username ||
     !password ||
-    password.length < 6 ||
     !confirmPassword ||
-    password !== confirmPassword ||
-    (role === "Seller" && !storeName.trim());
+    (role === "Seller" && !storeName);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const newErrors = {};
 
+    // Basic field validation
     if (!firstName.trim()) newErrors.firstName = "First name is required.";
     if (!lastName.trim()) newErrors.lastName = "Last name is required.";
 
     if (!phoneNumber.trim()) {
       newErrors.phoneNumber = "Phone number is required.";
+    } else if (phoneNumber.trim().length < 10) {
+      newErrors.phoneNumber = "Phone number must be at least 10 digits.";
     } else if (!phoneRegex.test(phoneNumber.trim())) {
       newErrors.phoneNumber = "Invalid phone number format.";
     }
@@ -84,6 +83,7 @@ export default function SignUp() {
     } else if (!emailRegex.test(email.trim())) {
       newErrors.email = "Invalid email format.";
     }
+    
 
     if (!username.trim()) newErrors.username = "Username is required.";
     if (!password.trim()) newErrors.password = "Password is required.";
@@ -91,31 +91,31 @@ export default function SignUp() {
       newErrors.confirmPassword = "Confirm password is required.";
 
     if (role === "Seller" && !storeName.trim()) {
-      newErrors.storeName = "Store name is required."; // and unique
+      newErrors.storeName = "Store name is required.";
     }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      return;
     }
 
     if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters.";
+      const msg = "Password must be at least 6 characters.";
+      setErrors({ password: msg });
+      setSignUpError(msg);
+      return;
     }
 
     if (password !== confirmPassword) {
-      setErrors((prev) => ({
-        ...prev,
-        confirmPassword: "Passwords do not match.",
-      }));
+      const msg = "Passwords do not match.";
+      setErrors((prev) => ({ ...prev, confirmPassword: msg }));
+      setSignUpError(msg);
       return;
     }
 
     try {
-      setErrors({}); // Clear field-level errors
-      setSignUpError(""); // Clear general errors
+      setErrors({});
+      setSignUpError("");
 
-      console.log("Signup payload:");
       const payload = {
         firstName,
         lastName,
@@ -123,22 +123,13 @@ export default function SignUp() {
         email,
         username,
         password,
-        role: role.toUpperCase(), // "CUSTOMER" or "SELLER"
-        ...(role === "Seller"
-          ? {
-              storeName,
-              storeDescription,
-            }
-          : {}),
+        role: role.toUpperCase(),
+        ...(role === "Seller" ? { storeName, storeDescription } : {}),
       };
 
       let response;
       if (role === "Seller") {
-        response = await createSeller({
-          ...payload,
-          storeName,
-          storeDescription,
-        });
+        response = await createSeller(payload);
       } else {
         response = await registerUser(payload);
       }
@@ -146,13 +137,11 @@ export default function SignUp() {
       router.push("/auth/login");
     } catch (error) {
       console.error("Signup error:", error);
-
       const errorMsg =
         error?.response?.data?.message ||
         error?.message ||
         "Signup failed. Please try again.";
-
-      setSignUpError(errorMsg);
+      setSignUpError(errorMsg); // Will show popup on mobile
     }
   };
 
@@ -173,9 +162,17 @@ export default function SignUp() {
             Sign up
           </h2>
 
+          {/* Error Message */}
+          {signUpError && (
+            <div className="border border-red-300 bg-red-50 flex flex-row px-2 py-4 text-center">
+              <CircleX className="text-red-400 inline-block mr-2" />
+              <div className="text-black">{signUpError}</div>
+            </div>
+          )}
+
           <div className="font-inter text-sm sm:text-md ">
             <label htmlFor="role" className="block font-medium mb-2">
-              Role:
+              Role: <span className="text-red-500">*</span>
             </label>
             <div className="grid grid-cols-2 gap-4 text-sm sm:text-md">
               {["Customer", "Seller"].map((roleType) => (
@@ -199,7 +196,7 @@ export default function SignUp() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 font-inter text-sm sm:text-md">
             <div>
               <label htmlFor="firstName" className="block font-medium mb-2">
-                First Name:
+                First Name: <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -209,13 +206,10 @@ export default function SignUp() {
                 className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your first name"
               />
-              {errors.firstName && (
-                <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
-              )}
             </div>
             <div>
               <label htmlFor="lastName" className="block font-medium mb-2">
-                Last Name:
+                Last Name: <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -225,16 +219,13 @@ export default function SignUp() {
                 className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your last name"
               />
-              {errors.lastname && (
-                <p className="text-red-500 text-sm mt-1">{errors.lastname}</p>
-              )}
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 font-inter text-sm sm:text-md">
             <div>
               <label htmlFor="phoneNumber" className="block font-medium mb-2">
-                Phone Number:
+                Phone Number: <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -244,16 +235,11 @@ export default function SignUp() {
                 className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your phone number"
               />
-              {errors.phoneNumber && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.phoneNumber}
-                </p>
-              )}
             </div>
 
             <div>
               <label htmlFor="email" className="block font-medium mb-2">
-                Email:
+                Email: <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -263,9 +249,6 @@ export default function SignUp() {
                 className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your email"
               />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-              )}
             </div>
           </div>
 
@@ -282,9 +265,6 @@ export default function SignUp() {
                 className="w-full border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                 placeholder="Enter your username"
               />
-              {errors.username && (
-                <p className="text-red-500 text-sm mt-1">{errors.username}</p>
-              )}
             </div>
           </div>
 
@@ -309,9 +289,6 @@ export default function SignUp() {
               >
                 {showPassword ? <EyeClosed /> : <Eye />}
               </button>
-              {errors.password && (
-                <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-              )}
             </div>
           </div>
 
@@ -343,11 +320,6 @@ export default function SignUp() {
               >
                 {showConfirmPassword ? <EyeClosed /> : <Eye />}
               </button>
-              {errors.confirmPassword && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.confirmPassword}
-                </p>
-              )}
             </div>
           </div>
 
@@ -365,11 +337,6 @@ export default function SignUp() {
                   className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                   placeholder="Enter your store name"
                 />
-                {errors.storeName && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.storeName}
-                  </p>
-                )}
               </div>
               <div>
                 <label
@@ -385,18 +352,7 @@ export default function SignUp() {
                   className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
                   placeholder="Enter your store description"
                 />
-                {errors.storeDescription && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.storeDescription}
-                  </p>
-                )}
               </div>
-            </div>
-          )}
-
-          {signUpError && (
-            <div className="text-red-500 text-center text-sm sm:text-md font-inter font-medium">
-              {signUpError}
             </div>
           )}
 
@@ -433,256 +389,242 @@ export default function SignUp() {
     </div>
   ) : (
     // Mobile View
-<>
-  <div
-    className="fixed text-primary font-inter font-semibold z-50 w-full border-b bg-white border-gray-300 px-4 py-2"
-    onClick={() => router.push("/")}
-  >
-    <div className="flex flex-row items-center gap-2 text-sm sm:text-md text-black">
-      <ArrowLeft />
-      Sign Up
-    </div>
-  </div>
-
-  <div className="min-h-screen flex flex-col justify-center items-center bg-white text-secondary px-4 sm:px-8 py-6">
-    <form
-      className="w-full max-w-md mx-auto flex flex-col space-y-3 p-6 bg-white font-inter"
-      onSubmit={handleSubmit}
-    >
-      <Link href="/" aria-label="Home">
-        <h1 className="font-playfair text-secondary text-xl sm:text-2xl font-bold cursor-pointer text-center">
-          Origity
-        </h1>
-      </Link>
-
-      <h2 className="font-inter font-bold text-xl sm:text-3xl text-primary text-center">
-        Sign up
-      </h2>
-
-      <div className="text-sm sm:text-md">
-        <label htmlFor="role" className="block font-medium mb-2">
-          Role:
-        </label>
-        <div className="grid grid-cols-2 gap-4 text-sm sm:text-md">
-          {["Customer", "Seller"].map((roleType) => (
-            <button
-              key={roleType}
-              type="button"
-              className={`py-3 px-4 rounded-xl font-medium text-sm sm:text-base ${
-                role === roleType
-                  ? "bg-secondary text-white shadow-lg"
-                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-              }`}
-              onClick={() => setRole(roleType)}
-              aria-pressed={role === roleType}
-            >
-              {roleType}
-            </button>
-          ))}
+    <>
+      <div
+        className="fixed text-primary font-inter font-semibold z-50 w-full border-b bg-white border-gray-300 px-4 py-2"
+        onClick={() => router.push("/")}
+      >
+        <div className="flex flex-row items-center gap-2 text-sm sm:text-md text-black">
+          <ArrowLeft />
+          Sign Up
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6 text-sm sm:text-md">
-        <div>
-          <label htmlFor="firstName" className="block font-medium mb-2">
-            First Name:
-          </label>
-          <input
-            type="text"
-            id="firstName"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
-            placeholder="First name"
-          />
-          {errors.firstName && (
-            <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
-          )}
-        </div>
-        <div>
-          <label htmlFor="lastName" className="block font-medium mb-2">
-            Last Name:
-          </label>
-          <input
-            type="text"
-            id="lastName"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
-            placeholder="Last name"
-          />
-          {errors.lastName && (
-            <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-6 text-sm sm:text-md">
-        <div>
-          <label htmlFor="phoneNumber" className="block font-medium mb-2">
-            Phone Number:
-          </label>
-          <input
-            type="text"
-            id="phoneNumber"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
-            placeholder="Phone number"
-          />
-          {errors.phoneNumber && (
-            <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="email" className="block font-medium mb-2">
-            Email:
-          </label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
-            placeholder="Email"
-          />
-          {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-          )}
-        </div>
-      </div>
-
-      <div className="text-sm sm:text-md">
-        <label htmlFor="username" className="block font-medium mb-2">
-          Username: <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          id="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
-          placeholder="Username"
-        />
-        {errors.username && (
-          <p className="text-red-500 text-sm mt-1">{errors.username}</p>
-        )}
-      </div>
-
-      <div className="relative text-sm sm:text-md">
-        <label htmlFor="password" className="block font-medium mb-2">
-          Password: <span className="text-red-500">*</span>
-        </label>
-        <input
-          type={showPassword ? "text" : "password"}
-          id="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary pr-10"
-          placeholder="Your password"
-        />
-        <button
-          type="button"
-          onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-[38px] text-sm text-gray-500 hover:text-primary focus:outline-none"
-          aria-label={showPassword ? "Hide password" : "Show password"}
+      <div className="min-h-screen flex flex-col justify-center items-center bg-white text-secondary px-4 sm:px-8 py-6">
+        <form
+          className="w-full max-w-md mx-auto flex flex-col space-y-3 p-6 bg-white font-inter"
+          onSubmit={handleSubmit}
         >
-          {showPassword ? <EyeClosed /> : <Eye />}
-        </button>
-        {errors.password && (
-          <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-        )}
-      </div>
+          <Link href="/" aria-label="Home">
+            <h1 className="font-playfair text-secondary text-xl sm:text-2xl font-bold cursor-pointer text-center">
+              Origity
+            </h1>
+          </Link>
 
-      <div className="relative text-sm sm:text-md">
-        <label htmlFor="confirmPassword" className="block font-medium mb-2">
-          Confirm Password: <span className="text-red-500">*</span>
-        </label>
-        <input
-          type={showConfirmPassword ? "text" : "password"}
-          id="confirmPassword"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary pr-10"
-          placeholder="Re-enter your password"
-        />
-        <button
-          type="button"
-          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-          className="absolute right-3 top-[38px] text-sm text-gray-500 hover:text-primary focus:outline-none"
-          aria-label={
-            showConfirmPassword ? "Hide confirm password" : "Show confirm password"
-          }
-        >
-          {showConfirmPassword ? <EyeClosed /> : <Eye />}
-        </button>
-        {errors.confirmPassword && (
-          <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
-        )}
-      </div>
+          <h2 className="font-inter font-bold text-xl sm:text-3xl text-primary text-center">
+            Sign up
+          </h2>
 
-      {role === "Seller" && (
-        <>
           <div className="text-sm sm:text-md">
-            <label htmlFor="storename" className="block font-medium mb-2">
-              Store Name: <span className="text-red-500">*</span>
+            <label htmlFor="role" className="block font-medium mb-2">
+              Role:
+            </label>
+            <div className="grid grid-cols-2 gap-4 text-sm sm:text-md">
+              {["Customer", "Seller"].map((roleType) => (
+                <button
+                  key={roleType}
+                  type="button"
+                  className={`py-3 px-4 rounded-xl font-medium text-sm sm:text-base ${
+                    role === roleType
+                      ? "bg-secondary text-white shadow-lg"
+                      : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                  }`}
+                  onClick={() => setRole(roleType)}
+                  aria-pressed={role === roleType}
+                >
+                  {roleType}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6 text-sm sm:text-md">
+            <div>
+              <label htmlFor="firstName" className="block font-medium mb-2">
+                First Name:
+              </label>
+              <input
+                type="text"
+                id="firstName"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+                placeholder="First name"
+              />
+            </div>
+            <div>
+              <label htmlFor="lastName" className="block font-medium mb-2">
+                Last Name:
+              </label>
+              <input
+                type="text"
+                id="lastName"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+                placeholder="Last name"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6 text-sm sm:text-md">
+            <div>
+              <label htmlFor="phoneNumber" className="block font-medium mb-2">
+                Phone Number:
+              </label>
+              <input
+                type="text"
+                id="phoneNumber"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+                placeholder="Phone number"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block font-medium mb-2">
+                Email:
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+                placeholder="Email"
+              />
+            </div>
+          </div>
+
+          <div className="text-sm sm:text-md">
+            <label htmlFor="username" className="block font-medium mb-2">
+              Username: <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              id="storename"
-              value={storeName}
-              onChange={(e) => setStoreName(e.target.value)}
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
-              placeholder="Enter your store name"
+              placeholder="Username"
             />
-            {errors.storeName && (
-              <p className="text-red-500 text-sm mt-1">{errors.storeName}</p>
-            )}
           </div>
-          <div className="text-sm sm:text-md">
-            <label htmlFor="storeDescription" className="block font-medium mb-2">
-              Store Description:
+
+          <div className="relative text-sm sm:text-md">
+            <label htmlFor="password" className="block font-medium mb-2">
+              Password: <span className="text-red-500">*</span>
             </label>
             <input
-              id="storeDescription"
-              value={storeDescription}
-              onChange={(e) => setStoreDescription(e.target.value)}
-              className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
-              placeholder="Enter your store description"
+              type={showPassword ? "text" : "password"}
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary pr-10"
+              placeholder="Your password"
             />
-            {errors.storeDescription && (
-              <p className="text-red-500 text-sm mt-1">{errors.storeDescription}</p>
-            )}
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-[38px] text-sm text-gray-500 hover:text-primary focus:outline-none"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeClosed /> : <Eye />}
+            </button>
           </div>
-        </>
-      )}
 
-      {signUpError && (
-        <div className="text-red-500 text-center font-medium">{signUpError}</div>
-      )}
+          <div className="relative text-sm sm:text-md">
+            <label htmlFor="confirmPassword" className="block font-medium mb-2">
+              Confirm Password: <span className="text-red-500">*</span>
+            </label>
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary pr-10"
+              placeholder="Re-enter your password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-[38px] text-sm text-gray-500 hover:text-primary focus:outline-none"
+              aria-label={
+                showConfirmPassword
+                  ? "Hide confirm password"
+                  : "Show confirm password"
+              }
+            >
+              {showConfirmPassword ? <EyeClosed /> : <Eye />}
+            </button>
+          </div>
 
-      <button
-        type="submit"
-        disabled={isSubmitDisabled}
-        className={`w-full text-sm sm:text-md py-3 px-4 mt-2 rounded-xl text-white transition shadow-lg ${
-          isSubmitDisabled
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-secondary hover:bg-[#6C7A84]"
-        }`}
-      >
-        Create Account
-      </button>
+          {role === "Seller" && (
+            <>
+              <div className="text-sm sm:text-md">
+                <label htmlFor="storename" className="block font-medium mb-2">
+                  Store Name: <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="storename"
+                  value={storeName}
+                  onChange={(e) => setStoreName(e.target.value)}
+                  className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+                  placeholder="Enter your store name"
+                />
+              </div>
+              <div className="text-sm sm:text-md">
+                <label
+                  htmlFor="storeDescription"
+                  className="block font-medium mb-2"
+                >
+                  Store Description:
+                </label>
+                <input
+                  id="storeDescription"
+                  value={storeDescription}
+                  onChange={(e) => setStoreDescription(e.target.value)}
+                  className="border rounded-xl p-3 w-full shadow-sm focus:ring-secondary focus:border-secondary"
+                  placeholder="Enter your store description"
+                />
+              </div>
+            </>
+          )}
+          <button
+            type="submit"
+            disabled={isSubmitDisabled}
+            className={`w-full text-sm sm:text-md py-3 px-4 mt-2 rounded-xl text-white transition shadow-lg ${
+              isSubmitDisabled
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-secondary hover:bg-[#6C7A84]"
+            }`}
+          >
+            Create Account
+          </button>
 
-      <p className="text-center text-gray-600 text-sm sm:text-md">
-        Already have an account?{" "}
-        <Link href="/auth/login" className="text-primary font-bold hover:underline">
-          Login here
-        </Link>
-      </p>
-    </form>
-  </div>
-</>
+          <p className="text-center text-gray-600 text-sm sm:text-md">
+            Already have an account?{" "}
+            <Link
+              href="/auth/login"
+              className="text-primary font-bold hover:underline"
+            >
+              Login here
+            </Link>
+          </p>
+        </form>
 
+        {/* Popup error for mobile */}
+        {showPopup && (
+          <ErrorPopup
+            message={signUpError}
+            onClose={() => {
+              setShowPopup(false);
+              setSignUpError("");
+            }}
+          />
+        )}
+      </div>
+    </>
   );
 }

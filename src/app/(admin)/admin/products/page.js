@@ -5,7 +5,7 @@ import Link from "next/link";
 import useAuth from "@/app/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { ChevronDown, Search, Pencil, Trash2, SquarePen } from "lucide-react";
-import { deleteProductAPI, getAllProductsAPI } from "@/app/apis/product.api";
+import { deleteProductAPI, getAllProducts } from "@/app/apis/product.api";
 
 export default function AdminProducts() {
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function AdminProducts() {
     const fetchProducts = async () => {
       try {
         //setLoading(true);
-        const data = await getAllProductsAPI();
+        const data = await getAllProducts();
         console.log(data.content);
         setProducts(data.content || []);
       } catch (error) {
