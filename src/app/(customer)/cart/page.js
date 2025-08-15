@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ChevronLeft, TicketPercent, Trash2 } from "lucide-react";
 import useCartStore from "@/app/stores/cartStore";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
@@ -30,6 +30,8 @@ export default function ShoppingCartPage() {
   //const cartTotal = totalPrice;
   const cartTotal = calculatePriceOfSelectedItems();
   const { promotionCode, setFormData } = useCheckoutStore();
+  //const { productId } = ();
+  const [product, setProduct] = useState(null);
 
   const handleProductClick = (id) => {
     router.push(`/products/${id}`);
@@ -44,8 +46,33 @@ export default function ShoppingCartPage() {
     }
   }, [loadCart, isMobile]);
 
+  // useEffect(() => {
+  //   const enrichImages = async () => {
+  //     if (!cart.length) return;
+
+  //     const updatedCart = await Promise.all(
+  //       cart.map(async (item) => {
+  //         if (item.image) return item;
+  //         try {
+  //           const productData = await getProductByIdAPI(item.productId);
+  //           return {
+  //             ...item,
+  //             image: productData.imageUrls?.[0] || "/placeholder.png",
+  //           };
+  //         } catch {
+  //           return { ...item, image: "/placeholder.png" };
+  //         }
+  //       })
+  //     );
+
+  //     useCartStore.setState({ cart: updatedCart });
+  //   };
+
+  //   enrichImages();
+  // }, [cart]);
+
   return !isMobile ? (
-    <div className="min-h-screen w-full bg-[#f5f5f5] text-primary py-10 px-4 font-roboto">
+    <div className="min-h-screen w-full bg-[#f5f5f5] text-primary py-10 px-4 font-inter">
       {/* Heading */}
       <h1 className="px-4 sm:px-8 font-playfair text-black text-3xl font-bold text-left py-6">
         SHOPPING CART
@@ -87,7 +114,7 @@ export default function ShoppingCartPage() {
                       <img
                         src={item.image}
                         alt={item.productName}
-                        className="w-32 h-32 object-contain"
+                        className="w-32 h-32 object-cover"
                         onClick={() => handleProductClick(item.productId)}
                       />
                     </div>
@@ -95,20 +122,27 @@ export default function ShoppingCartPage() {
                     {/* Product Details */}
                     <div className="flex flex-col flex-grow justify-between h-full">
                       <div>
-                        <span className="font-semibold text-base">
+                        <span
+                          onClick={() => handleProductClick(item.productId)}
+                          className="font-semibold text-base"
+                        >
                           {item.productName}
                         </span>
                         <div className="text-sm text-gray-600 mt-1">
-                          {item.size && (
+                          {item.selectedSize && (
                             <p>
                               Size:{" "}
-                              <span className="font-normal">{item.size}</span>
+                              <span className="font-normal">
+                                {item.selectedSize}
+                              </span>
                             </p>
                           )}
-                          {item.color && (
+                          {item.selectedColor && (
                             <p>
                               Color:{" "}
-                              <span className="font-normal">{item.color}</span>
+                              <span className="font-normal">
+                                {item.selectedColor}
+                              </span>
                             </p>
                           )}
                         </div>
@@ -242,7 +276,7 @@ export default function ShoppingCartPage() {
       </div>
     </div>
   ) : (
-    <div className="pt-10 min-h-screen w-full bg-[#f5f5f5] text-primary font-roboto flex flex-col">
+    <div className="pt-10 min-h-screen w-full bg-[#f5f5f5] text-primary font-inter flex flex-col">
       {/* Heading */}
       <div className="flex items-center px-4 py-4 ">
         <Link href="/products">
@@ -256,134 +290,144 @@ export default function ShoppingCartPage() {
       {/* Cart Items */}
       {cart && cart.length > 0 ? (
         <>
-        <div className="flex-1 overflow-y-auto max-h-[600px] px-4 py-2">
-          {cart.map((item) => (
-            <div
-              key={item.productId}
-              className="flex flex-row items-center border-b border-gray-300 bg-white p-3 mb-2 rounded-lg shadow-sm h-[120px] sm:h-[150px]"
-            >
-              {/* Product Image */}
-              <div className="flex-shrink-0 bg-gray-100 rounded-lg p-2 w-20 h-20 sm:w-22 sm:h-22">
-                <img
-                  src={item.image}
-                  alt={item.productName}
-                  className="w-full h-full object-contain"
-                  onClick={() => handleProductClick(item.productId)}
-                />
-              </div>
+          <div className="flex-1 overflow-y-auto max-h-[600px] px-4 py-2">
+            {cart.map((item) => (
+              <div
+                key={item.productId}
+                className="flex flex-row items-center border-b border-gray-300 bg-white p-3 mb-2 rounded-lg shadow-sm h-[140px] sm:h-[150px]"
+              >
+                {/* Product Image */}
+                <div className="flex-shrink-0 bg-gray-100 rounded-lg p-2 w-20 h-20 sm:w-22 sm:h-22">
+                  <img
+                    src={item.image}
+                    alt={item.productName}
+                    className="w-full h-full object-cover"
+                    onClick={() => handleProductClick(item.productId)}
+                  />
+                </div>
 
-              {/* Product Details */}
-              <div className="flex flex-col flex-grow justify-between h-full ml-3">
-                <div>
-                  <span className="font-semibold text-sm sm:text-xs">
-                    {item.productName}
+                {/* Product Details */}
+                <div className="flex flex-col flex-grow justify-between h-full ml-3">
+                  <div>
+                    <span 
+                    onClick={() => handleProductClick(item.productId)}
+                    className="font-semibold text-sm sm:text-xs">
+                      {item.productName}
+                    </span>
+                    <div className="text-xs text-gray-600 mt-1">
+                      {item.selectedSize && (
+                        <p>
+                          Size:{" "}
+                          <span className="font-normal">
+                            {item.selectedSize}
+                          </span>
+                        </p>
+                      )}
+                      {item.selectedColor && (
+                        <p>
+                          Color:{" "}
+                          <span className="font-normal">
+                            {item.selectedColor}
+                          </span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <span className="font-semibold text-sm mt-1">
+                    ${item.price}
                   </span>
-                  <div className="text-xs text-gray-600 mt-1">
-                    {item.size && (
-                      <p>
-                        Size: <span className="font-normal">{item.size}</span>
-                      </p>
-                    )}
-                    {item.color && (
-                      <p>
-                        Color: <span className="font-normal">{item.color}</span>
-                      </p>
-                    )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-col items-end justify-between h-full ml-2">
+                  <button
+                    onClick={() => removeItemFromCart(item.id)}
+                    className="text-black mb-2"
+                    aria-label="Remove item"
+                  >
+                    <Trash2 className="w-5 h-5 sm:w-6 sm:h-6" />
+                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() =>
+                        updateQuantity(item.productId, item.quantity - 1)
+                      }
+                      className="w-7 h-7 sm:w-8 sm:h-8 border border-gray-300 rounded hover:bg-gray-200 text-base font-bold"
+                    >
+                      -
+                    </button>
+                    <span className="w-6 text-center font-medium">
+                      {item.quantity}
+                    </span>
+                    <button
+                      onClick={() =>
+                        updateQuantity(item.productId, item.quantity + 1)
+                      }
+                      className="w-7 h-7 sm:w-8 sm:h-8 border border-gray-300 rounded bg-gray-100 hover:bg-gray-800 hover:text-white text-base font-bold"
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
-                <span className="font-semibold text-sm mt-1">
-                  ${item.price}
+              </div>
+            ))}
+          </div>
+          <div className="w-full bg-cream px-4 py-4  flex flex-col gap-3">
+            {/* Voucher Input */}
+            <div className="flex gap-2">
+              <div className="relative flex-grow">
+                <TicketPercent className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Enter Coupon Code"
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                  value={promotionCode}
+                  onChange={(e) =>
+                    setFormData({ promotionCode: e.target.value })
+                  }
+                />
+              </div>
+              <button className="px-3 py-2 bg-black text-white rounded-md text-sm font-semibold hover:bg-gray-800 transition">
+                Apply
+              </button>
+            </div>
+
+            {/* Cart Summary */}
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between text-gray-700 text-sm">
+                <span>Delivery Fee:</span>
+                <span className="font-medium">0$</span>
+              </div>
+              <div className="flex justify-between font-semibold text-lg border-t border-dashed border-gray-300 pt-2">
+                <span>Total:</span>
+                <span className="text-black text-lg">
+                  {cartTotal
+                    ? Number(cartTotal).toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : "0.00"}{" "}
+                  USD
                 </span>
               </div>
+            </div>
 
-              {/* Actions */}
-              <div className="flex flex-col items-end justify-between h-full ml-2">
-                <button
-                  onClick={() => removeItemFromCart(item.id)}
-                  className="text-black mb-2"
-                  aria-label="Remove item"
-                >
-                  <Trash2 className="w-5 h-5 sm:w-6 sm:h-6" />
-                </button>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() =>
-                      updateQuantity(item.productId, item.quantity - 1)
-                    }
-                    className="w-7 h-7 sm:w-8 sm:h-8 border border-gray-300 rounded hover:bg-gray-200 text-base font-bold"
-                  >
-                    -
-                  </button>
-                  <span className="w-6 text-center font-medium">
-                    {item.quantity}
-                  </span>
-                  <button
-                    onClick={() =>
-                      updateQuantity(item.productId, item.quantity + 1)
-                    }
-                    className="w-7 h-7 sm:w-8 sm:h-8 border border-gray-300 rounded bg-gray-100 hover:bg-gray-800 hover:text-white text-base font-bold"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="w-full bg-cream px-4 py-4  flex flex-col gap-3">
-          {/* Voucher Input */}
-          <div className="flex gap-2">
-            <div className="relative flex-grow">
-              <TicketPercent className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Enter Coupon Code"
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black text-sm"
-                value={promotionCode}
-                onChange={(e) => setFormData({ promotionCode: e.target.value })}
-              />
-            </div>
-            <button className="px-3 py-2 bg-black text-white rounded-md text-sm font-semibold hover:bg-gray-800 transition">
-              Apply
-            </button>
-          </div>
-
-          {/* Cart Summary */}
-          <div className="flex flex-col gap-2">
-            <div className="flex justify-between text-gray-700 text-sm">
-              <span>Delivery Fee:</span>
-              <span className="font-medium">0$</span>
-            </div>
-            <div className="flex justify-between font-semibold text-lg border-t border-dashed border-gray-300 pt-2">
-              <span>Total:</span>
-              <span className="text-black text-lg">
-                {cartTotal
-                  ? Number(cartTotal).toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
-                  : "0.00"}{" "}
-                USD
-              </span>
-            </div>
-          </div>
-
-          {/* Checkout Button */}
-          <Link
-            href={{
-              pathname: "/cart/checkout",
-              query: { selected: JSON.stringify(selectedItems) },
-            }}
-            className="w-full mt-2"
-          >
-            <button
-              className="w-full px-4 py-2 bg-primary text-white rounded-md text-base font-semibold hover:opacity-90 disabled:opacity-50"
-              disabled={selectedItems.length === 0}
+            {/* Checkout Button */}
+            <Link
+              href={{
+                pathname: "/cart/checkout",
+                query: { selected: JSON.stringify(selectedItems) },
+              }}
+              className="w-full mt-2"
             >
-              Checkout ({selectedItems.length})
-            </button>
-          </Link>
-        </div>
+              <button
+                className="w-full px-4 py-2 bg-primary text-white rounded-md text-base font-semibold hover:opacity-90 disabled:opacity-50"
+                disabled={selectedItems.length === 0}
+              >
+                Checkout ({selectedItems.length})
+              </button>
+            </Link>
+          </div>
         </>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center px-4 text-center">
@@ -399,6 +443,5 @@ export default function ShoppingCartPage() {
         </div>
       )}
     </div>
-
   );
 }
