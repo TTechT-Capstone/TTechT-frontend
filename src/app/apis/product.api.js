@@ -16,6 +16,27 @@ const getAuthHeaders = () => {
   };
 };
 
+export const getAllProducts = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/products/all`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    throw error;
+  }
+};
+
+
+export const getAllProductsByUser = async (userId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/products/user/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    throw error;
+  }
+};
+
 /**
  * 1. Get all products with pagination
  * http://localhost:8082/api/products
@@ -33,6 +54,8 @@ export const getAllProductsAPI = async (page = 0, limit = 10) => {
   }
 };
 
+
+
 /**
  * 2. Get product by ID
  * http://localhost:8082/api/products/2
@@ -40,7 +63,7 @@ export const getAllProductsAPI = async (page = 0, limit = 10) => {
 export const getProductByIdAPI = async (productId) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/products/${productId}`);
-    console.log("Product data:", response.data);
+    //console.log("Product data:", response.data);
     return response.data;
   } catch (error) {
     console.error(`Error fetching product ${productId}:`, error);

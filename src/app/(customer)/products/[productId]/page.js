@@ -72,11 +72,12 @@ export default function ProductDetail() {
       price: product.price,
       color: selectedColor,
       size: selectedSize,
-      mainImage,
+      image: product.imageUrls?.[0],
     };
 
     try {
       await addToCart(newItem);
+      console.log("Item added to cart:", newItem);
 
       setAddedProductInfo(newItem);
       setSuccessModalOpen(true);
@@ -106,22 +107,23 @@ export default function ProductDetail() {
             />
           </div>
 
-          {/* Thumbnails */}
-          <div className="flex flex-row gap-2">
-            {product.imageUrls?.map((url, index) => (
-              <img
-                key={index}
-                src={url}
-                alt={`Thumbnail ${index + 1}`}
-                onClick={() => setMainImage(url)}
-                className={`w-32 h-32 object-cover cursor-pointer border ${
-                  mainImage === url ? "border-primary" : "border-gray-200"
-                }`}
-              />
-            ))}
-          </div>
+          {/* Conditionally render Thumbnails */}
+          {product.imageUrls && product.imageUrls.length > 1 && (
+            <div className="flex flex-row gap-2">
+              {product.imageUrls.map((url, index) => (
+                <img
+                  key={index}
+                  src={url}
+                  alt={`Thumbnail ${index + 1}`}
+                  onClick={() => setMainImage(url)}
+                  className={`w-32 h-32 object-cover cursor-pointer border ${
+                    mainImage === url ? "border-primary" : "border-gray-200"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
-
         {/* Product Info */}
         <div className="flex flex-col font-inter gap-6">
           {/* Store Name */}
@@ -329,7 +331,7 @@ export default function ProductDetail() {
           <div className="bg-white shadow-sm p-6 max-w-xs sm:max-w-md w-full flex flex-row items-center gap-4">
             <div className="">
               <img
-                src={addedProductInfo.mainImage}
+                src={addedProductInfo.image}
                 alt={addedProductInfo.productName}
                 className="w-48 h-48 object-cover"
               />
@@ -579,7 +581,7 @@ export default function ProductDetail() {
           <div className="bg-white shadow-sm p-6 max-w-xs sm:max-w-md w-full flex flex-row items-center gap-4">
             <div className="">
               <img
-                src={addedProductInfo.mainImage}
+                src={addedProductInfo.image}
                 alt={addedProductInfo.productName}
                 className="w-48 h-48 object-cover"
               />

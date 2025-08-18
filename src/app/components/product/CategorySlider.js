@@ -60,7 +60,7 @@ export default function CategorySlider({ categories, handleCategoryClick }) {
           >
             <CategoryCard
               title={category.name}
-              img={category.img}
+              img={category.imagePath}
               id={category.categoryId}
             />
           </div>

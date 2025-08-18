@@ -46,7 +46,7 @@ export const createNewCart = async (userId, promotionCode = '') => {
 // ➕ Add item to cart
 export const addItemToCartAPI = async (cartId, newItem) => {
   try {
-    const { productId, quantity, productName } = newItem;
+    const { productId, quantity, productName, color, size } = newItem;
     if (!cartId || !productId) {
       throw new Error('Cart ID and product ID are required');
     }
@@ -58,6 +58,8 @@ export const addItemToCartAPI = async (cartId, newItem) => {
         productId,
         quantity,
         productName,
+        color,
+        size,   
       },
       { headers: getAuthHeaders() }
     );

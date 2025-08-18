@@ -49,9 +49,9 @@ export default function AdminProfile() {
 
   return (
     <>
-      <section className="font-roboto bg-white p-6 rounded-lg shadow-xl mb-4">
+      <section className="font-inter bg-white p-6 rounded-lg shadow-xl mb-4">
         <div className="flex mb-4">
-          <h1 className="font-urbanist font-bold text-2xl">
+          <h1 className="font-playfair font-bold text-2xl">
             Personal Information
           </h1>
         </div>
@@ -97,7 +97,7 @@ export default function AdminProfile() {
       </section>
 
       {/* Change Password Section */}
-      <section className="font-roboto mt-6 rounded-md">
+      <section className="font-inter mt-6 rounded-md">
         <ChangePasswordForm
           profile={profile}
           setProfile={setProfile}
