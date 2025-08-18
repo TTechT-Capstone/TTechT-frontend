@@ -146,14 +146,14 @@ export const deleteProductAPI = async (productId) => {
  * 6. Get products by category
  * http://localhost:8082/api/products/category/3
  */
-export const getProductsByCategoryAPI = async (category) => {
+export const getProductsByCategoryAPI = async (categoryId) => {
   try {
     const response = await axios.get(
-      `${API_BASE_URL}/products/category/${category}`
+      `${API_BASE_URL}/products/category/${categoryId}`
     );
     return response.data;
   } catch (error) {
-    console.error(`Error fetching products by category ${category}:`, error);
+    console.error(`Error fetching products by category ${categoryId}:`, error);
     throw error;
   }
 };

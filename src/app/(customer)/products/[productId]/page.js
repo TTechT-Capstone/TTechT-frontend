@@ -501,43 +501,6 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      {/* Similar Products */}
-      <section className="mt-20">
-        <h2 className="text-2xl font-bold text-center mb-8 font-urbanist">
-          You May Also Like
-        </h2>
-        {/* <div className="py-2 grid grid-cols-2 md:grid-cols-4 gap-6">
-          <ProductCard
-            name="White T-Shirt"
-            price="150,000 VND"
-            img="/product.jpg"
-          />
-          <ProductCard
-            name="Summer Hat"
-            price="80,000 VND"
-            img="/product2.jpg"
-          />
-          <ProductCard
-            name="Summer Glasses"
-            price="150,000 VND"
-            img="/product3.jpg"
-          />
-          <ProductCard
-            name="Casual Jeans"
-            price="290,000 VND"
-            img="/product.jpg"
-          />
-        </div> */}
-
-        <div className="flex justify-center mt-6">
-          <Link href="/products">
-            <button className="bg-primary text-white font-urbanist px-6 py-2 hover:bg-[#5d6c78] border border-primary transition">
-              VIEW MORE
-            </button>
-          </Link>
-        </div>
-      </section>
-
       {/* Modal */}
       {isLoginModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">

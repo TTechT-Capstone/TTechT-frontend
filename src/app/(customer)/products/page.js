@@ -37,44 +37,19 @@ export default function ProductPage() {
   const [filters, setFilters] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  // State for available filter options extracted from all products
   const [availableFilters, setAvailableFilters] = useState({});
-  // State for currently active filters
   const [activeFilters, setActiveFilters] = useState({});
+  const [appliedFilters, setAppliedFilters] = useState({});
 
-  // const handleFilterOptionsChange = useCallback((options) => {
-  //   setAvailableFilters(options);
-  //   if (options.minPrice && options.maxPrice) {
-  //     setActiveFilters((prev) => ({
-  //       ...prev,
-  //       priceRange: [options.minPrice, options.maxPrice],
-  //     }));
-  //   }
-  // }, []);
+  const handleApplyFilters = useCallback(() => {
+    setAppliedFilters(activeFilters);
+  }, [activeFilters]);
 
-  const handleFilterOptionsChange = useCallback((options) => {
-  setAvailableFilters(options);
-  // Remove the setActiveFilters call from here
-}, []);
-
-const handleFilterChange = (newFilters) => {
-    setActiveFilters(newFilters);
-
-    // Reset page to 1 when filters change
-    setCurrentPage(1);
-    // // Optionally, you can also close the filter drawer after applying filters
-    // if (isFilterOpen) {
-    //   setFilterAnimating(false);
-    //   setTimeout(() => {
-    //     setFilterOpen(false);
-    //   }, 300);
-    }
-  const handleClearFilters = () => {
-    // Reset filters to an empty object
+  const handleClearFilters = useCallback(() => {
     setActiveFilters({});
-    // Reset page to 1
+    setAppliedFilters({});
     setCurrentPage(1);
-  };
+  }, []);
 
   const openFilter = () => {
     setFilterOpen(true);
@@ -111,29 +86,6 @@ const handleFilterChange = (newFilters) => {
     }
   };
 
-  // const fetchAvailableFilters = async () => {
-  //   try {
-  //     const data = await getAllProductsAPI(); // Fetch a large batch to get all options
-  //     if (data && data.content) {
-  //       const products = data.content;
-  //       const colors = [...new Set(products.flatMap((p) => p.colors || []))];
-  //       const sizes = [...new Set(products.flatMap((p) => p.sizes || []))];
-  //       const categories = [...new Set(products.map((p) => p.categoryName))];
-  //       const prices = products.map((p) => p.price);
-  //       const minPrice = Math.min(...prices);
-  //       const maxPrice = Math.max(...prices);
-  //       setAvailableFilters({ colors, sizes, categories, minPrice, maxPrice });
-  //       // Set initial price range for activeFilters
-  //       setActiveFilters((prev) => ({
-  //         ...prev,
-  //         priceRange: [minPrice, maxPrice],
-  //       }));
-  //     }
-  //   } catch (error) {
-  //     console.error("Failed to fetch products for filters:", error);
-  //   }
-  // };
-
   const fetchAvailableFilters = async () => {
     try {
       const data = await getAllProducts(); // Use the non-paginated API
@@ -144,12 +96,7 @@ const handleFilterChange = (newFilters) => {
         const prices = data.map((p) => p.price);
         const minPrice = Math.min(...prices);
         const maxPrice = Math.max(...prices);
-
         setAvailableFilters({ colors, sizes, categories, minPrice, maxPrice });
-        setActiveFilters((prev) => ({
-          ...prev,
-          priceRange: [minPrice, maxPrice],
-        }));
       }
     } catch (error) {
       console.error("Failed to fetch products for filters:", error);
@@ -248,7 +195,8 @@ const handleFilterChange = (newFilters) => {
               isOpen={isFilterOpen}
               isAnimating={isFilterAnimating}
               onClose={closeFilter}
-              onFilterChange={handleFilterChange}
+              onApply={handleApplyFilters}
+              onFilterChange={setActiveFilters}
               onClear={handleClearFilters}
               isMobile={isMobile}
               filtersFromParent={availableFilters}
@@ -265,12 +213,11 @@ const handleFilterChange = (newFilters) => {
         <Suspense fallback={<p>Loading products...</p>}>
           <ProductContent
             sort={sort}
-            filters={activeFilters}
+            filters={appliedFilters}
             currentPage={currentPage}
             totalPages={totalPages}
             setCurrentPage={setCurrentPage}
             setTotalPages={setTotalPages}
-            onFilterOptionsChange={handleFilterOptionsChange}
           />
         </Suspense>
       </section>
