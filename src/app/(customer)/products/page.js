@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import {
@@ -12,10 +12,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import ProductContent from "@/app/components/product/ProductContent";
-import FilterSidebar from "@/app/components/filter/FilterSidebar";
-import ProductCard from "@/app/components/product/ProductCard";
-import BestSellerCard from "@/app/components/product/BestSellerCard";
 import {
+  getAllProducts,
   getAllProductsAPI,
   getBestSellingProductsAPI,
 } from "@/app/apis/product.api";
@@ -35,6 +33,23 @@ export default function ProductPage() {
   const isMobile = useMediaQuery("(max-width: 767px)");
   const [isFilterOpen, setFilterOpen] = useState(false);
   const [isFilterAnimating, setFilterAnimating] = useState(false);
+  const [sort, setSort] = useState("default");
+  const [filters, setFilters] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [availableFilters, setAvailableFilters] = useState({});
+  const [activeFilters, setActiveFilters] = useState({});
+  const [appliedFilters, setAppliedFilters] = useState({});
+
+  const handleApplyFilters = useCallback(() => {
+    setAppliedFilters(activeFilters);
+  }, [activeFilters]);
+
+  const handleClearFilters = useCallback(() => {
+    setActiveFilters({});
+    setAppliedFilters({});
+    setCurrentPage(1);
+  }, []);
 
   const openFilter = () => {
     setFilterOpen(true);
@@ -53,10 +68,6 @@ export default function ProductPage() {
     }
   }, [isFilterOpen]);
 
-  const handleClearFilters = () => {
-    console.log("Filters cleared!");
-  };
-
   const handleBestSellerProductClick = (id) => {
     router.push(`/products/${id}`);
   };
@@ -67,7 +78,7 @@ export default function ProductPage() {
 
       const data = await getBestSellingProductsAPI();
       setBestSellers(data);
-      console.log("Best sellers fetched:", data);
+      //console.log("Best sellers fetched:", data);
     } catch (error) {
       console.error("Failed to fetch bestsellers:", error);
     } finally {
@@ -75,19 +86,27 @@ export default function ProductPage() {
     }
   };
 
+  const fetchAvailableFilters = async () => {
+    try {
+      const data = await getAllProducts(); // Use the non-paginated API
+      if (Array.isArray(data) && data.length > 0) {
+        const colors = [...new Set(data.flatMap((p) => p.colors || []))];
+        const sizes = [...new Set(data.flatMap((p) => p.sizes || []))];
+        const categories = [...new Set(data.map((p) => p.categoryName))];
+        const prices = data.map((p) => p.price);
+        const minPrice = Math.min(...prices);
+        const maxPrice = Math.max(...prices);
+        setAvailableFilters({ colors, sizes, categories, minPrice, maxPrice });
+      }
+    } catch (error) {
+      console.error("Failed to fetch products for filters:", error);
+    }
+  };
+
   useEffect(() => {
     fetchBestSellers();
+    fetchAvailableFilters();
   }, []);
-
-  const filters = [
-    { name: "CATEGORY", options: ["Dresses", "T-Shirts", "Accessories"] },
-    {
-      name: "PRICE RANGE",
-      options: ["Under 100,000 VND", "100,000-300,000 VND"],
-    },
-    { name: "COLOR", options: ["Red", "Blue", "Green"] },
-    { name: "BRANDS", options: ["Brand A", "Brand B", "Brand C"] },
-  ];
 
   return (
     <main className="min-h-screen bg-white">
@@ -117,15 +136,47 @@ export default function ProductPage() {
           </div>
 
           {isDropdownOpen && (
-            <div className="text-primary absolute z-10 right-0 bg-white shadow-md mt-2 border border-[#EDEDED] font-roboto font-semibold">
-              <button className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left">
-                Recommend
+            <div className="text-black absolute z-10 right-0 bg-white shadow-md mt-2 border border-[#EDEDED] font-roboto font-semibold rounded-md overflow-hidden">
+              <button
+                onClick={() => {
+                  setSort("default");
+                  setDropdownOpen(false);
+                }}
+                className={`block px-4 py-2 text-sm w-full text-left transition-colors ${
+                  sort === "default"
+                    ? "bg-primary text-white"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                Default
               </button>
-              <button className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left">
+
+              <button
+                onClick={() => {
+                  setSort("newest");
+                  setDropdownOpen(false);
+                }}
+                className={`block px-4 py-2 text-sm w-full text-left transition-colors ${
+                  sort === "newest"
+                    ? "bg-primary text-white"
+                    : "hover:bg-gray-100"
+                }`}
+              >
                 Newest
               </button>
-              <button className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left">
-                Popularity
+
+              <button
+                onClick={() => {
+                  setSort("popular");
+                  setDropdownOpen(false);
+                }}
+                className={`block px-4 py-2 text-sm w-full text-left transition-colors ${
+                  sort === "popular"
+                    ? "bg-primary text-white"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                Popular
               </button>
             </div>
           )}
@@ -144,9 +195,12 @@ export default function ProductPage() {
               isOpen={isFilterOpen}
               isAnimating={isFilterAnimating}
               onClose={closeFilter}
-              filters={filters}
+              onApply={handleApplyFilters}
+              onFilterChange={setActiveFilters}
               onClear={handleClearFilters}
               isMobile={isMobile}
+              filtersFromParent={availableFilters}
+              activeFilters={activeFilters}
             />
           )}
         </div>
@@ -157,39 +211,16 @@ export default function ProductPage() {
 
       <section className="flex flex-row px-8 py-4 items-start">
         <Suspense fallback={<p>Loading products...</p>}>
-          <ProductContent />
+          <ProductContent
+            sort={sort}
+            filters={appliedFilters}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+            setTotalPages={setTotalPages}
+          />
         </Suspense>
       </section>
-
-      {/* Pagination Section
-      <section className="flex justify-center space-x-2 items-center py-4">
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button
-            key={i}
-            onClick={() => handlePageChange(i + 1)}
-            className={`px-4 py-2 rounded ${
-              i + 1 === currentPage
-                ? "bg-primary text-white"
-                : "text-primary hover:bg-gray-200"
-            }`}
-          >
-            {i + 1}
-          </button>
-        ))}
-
-        {totalPages > 1 && currentPage < totalPages && (
-          <>
-            <span>...</span>
-            <button
-              aria-label="Next page"
-              onClick={() => handlePageChange(currentPage + 1)}
-              className="px-4 py-2 rounded text-primary hover:bg-gray-200"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </>
-        )}
-      </section> */}
     </main>
   );
 }

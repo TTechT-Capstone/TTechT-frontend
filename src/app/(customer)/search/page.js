@@ -14,200 +14,68 @@ import {
   searchProductsByNameAPI,
 } from "@/app/apis/product.api";
 import SearchingProductResult from "@/app/components/product/SearchingProductResult";
+import useMediaQuery from "@/app/hooks/useMediaQuery";
 
 export default function SearchProductPage() {
   const router = useRouter();
-  //const searchParams = useSearchParams();
-  //const searchQuery = searchParams.get("query");
-  
+  const searchParams = useSearchParams(); // Get search params from the URL
+  const searchTerm = searchParams.get("query"); // Get the 'query' parameter, or default to an empty string
+
   const [isSidebarVisible, setSidebarVisible] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-  const toggleSidebar = () => setSidebarVisible(!isSidebarVisible);
-  const toggleDropdown = () => setDropdownOpen(!isDropdownOpen);
-  const closeSidebar = () => setSidebarVisible(false);
-  const [isMdScreen, setIsMdScreen] = useState(false);
-  const [bestSellers, setBestSellers] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
+  const [loading, setLoading] = useState(true); // Set initial loading state to true
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
-  const handleClearFilters = () => {
-    console.log("Filters cleared!");
-  };
   useEffect(() => {
-    const handleResize = () => {
-      setIsMdScreen(window.innerWidth >= 768);
+    const fetchSearchResults = async () => {
+      if (!searchTerm?.trim()) return;
+
+      if (searchTerm) {
+        setLoading(true);
+        try {
+          const res = await searchProductsByNameAPI(searchTerm);
+          setSearchResults(res);
+        } catch (error) {
+          console.error("Failed to fetch search results:", error);
+          setSearchResults([]); // Ensure the state is an empty array on error
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setSearchResults([]);
+        setLoading(false);
+      }
     };
-
-    handleResize(); // Initial check
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  const handleBestSellerProductClick = (id) => {
-    router.push(`/products/${id}`);
-  };
-
-  const fetchBestSellers = async () => {
-    try {
-      setLoading(true);
-
-      const data = await getBestSellingProductsAPI(4);
-      setBestSellers(data);
-    } catch (error) {
-      console.error("Failed to fetch bestsellers:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filters = [
-    { name: "CATEGORY", options: ["Dresses", "T-Shirts", "Accessories"] },
-    {
-      name: "PRICE RANGE",
-      options: ["Under 100,000 VND", "100,000-300,000 VND"],
-    },
-    { name: "COLOR", options: ["Red", "Blue", "Green"] },
-    { name: "BRANDS", options: ["Brand A", "Brand B", "Brand C"] },
-  ];
-
-//   const fetchSearchResults = async () => {
-//     if (!searchQuery?.trim()) return;
-
-//     try {
-//       setLoading(true);
-//       const result = await searchProductsByNameAPI(searchQuery);
-//       setSearchResults(result || []);
-//     } catch (error) {
-//       console.error("Failed to fetch search results:", error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchSearchResults();
-//   }, [searchQuery]);
-
-    useEffect(() => {
-    fetchBestSellers();
-  }, []);
+    fetchSearchResults();
+  }, [searchTerm]); 
 
   return (
-    <main className="bg-white">
+    <main className="pt-8 sm:pt-10 min-h-screen bg-white">
       {/* Header Section */}
-      {/* <section className="flex py-4 items-center justify-center bg-secondary font-urbanist text-white">
-        <h1 className="font-semibold text-2xl">NEW COLLECTION</h1>
-      </section> */}
-
-
-      {/* Filter and Sort Section */}
-      <section className="flex justify-between items-center px-8 py-2 rounded-lg">
-        <div
-          className={`flex items-center space-x-4 font-urbanist font-bold text-gray-700 
-      hover:text-primary transition-colors ${
-        isMdScreen ? "pointer-events-none" : ""
-      }`}
-          onClick={!isMdScreen ? toggleSidebar : undefined}
-        >
-          <h1>FILTERS</h1>
-          <Funnel className="h-5 w-5" />
-        </div>
-
-        {/* Sort By */}
-        <div className="relative">
-          <div
-            className="flex items-center space-x-4 font-urbanist font-bold text-gray-700 cursor-pointer hover:text-primary transition-colors"
-            onClick={toggleDropdown}
-            aria-expanded={isDropdownOpen}
-          >
-            <h1>SORT BY</h1>
-            <ChevronDown className="h-5 w-5" />
-          </div>
-
-          {isDropdownOpen && (
-            <div className="text-primary absolute z-10 right-0 bg-white shadow-md mt-2 border border-[#EDEDED] font-roboto font-semibold">
-              <button className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left">
-                Recommend
-              </button>
-              <button className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left">
-                Newest
-              </button>
-              <button className="block px-4 py-2 text-sm hover:bg-gray-100 w-full text-left">
-                Popularity
-              </button>
-            </div>
-          )}
-        </div>
+      <section className="flex px-8 py-8  font-playfair text-black flex-col">
+        <h1 className="font-normal text-black text-lg sm:text-xl uppercase">
+          Search Results
+        </h1>
+        <p className="mt-2 text-2xl sm:text-3xl font-bold">
+          {searchTerm}
+        </p>
+        
+        {!loading && searchResults?.length === 0 && (
+          <p className="mt-4 text-gray-500 text-sm sm:text-base">
+            We found no results. Please try again with a different word.
+          </p>
+        )}
       </section>
 
-      {/* Divider */}
-      <div className="my-4 border-t border-black opacity-80 mx-8"></div>
-
-      <section className="flex flex-row px-8 py-4 items-start">
-        {/* Filter sidebar */}
-
-        <div className="hidden md:block w-[20%]">
-          <FilterSidebar filters={filters} onClear={handleClearFilters} />
-        </div>
-
-        {/* Sidebar Dropdown for Smaller Screens */}
-        {isSidebarVisible && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-20 flex justify-center items-center"
-            onClick={closeSidebar}
-          >
-            <div
-              className="bg-white p-4 rounded-lg shadow-lg w-3/4 max-w-md"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div
-                className="flex justify-end text-gray-700 cursor-pointer"
-                onClick={toggleSidebar}
-              >
-                <X className="h-5 w-5" />
-              </div>
-              <FilterSidebar filters={filters} onClear={handleClearFilters} />
-            </div>
-          </div>
-        )}
-
+      <section className="flex flex-row px-8 py-4 pb-15 items-start">
         <Suspense fallback={<p>Loading products...</p>}>
-          <SearchingProductResult />
+          <SearchingProductResult 
+            products={searchResults} 
+            loading={loading} 
+          />
         </Suspense>
       </section>
-
-      {/* Pagination Section
-      <section className="flex justify-center space-x-2 items-center py-4">
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button
-            key={i}
-            onClick={() => handlePageChange(i + 1)}
-            className={`px-4 py-2 rounded ${
-              i + 1 === currentPage
-                ? "bg-primary text-white"
-                : "text-primary hover:bg-gray-200"
-            }`}
-          >
-            {i + 1}
-          </button>
-        ))}
-
-        {totalPages > 1 && currentPage < totalPages && (
-          <>
-            <span>...</span>
-            <button
-              aria-label="Next page"
-              onClick={() => handlePageChange(currentPage + 1)}
-              className="px-4 py-2 rounded text-primary hover:bg-gray-200"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </>
-        )}
-      </section> */}
     </main>
   );
 }
