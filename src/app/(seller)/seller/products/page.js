@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { ChevronDown, Search, Pencil, Trash2, SquarePen } from "lucide-react";
 import { deleteProductAPI, getAllProductsByUser } from "@/app/apis/product.api";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
+import { getSellerByUserId } from "@/app/apis/seller.api";
 
 export default function SellerProducts() {
   const router = useRouter();
@@ -18,12 +19,29 @@ export default function SellerProducts() {
   const [sortProduct, setSortProduct] = useState("desc");
   const isMobile = useMediaQuery("(max-width: 767px)");
 
+  //   useEffect(() => {
+  //   const fetchSeller = async () => {
+  //     if (!user || !user.id) return;
+  
+  //     try {
+  //       const sellerData = await getSellerByUserId(user.id);
+  //       console.log("Seller data fetched:", sellerData);
+  //       setSeller(sellerData);
+  //     } catch (err) {
+  //       console.error("Failed to fetch seller profile:", err);
+  //     }
+  //   };
+  
+  //   fetchSeller();
+  // }, [user]);
+
   // Fetch products from API
   useEffect(() => {
     const fetchProducts = async () => {
+      if (!user || !user.id) return;
       try {
         setLoading(true);
-        const data = await getAllProductsByUser(userId);
+        const data = await getAllProductsByUser(user.id);
         console.log(data);
         setProducts(data|| []);
       } catch (error) {
