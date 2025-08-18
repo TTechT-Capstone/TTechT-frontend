@@ -110,11 +110,11 @@ export default function ShoppingCartPage() {
                     </div>
 
                     {/* Product Image */}
-                    <div className="flex-shrink-0 bg-gray-100 rounded-lg p-3">
+                    <div className="flex-shrink-0 bg-gray-100 rounded-lg">
                       <img
                         src={item.image}
                         alt={item.productName}
-                        className="w-32 h-32 object-cover"
+                        className="w-32 h-32 object-cover rounded-lg"
                         onClick={() => handleProductClick(item.productId)}
                       />
                     </div>
@@ -297,11 +297,11 @@ export default function ShoppingCartPage() {
                 className="flex flex-row items-center border-b border-gray-300 bg-white p-3 mb-2 rounded-lg shadow-sm h-[140px] sm:h-[150px]"
               >
                 {/* Product Image */}
-                <div className="flex-shrink-0 bg-gray-100 rounded-lg p-2 w-20 h-20 sm:w-22 sm:h-22">
+                <div className="flex-shrink-0 bg-gray-100 rounded-lg w-25 h-25">
                   <img
                     src={item.image}
                     alt={item.productName}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full rounded-lg object-cover"
                     onClick={() => handleProductClick(item.productId)}
                   />
                 </div>
