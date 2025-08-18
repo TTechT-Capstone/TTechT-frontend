@@ -20,6 +20,39 @@ export default function SearchProductPage() {
   //const searchParams = useSearchParams();
   //const searchQuery = searchParams.get("query");
   
+  //       const fetchAvailableFilters = async () => {
+//   try {
+//     const data = await getAllProducts();
+//     console.log("All products fetched:", data);
+
+//     // Check if the data is a valid array with items before proceeding.
+//     // The previous error happened because you tried to access a property that didn't exist.
+//     if (Array.isArray(data) && data.length > 0) {
+//       const products = data;
+//       const colors = [...new Set(products.flatMap(p => p.colors || []))];
+//       const sizes = [...new Set(products.flatMap(p => p.sizes || []))];
+//       const categories = [...new Set(products.map(p => p.categoryName))];
+//       const prices = products.map(p => p.price);
+//       const minPrice = Math.min(...prices);
+//       const maxPrice = Math.max(...prices);
+      
+//       setAvailableFilters({ colors, sizes, categories, minPrice, maxPrice });
+//       setActiveFilters(prev => ({ ...prev, priceRange: [minPrice, maxPrice] }));
+//     } else {
+//       console.log("No products found to build filters from.");
+
+//       setAvailableFilters({});
+//       setActiveFilters({});
+//     }
+//   } catch (error) {
+//     console.error("Failed to fetch products for filters:", error);
+//     // Handle the error state appropriately
+//     setAvailableFilters({});
+//     setActiveFilters({});
+//   }
+// };
+
+
   const [isSidebarVisible, setSidebarVisible] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const toggleSidebar = () => setSidebarVisible(!isSidebarVisible);

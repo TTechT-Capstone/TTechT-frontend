@@ -1,163 +1,127 @@
+// ProductContent.js
 "use client";
 
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import ProductCard from "@/app/components/product/ProductCard";
-import { 
-  getAllProductsAPI, 
-  getBestNewArrivalsAPI, 
-  getBestSellingProductsAPI 
+import {
+  getAllProductsAPI,
+  getBestNewArrivalsAPI,
+  getBestSellingProductsAPI,
 } from "@/app/apis/product.api";
 
-export default function ProductContent({ sort, filters }) {
+export default function ProductContent({
+  sort,
+  filters,
+  currentPage,
+  totalPages,
+  setCurrentPage,
+  setTotalPages,
+  onFilterOptionsChange,
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [products, setProducts] = useState([]);
-  const [currentPage, setCurrentPage] = useState(
-    parseInt(searchParams.get("page") || "1", 10)
-  );
-  const backendPage = currentPage - 1;
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const currentSort = sort ?? "default";
-
-  // const fetchProducts = async () => {
-  //   try {
-  //     setLoading(true);
-  //     let data;
-
-  //     if (currentSort === "newest") {
-  //       // Fetch new arrivals (no pagination from backend)
-  //       data = await getBestNewArrivalsAPI();
-  //       setTotalPages(1);
-  //       setProducts(data);
-  //       return;
-  //     }
-
-  //     if (currentSort === "popular") {
-  //       // Fetch best sellers (no pagination from backend)
-  //       data = await getBestSellingProductsAPI();
-  //       setTotalPages(1);
-  //       setProducts(data);
-  //       return;
-  //     }
-
-  //     // Apply category filter
-  //     if (filters.category.length > 0) {
-  //       data = data.filter((p) =>
-  //         filters.category.includes(p.categoryName)
-  //       );
-  //     }
-
-  //     // Apply color filter
-  //     if (filters.color.length > 0) {
-  //       data = data.filter((p) =>
-  //         p.colors.some((c) => filters.color.includes(c))
-  //       );
-  //     }
-
-  //     // Apply size filter
-  //     if (filters.size.length > 0) {
-  //       data = data.filter((p) =>
-  //         p.sizes.some((s) => filters.size.includes(s))
-  //       );
-  //     }
-
-  //     // Apply price range filter
-  //     if (filters.priceRange.length > 0) {
-  //       data = data.filter((p) =>
-  //         filters.priceRange.some((range) => {
-  //           if (range === "Under 100,000 VND") return p.price < 100000;
-  //           if (range === "100,000-300,000 VND")
-  //             return p.price >= 100000 && p.price <= 300000;
-  //           return true;
-  //         })
-  //       );
-  //     }
-
-  //     // Default: fetch all products with pagination
-  //     data = await getAllProductsAPI(backendPage, 10);
-  //     setProducts(data.content);
-  //     setTotalPages(data.totalPages);
-
-  //   } catch (error) {
-  //     console.error("Failed to fetch products:", error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  const fetchProducts = async () => {
-  try {
-    setLoading(true);
-    let data;
-
-    if (currentSort === "newest") {
-      // Fetch new arrivals
-      data = await getBestNewArrivalsAPI();
-      setTotalPages(1);
-    } else if (currentSort === "popular") {
-      // Fetch best sellers
-      data = await getBestSellingProductsAPI();
-      setTotalPages(1);
-    } else {
-      // Default: fetch all products with pagination
-      const res = await getAllProductsAPI(backendPage, 10);
-      data = res.content;
-      setTotalPages(res.totalPages);
-    }
-
-    // ✅ Apply filters after fetching data
-    if (filters.category.length > 0) {
-      data = data.filter((p) =>
-        filters.category.includes(p.categoryName)
-      );
-    }
-
-    if (filters.color.length > 0) {
-      data = data.filter((p) =>
-        p.colors.some((c) => filters.color.includes(c))
-      );
-    }
-
-    if (filters.size.length > 0) {
-      data = data.filter((p) =>
-        p.sizes.some((s) => filters.size.includes(s))
-      );
-    }
-
-    if (filters.priceRange.length > 0) {
-      data = data.filter((p) =>
-        filters.priceRange.some((range) => {
-          if (range === "Under 100,000 VND") return p.price < 100000;
-          if (range === "100,000-300,000 VND")
-            return p.price >= 100000 && p.price <= 300000;
-          return true;
-        })
-      );
-    }
-
-    setProducts(data);
-  } catch (error) {
-    console.error("Failed to fetch products:", error);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  const currentSort = sort ?? searchParams.get("sort") ?? "default";
 
   useEffect(() => {
-    // Reset to page 1 when sort option changes
-    setCurrentPage(1);
-  }, [sort]);
+    // Log mỗi khi useEffect được kích hoạt
+    console.log("useEffect triggered. Current state:", {
+      currentPage,
+      sort,
+      filters,
+    });
 
-  useEffect(() => {
-    fetchProducts();
-  }, [backendPage, sort]);
+    const fetchAndFilterProducts = async () => {
+      // Log trạng thái loading ban đầu
+      console.log("Setting loading to true...");
+      setLoading(true);
+
+      try {
+        let fetchedData;
+        let totalPagesFromAPI = 1;
+
+        // Bắt đầu đo thời gian gọi API
+        const startTime = Date.now();
+
+        const [res] = await Promise.all([
+          (async () => {
+            if (sort === "default") {
+              const res = await getAllProductsAPI(currentPage - 1, 10);
+              return res;
+            } else if (sort === "newest") {
+              return await getBestNewArrivalsAPI();
+            } else if (sort === "popular") {
+              return await getBestSellingProductsAPI();
+            }
+          })(),
+          new Promise((resolve) => setTimeout(resolve, 300)), // Độ trễ tối thiểu 300ms
+        ]);
+
+        const endTime = Date.now();
+        console.log(`API call and delay took: ${endTime - startTime}ms`);
+
+        if (sort === "default") {
+          fetchedData = res.content;
+          totalPagesFromAPI = res.totalPages;
+        } else {
+          fetchedData = res;
+        }
+
+        console.log("Fetched Data from API:", fetchedData);
+        setTotalPages(totalPagesFromAPI);
+
+        if (fetchedData && fetchedData.length > 0) {
+          const colors = [...new Set(fetchedData.flatMap((p) => p.colors || []))];
+          const sizes = [...new Set(fetchedData.flatMap((p) => p.sizes || []))];
+          const categories = [...new Set(fetchedData.map((p) => p.categoryName))];
+          const prices = fetchedData.map((p) => p.price);
+          const minPrice = Math.min(...prices);
+          const maxPrice = Math.max(...prices);
+          onFilterOptionsChange({ colors, sizes, categories, minPrice, maxPrice });
+        } else {
+          onFilterOptionsChange({});
+        }
+
+        let filteredProducts = fetchedData;
+        if (filters && Object.keys(filters).length > 0) {
+          // Log filters đang được áp dụng
+          console.log("Applying filters:", filters);
+          if (filters.categories?.length > 0) {
+            filteredProducts = filteredProducts.filter((p) => filters.categories.includes(p.categoryName));
+          }
+          if (filters.colors?.length > 0) {
+            filteredProducts = filteredProducts.filter((p) => p.colors && p.colors.some((c) => filters.colors.includes(c)));
+          }
+          if (filters.sizes?.length > 0) {
+            filteredProducts = filteredProducts.filter((p) => p.sizes && p.sizes.some((s) => filters.sizes.includes(s)));
+          }
+          if (filters.priceRange?.length === 2) {
+            const [min, max] = filters.priceRange;
+            filteredProducts = filteredProducts.filter((p) => p.price >= min && p.price <= max);
+          }
+        }
+        
+        setProducts(filteredProducts);
+        // Log sản phẩm cuối cùng sau khi lọc
+        console.log("Final products to display:", filteredProducts);
+      } catch (error) {
+        console.error("Failed to fetch and filter products:", error);
+        setProducts([]);
+      } finally {
+        // Log trạng thái loading khi kết thúc
+        console.log("Setting loading to false.");
+        setLoading(false);
+      }
+    };
+    fetchAndFilterProducts();
+  }, [sort, filters, currentPage, onFilterOptionsChange]);
 
   const handlePageChange = (newPage) => {
+    console.log("Changing page to:", newPage);
     setCurrentPage(newPage);
   };
 
@@ -167,12 +131,11 @@ export default function ProductContent({ sort, filters }) {
 
   return (
     <div className="w-full">
-      {/* Product Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6 w-full">
         {loading ? (
           <p>Loading...</p>
         ) : products.length === 0 ? (
-          <p className="text-secondary font-roboto">No products found.</p>
+          <p className="text-secondary font-inter">No products found.</p>
         ) : (
           products.map((product) => (
             <ProductCard
@@ -186,8 +149,7 @@ export default function ProductContent({ sort, filters }) {
         )}
       </div>
 
-      {/* Pagination (only for default sort mode) */}
-      {sort === "default" && (
+      {currentSort === "default" && (
         <section className="px-8 flex justify-center space-x-2 items-center py-4">
           {Array.from({ length: totalPages }, (_, i) => (
             <button

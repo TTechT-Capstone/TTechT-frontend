@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import {
@@ -13,6 +13,7 @@ import {
 import Image from "next/image";
 import ProductContent from "@/app/components/product/ProductContent";
 import {
+  getAllProducts,
   getAllProductsAPI,
   getBestSellingProductsAPI,
 } from "@/app/apis/product.api";
@@ -33,15 +34,47 @@ export default function ProductPage() {
   const [isFilterOpen, setFilterOpen] = useState(false);
   const [isFilterAnimating, setFilterAnimating] = useState(false);
   const [sort, setSort] = useState("default");
-  
+  const [filters, setFilters] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  // State for available filter options extracted from all products
+  const [availableFilters, setAvailableFilters] = useState({});
+  // State for currently active filters
+  const [activeFilters, setActiveFilters] = useState({});
 
-  const [filtersState, setFiltersState] = useState({
-  category: [],
-  color: [],
-  size: [],
-  priceRange: [],
-});
+  // const handleFilterOptionsChange = useCallback((options) => {
+  //   setAvailableFilters(options);
+  //   if (options.minPrice && options.maxPrice) {
+  //     setActiveFilters((prev) => ({
+  //       ...prev,
+  //       priceRange: [options.minPrice, options.maxPrice],
+  //     }));
+  //   }
+  // }, []);
 
+  const handleFilterOptionsChange = useCallback((options) => {
+  setAvailableFilters(options);
+  // Remove the setActiveFilters call from here
+}, []);
+
+const handleFilterChange = (newFilters) => {
+    setActiveFilters(newFilters);
+
+    // Reset page to 1 when filters change
+    setCurrentPage(1);
+    // // Optionally, you can also close the filter drawer after applying filters
+    // if (isFilterOpen) {
+    //   setFilterAnimating(false);
+    //   setTimeout(() => {
+    //     setFilterOpen(false);
+    //   }, 300);
+    }
+  const handleClearFilters = () => {
+    // Reset filters to an empty object
+    setActiveFilters({});
+    // Reset page to 1
+    setCurrentPage(1);
+  };
 
   const openFilter = () => {
     setFilterOpen(true);
@@ -59,16 +92,6 @@ export default function ProductPage() {
       requestAnimationFrame(() => setFilterAnimating(true));
     }
   }, [isFilterOpen]);
-
-  const handleClearFilters = () => {
-  setFiltersState({
-    category: [],
-    color: [],
-    size: [],
-    priceRange: [],
-  });
-};
-
 
   const handleBestSellerProductClick = (id) => {
     router.push(`/products/${id}`);
@@ -88,11 +111,55 @@ export default function ProductPage() {
     }
   };
 
+  // const fetchAvailableFilters = async () => {
+  //   try {
+  //     const data = await getAllProductsAPI(); // Fetch a large batch to get all options
+  //     if (data && data.content) {
+  //       const products = data.content;
+  //       const colors = [...new Set(products.flatMap((p) => p.colors || []))];
+  //       const sizes = [...new Set(products.flatMap((p) => p.sizes || []))];
+  //       const categories = [...new Set(products.map((p) => p.categoryName))];
+  //       const prices = products.map((p) => p.price);
+  //       const minPrice = Math.min(...prices);
+  //       const maxPrice = Math.max(...prices);
+  //       setAvailableFilters({ colors, sizes, categories, minPrice, maxPrice });
+  //       // Set initial price range for activeFilters
+  //       setActiveFilters((prev) => ({
+  //         ...prev,
+  //         priceRange: [minPrice, maxPrice],
+  //       }));
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to fetch products for filters:", error);
+  //   }
+  // };
+
+  const fetchAvailableFilters = async () => {
+    try {
+      const data = await getAllProducts(); // Use the non-paginated API
+      if (Array.isArray(data) && data.length > 0) {
+        const colors = [...new Set(data.flatMap((p) => p.colors || []))];
+        const sizes = [...new Set(data.flatMap((p) => p.sizes || []))];
+        const categories = [...new Set(data.map((p) => p.categoryName))];
+        const prices = data.map((p) => p.price);
+        const minPrice = Math.min(...prices);
+        const maxPrice = Math.max(...prices);
+
+        setAvailableFilters({ colors, sizes, categories, minPrice, maxPrice });
+        setActiveFilters((prev) => ({
+          ...prev,
+          priceRange: [minPrice, maxPrice],
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to fetch products for filters:", error);
+    }
+  };
+
   useEffect(() => {
     fetchBestSellers();
+    fetchAvailableFilters();
   }, []);
-
-  
 
   return (
     <main className="min-h-screen bg-white">
@@ -181,9 +248,11 @@ export default function ProductPage() {
               isOpen={isFilterOpen}
               isAnimating={isFilterAnimating}
               onClose={closeFilter}
-              filters={filterOptions}
+              onFilterChange={handleFilterChange}
               onClear={handleClearFilters}
               isMobile={isMobile}
+              filtersFromParent={availableFilters}
+              activeFilters={activeFilters}
             />
           )}
         </div>
@@ -194,7 +263,15 @@ export default function ProductPage() {
 
       <section className="flex flex-row px-8 py-4 items-start">
         <Suspense fallback={<p>Loading products...</p>}>
-          <ProductContent sort={sort} filters={filtersState} />
+          <ProductContent
+            sort={sort}
+            filters={activeFilters}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+            setTotalPages={setTotalPages}
+            onFilterOptionsChange={handleFilterOptionsChange}
+          />
         </Suspense>
       </section>
     </main>
