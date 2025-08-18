@@ -272,7 +272,20 @@ export const getBestSellersByCategoryAPI = async (categoryId, limit = 4) => {
  * https://ttecht-backend.onrender.com/api/products/new-arrivals?limit=5
  */
 
-export const getBestNewArrivalsAPI = async (limit = 4) => {
+export const getBestNewArrivalsAPI = async () => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/products/new-arrivals`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching best new arrivals:", error);
+    throw error;
+  }
+}
+
+
+export const getBestNewArrivalsAPILimit = async (limit = 4) => {
   try {
     const response = await axios.get(
       `${API_BASE_URL}/products/new-arrivals?limit=${limit}`

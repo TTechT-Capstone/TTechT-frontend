@@ -7,10 +7,11 @@ import Link from "next/link";
 import NewCollectionCard from "../components/product/NewCollectionCard";
 
 import { getAllCategoriesAPI } from "@/app/apis/category.api";
-import { getBestNewArrivalsAPI } from "@/app/apis/product.api";
+import { getBestNewArrivalsAPI, getBestNewArrivalsAPILimit } from "@/app/apis/product.api";
 import CategoryCard from "../components/product/CategoryCard";
 import useMediaQuery from "../hooks/useMediaQuery";
 import CategorySlider from "../components/product/CategorySlider";
+import ValuesSlider from "../components/slider/ValueSlider";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function LandingPage() {
       try {
         const res = await getAllCategoriesAPI(0, 100);
         setCategories(res);
-        console.log("Fetched categories:", res);
+        //console.log("Fetched categories:", res);
       } catch (err) {
         console.error("Failed to load categories", err);
       }
@@ -35,7 +36,7 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchNewArrival = async () => {
       try {
-        const data = await getBestNewArrivalsAPI();
+        const data = await getBestNewArrivalsAPILimit(4);
 
         setNewArrivalProduct(data);
       } catch (err) {
@@ -84,6 +85,7 @@ export default function LandingPage() {
         </div>
       </section>
 
+
       {/* Categories Section */}
       <section className="px-4 sm:px-8 py-8 sm:py-12 text-center text-secondary bg-cream">
         <h2 className="text-md sm:text-lg font-semibold mb-2 sm:mb-2 font-inter">
@@ -106,7 +108,9 @@ export default function LandingPage() {
           </h2>
 
           <Link href="/products">
-            <button className="text-base text-black hover:font-semibold animate-pressDown transition-all duration-300">View All</button>
+            <button className="text-base text-black hover:font-semibold animate-pressDown transition-all duration-300">
+              View All
+            </button>
           </Link>
         </div>
 
@@ -123,7 +127,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-       {/* Divider */}
+      {/* Divider */}
       <div className="my-3 border-t border-gray-500 opacity-20"></div>
 
       <section className="bg-white text-black px-4 sm:px-8 md:px-16 py-8 sm:py-12">
@@ -144,6 +148,11 @@ export default function LandingPage() {
           </Link>
         </div>
       </section>
+
+      {/* Values Slider Section */}
+      <div className="">
+        <ValuesSlider />
+      </div>
 
       {/* <section className="bg-secondary text-white px-4 sm:px-8 md:px-16 py-8 sm:py-12">
         <div className="max-w-7xl mx-auto">
@@ -182,8 +191,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section> */}
-
-     
     </main>
   );
 }

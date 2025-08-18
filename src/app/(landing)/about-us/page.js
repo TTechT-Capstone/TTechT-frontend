@@ -1,6 +1,8 @@
 "use client";
-
+import { useEffect } from "react";
+import gsap from "gsap";
 import Image from "next/image";
+import ValuesSlider from "@/app/components/slider/ValueSlider";
 
 export default function AboutUsPage() {
   return (
@@ -30,9 +32,11 @@ export default function AboutUsPage() {
         </div>
       </section>
 
+      <ValuesSlider />
+
       {/* About Us & Quote Section */}
       <section className="px-4 md:px-16 py-8">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:space-x-12 items-center md:items-start">
+        <div className="mx-auto flex flex-col md:flex-row md:space-x-12 items-center md:items-start">
           {/* About Us Card */}
           <div className="w-full md:w-2/3 order-2 md:order-1 mt-8 md:mt-0">
             <div className="bg-primary text-white rounded-2xl p-8 sm:p-12 shadow-xl">
@@ -64,13 +68,13 @@ export default function AboutUsPage() {
               </h2>
             </div>
             <div>
-              <Image
+              {/* <Image
                 src="/shop.png"
                 width={500}
                 height={300}
                 alt="About Us"
                 className="object-cover rounded-xl shadow-lg"
-              />
+              /> */}
             </div>
           </div>
         </div>
@@ -102,30 +106,7 @@ export default function AboutUsPage() {
           </div>
         </div>
       </section>
-
-      {/* Values Section */}
-      <section className="px-4 md:px-16 py-10">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {[
-            { title: "Integrity", text: "Protecting authenticity and originality in every interaction." },
-            { title: "Innovation", text: "Applying cutting-edge watermarking technology to real-world challenges." },
-            { title: "Trust", text: "Building confidence between sellers, buyers, and platforms." },
-            { title: "Scalability", text: "Designing solutions adaptable across industries and regions." },
-            { title: "Collaboration", text: "Working with academia, business, and government to safeguard digital rights." },
-            { title: "Sustainability", text: "Fostering a fair and reliable marketplace for long-term growth." },
-          ].map((value, i) => (
-            <div
-              key={i}
-              className="p-6 border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition"
-            >
-              <h4 className="font-playfair font-semibold text-lg mb-2 text-primary">
-                {value.title}
-              </h4>
-              <p className="font-roboto text-sm leading-relaxed">{value.text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      
     </main>
   );
 }
