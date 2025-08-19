@@ -87,7 +87,7 @@ export default function LandingPage() {
 
 
       {/* Categories Section */}
-      <section className="px-4 sm:px-8 py-8 sm:py-12 text-center text-secondary bg-cream">
+      <section className="sm:px-8 py-8 sm:py-12 text-center text-secondary bg-cream">
         <h2 className="text-md sm:text-lg font-semibold mb-2 sm:mb-2 font-inter">
           OUR CATEGORIES
         </h2>

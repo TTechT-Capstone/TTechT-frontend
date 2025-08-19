@@ -81,14 +81,31 @@ export default function CheckoutPage() {
   const isFormIncomplete =
     !contactName || !contactPhone || !deliveryAddress || !contactEmail;
 
+  // Simple phone and email validation
+  const isValidPhone = (phone) => {
+    // Accepts 10-15 digits, allows +, spaces, dashes
+    return /^\+?\d{10,15}$/.test(phone.replace(/[-\s]/g, ""));
+  };
+  const isValidEmail = (email) => {
+    // Basic email regex
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   const validateForm = () => {
     const newErrors = {};
     if (!contactName.trim()) newErrors.contactName = "Name is required";
-    if (!contactPhone.trim())
+    if (!contactPhone.trim()) {
       newErrors.contactPhone = "Phone number is required";
+    } else if (!isValidPhone(contactPhone.trim())) {
+      newErrors.contactPhone = "Please enter a valid phone number.";
+    }
     if (!deliveryAddress.trim())
       newErrors.deliveryAddress = "Address is required";
-    if (!contactEmail.trim()) newErrors.contactEmail = "Email is required";
+    if (!contactEmail.trim()) {
+      newErrors.contactEmail = "Email is required";
+    } else if (!isValidEmail(contactEmail.trim())) {
+      newErrors.contactEmail = "Please enter a valid email address.";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

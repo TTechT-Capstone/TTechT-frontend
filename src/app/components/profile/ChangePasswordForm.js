@@ -95,7 +95,12 @@ export default function ChangePasswordForm({ profile, setProfile, error, handleC
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full py-3 font-semibold text-white bg-[#6C7A84] rounded-lg hover:bg-[#4A5A64] transition duration-200"
+          className="w-full py-3 font-semibold text-white bg-[#6C7A84] rounded-lg hover:bg-[#4A5A64] transition duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed"
+          disabled={
+            !profile.oldPassword ||
+            !profile.newPassword ||
+            !profile.confirmNewPassword
+          }
         >
           Change Password
         </button>

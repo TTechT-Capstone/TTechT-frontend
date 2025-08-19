@@ -56,14 +56,14 @@ export default function ValuesSlider() {
   }, []);
 
   return (
-  <section className="bg-cream px-4 md:px-10 py-2 overflow-hidden">
+  <section className="bg-cream  py-2 overflow-hidden">
     <div ref={sliderRef} className="flex overflow-x-scroll no-scrollbar">
       {[...values, ...values].map((value, i) => (
         <div
           key={i}
           className="value-card min-w-[90vw] sm:min-w-[45vw] md:min-w-[30vw] lg:min-w-[20vw] 
                      p-6 
-                     transition-all mx-4 bg-cream text-center"
+                     transition-all mx-0 sm:mx-4 bg-cream text-center"
         >
           <h4 className="font-playfair text-black font-semibold text-xl mb-2 text-primary">
             {value.title}

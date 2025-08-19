@@ -18,11 +18,13 @@ export default function ProfilePage() {
     newPassword: "",
     confirmNewPassword: "",
   });
+  const [initialProfile, setInitialProfile] = useState(null);
   const [error, setError] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^\+?\d{10,15}$/;
 
   const isValidPassword = (password) => {
     const passwordRegex =
@@ -33,6 +35,14 @@ export default function ProfilePage() {
   const validateEmail = () => {
     if (!emailRegex.test(profile.email)) {
       setError("Please enter a valid email address.");
+      return false;
+    }
+    return true;
+  };
+
+  const validatePhone = () => {
+    if (!phoneRegex.test(profile.phoneNumber.replace(/[-\s]/g, ""))) {
+      setError("Please enter a valid phone number.");
       return false;
     }
     return true;
@@ -107,17 +117,20 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (user) {
-      setProfile((prev) => ({
-        ...prev,
+      const newProfile = {
+        ...profile,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
         address: user.address || "",
         phoneNumber: user.phoneNumber,
         userName: user.username,
-      }));
+      };
+      setProfile(newProfile);
+      setInitialProfile(newProfile);
       setLoadingProfile(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const handleSubmit = async (e) => {
@@ -128,6 +141,7 @@ export default function ProfilePage() {
     }
 
     if (!validateEmail()) return;
+    if (!validatePhone()) return;
     if (!user || !user.id) {
       alert("User not found or not authenticated.");
       return;
@@ -149,16 +163,26 @@ export default function ProfilePage() {
     }
   };
 
+  // Check if profile is changed from initial
+  const isProfileChanged = initialProfile && (
+    profile.firstName !== initialProfile.firstName ||
+    profile.lastName !== initialProfile.lastName ||
+    profile.email !== initialProfile.email ||
+    profile.address !== initialProfile.address ||
+    profile.phoneNumber !== initialProfile.phoneNumber
+  );
+
   return (
     <div className="p-4 mb-8 max-w-6xl mx-auto">
-        <>
-          <ProfileForm
-            profile={profile}
-            setProfile={setProfile}
-            handleSubmit={handleSubmit}
-            loadingProfile={loadingProfile}
-          />
-        </>
+      <>
+        <ProfileForm
+          profile={profile}
+          setProfile={setProfile}
+          handleSubmit={handleSubmit}
+          loadingProfile={loadingProfile}
+          disableUpdateButton={!isProfileChanged}
+        />
+      </>
     </div>
   );
 }

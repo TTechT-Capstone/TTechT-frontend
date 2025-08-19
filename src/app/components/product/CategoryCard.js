@@ -7,7 +7,7 @@ export default function CategoryCard({ title, img, id, onClick }) {
       onClick={onClick}
     >
       {/* Image */}
-      <div className="relative w-[100px] h-[150px] sm:w-full sm:h-[200px]">
+      <div className="relative w-[100px] h-[150px] w-full sm:h-[200px]">
         <Image
           src={img}
           alt={title}

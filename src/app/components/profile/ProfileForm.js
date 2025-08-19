@@ -6,6 +6,7 @@ export default function ProfileForm({
   setProfile,
   handleSubmit,
   loadingProfile,
+  disableUpdateButton,
 }) {
   return (
     <>
@@ -145,7 +146,8 @@ export default function ProfileForm({
             <div className="flex">
               <button
                 type="submit"
-                className="font-inter w-full py-3 font-semibold text-white bg-[#6C7A84] rounded-lg hover:bg-[#4A5A64] transition duration-200"
+                className="font-inter w-full py-3 font-semibold text-white bg-[#6C7A84] rounded-lg hover:bg-[#4A5A64] transition duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                disabled={disableUpdateButton}
               >
                 Update Profile
               </button>

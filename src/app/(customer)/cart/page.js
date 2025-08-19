@@ -6,8 +6,14 @@ import { ChevronLeft, TicketPercent, Trash2 } from "lucide-react";
 import useCartStore from "@/app/stores/cartStore";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
 import useCheckoutStore from "@/app/stores/checkoutStore";
+import ErrorPopUp from "@/app/components/pop-up/ErrorPopUp";
 import { useRouter } from "next/navigation";
 import { getProductByIdAPI } from "@/app/apis/product.api";
+
+// Dummy validation function for promotion code (replace with real API call if available)
+const validatePromotionCode = (code) => {
+  return code && code.trim().toUpperCase() === "DISCOUNT10";
+};
 
 export default function ShoppingCartPage() {
   const router = useRouter();
@@ -32,6 +38,8 @@ export default function ShoppingCartPage() {
   const { promotionCode, setFormData } = useCheckoutStore();
   //const { productId } = ();
   const [product, setProduct] = useState(null);
+  const [promoError, setPromoError] = useState("");
+  const [showPromoError, setShowPromoError] = useState(false);
 
   const handleProductClick = (id) => {
     router.push(`/products/${id}`);
@@ -39,38 +47,32 @@ export default function ShoppingCartPage() {
 
   useEffect(() => {
     loadCart();
-    // Automatically select all items when cart loads on mobile
-    if (isMobile) {
-      const allItemIds = cart.map((item) => item.productId);
-      setSelectedItems(allItemIds);
+    // Automatically select all items when cart loads
+    const allItemIds = cart.map((item) => item.productId);
+    setSelectedItems(allItemIds);
+  }, [loadCart, cart.length]);
+
+  // Handler for applying promotion code
+  const handleApplyPromotion = () => {
+    if (!promotionCode || !validatePromotionCode(promotionCode)) {
+      // Set the error message and show it
+      setPromoError(
+        "Sorry, this promotion code is invalid or expired. Please try another one."
+      );
+      setShowPromoError(true);
+
+      // Set a timeout to hide the error after 5 seconds
+      setTimeout(() => {
+        setShowPromoError(false);
+        setPromoError(""); 
+      }, 2000); 
+
+      return;
     }
-  }, [loadCart, isMobile]);
-
-  // useEffect(() => {
-  //   const enrichImages = async () => {
-  //     if (!cart.length) return;
-
-  //     const updatedCart = await Promise.all(
-  //       cart.map(async (item) => {
-  //         if (item.image) return item;
-  //         try {
-  //           const productData = await getProductByIdAPI(item.productId);
-  //           return {
-  //             ...item,
-  //             image: productData.imageUrls?.[0] || "/placeholder.png",
-  //           };
-  //         } catch {
-  //           return { ...item, image: "/placeholder.png" };
-  //         }
-  //       })
-  //     );
-
-  //     useCartStore.setState({ cart: updatedCart });
-  //   };
-
-  //   enrichImages();
-  // }, [cart]);
-
+    // If valid, you can add success logic here
+    setPromoError("");
+    setShowPromoError(false);
+  };
   return !isMobile ? (
     <div className="min-h-screen w-full bg-[#f5f5f5] text-primary py-10 px-4 font-inter">
       {/* Heading */}
@@ -84,7 +86,7 @@ export default function ShoppingCartPage() {
             <div>
               <input
                 type="checkbox"
-                checked={selectedItems.length === cart.length}
+                checked={selectedItems.length === cart.length && cart.length > 0}
                 onChange={toggleAllItems}
               />
             </div>
@@ -106,6 +108,7 @@ export default function ShoppingCartPage() {
                         type="checkbox"
                         checked={selectedItems.includes(item.productId)}
                         onChange={() => toggleItemSelection(item.productId)}
+                        required
                       />
                     </div>
 
@@ -225,9 +228,20 @@ export default function ShoppingCartPage() {
                   }
                 />
               </div>
-              <button className="px-5 py-2 bg-black text-white rounded-md text-sm font-semibold hover:bg-gray-800 transition">
+              <button
+                className="px-5 py-2 bg-black text-white rounded-md text-sm font-semibold hover:bg-gray-800 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+                type="button"
+                onClick={handleApplyPromotion}
+                disabled={!promotionCode}
+              >
                 Apply
               </button>
+              {showPromoError && (
+                <ErrorPopUp
+                  message={promoError}
+                  onClose={() => setShowPromoError(false)}
+                />
+              )}
             </div>
 
             {/* Delivery Fee */}
@@ -309,9 +323,10 @@ export default function ShoppingCartPage() {
                 {/* Product Details */}
                 <div className="flex flex-col flex-grow justify-between h-full ml-3">
                   <div>
-                    <span 
-                    onClick={() => handleProductClick(item.productId)}
-                    className="font-semibold text-sm sm:text-xs">
+                    <span
+                      onClick={() => handleProductClick(item.productId)}
+                      className="font-semibold text-sm sm:text-xs"
+                    >
                       {item.productName}
                     </span>
                     <div className="text-xs text-gray-600 mt-1">
@@ -388,7 +403,20 @@ export default function ShoppingCartPage() {
                 />
               </div>
               <button className="px-3 py-2 bg-black text-white rounded-md text-sm font-semibold hover:bg-gray-800 transition">
-                Apply
+                <button
+                  className="px-3 py-2 bg-black text-white rounded-md text-sm font-semibold hover:bg-gray-800 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  type="button"
+                  onClick={handleApplyPromotion}
+                  disabled={!promotionCode}
+                >
+                  Apply
+                </button>
+                {showPromoError && (
+                  <ErrorPopUp
+                    message={promoError}
+                    onClose={() => setShowPromoError(false)}
+                  />
+                )}
               </button>
             </div>
 

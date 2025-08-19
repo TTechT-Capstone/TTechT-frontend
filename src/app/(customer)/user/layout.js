@@ -31,7 +31,7 @@ export default function UserLayout({ children }) {
         <SidebarComponent />
         {/* Main Content */}
         <section
-          className="flex-1 p-4 overflow-auto bg-[#F4F4F4] text-primary font-roboto border border-gray-200"
+          className="flex-1 p-4 overflow-auto bg-[#F4F4F4] text-primary font-inter "
           aria-label="User Main Content"
         >
           {children}

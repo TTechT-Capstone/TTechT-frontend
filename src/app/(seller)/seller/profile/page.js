@@ -60,6 +60,15 @@ export default function SellerProfile() {
 
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^\+?\d{10,15}$/;
+
+  const validatePhone = () => {
+    if (!phoneRegex.test(profile.phoneNumber.replace(/[-\s]/g, ""))) {
+      setError("Please enter a valid phone number.");
+      return false;
+    }
+    return true;
+  };
 
   const isValidPassword = (password) => {
     const passwordRegex =
@@ -168,6 +177,7 @@ export default function SellerProfile() {
     }
 
     if (!validateEmail()) return;
+    if (!validatePhone()) return;
     if (!user || !user.id) {
       alert("User not found or not authenticated.");
       return;

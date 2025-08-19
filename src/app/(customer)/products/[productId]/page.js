@@ -335,19 +335,20 @@ export default function ProductDetail() {
     </div>
   ) : (
     <div className="mt-5 mx-auto px-8 py-12 bg-white text-primary">
+       <Link href="/products">
+          <div className="mb-4 flex items-center text-secondary cursor-pointer text-sm hover:underline">
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back to product list
+          </div>
+        </Link>
       {/* Product Section */}
       <div className="grid grid-cols-1 gap-12">
         <ImageSlider images={product.imageUrls} />
 
         {/* Product Info */}
         <div className="flex flex-col font-inter gap-6">
-          <Link href="/products">
-          <div className="flex items-center text-secondary cursor-pointer text-sm hover:underline">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to product list
-          </div>
-        </Link>
-        
+         
+
           {/* Store Name */}
           <span className=" bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full w-fit font-semibold">
             {product.storeName}

@@ -18,14 +18,13 @@ export default function NewCollectionCard({ name, price, img, onClick }) {
           />
         </div>
       ) : (
-        <div className="w-full h-[400px] md:h-[250px] overflow-hidden">
+        <div className="relative w-full h-[250px] overflow-hidden md:h-[350px]">
           <Image
             src={img}
             alt={name}
-            layout="responsive"
-            width={1}
-            height={1}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="(min-width: 768px) 50vw"
           />
         </div>
       )}
