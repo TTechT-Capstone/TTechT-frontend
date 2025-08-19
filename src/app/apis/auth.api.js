@@ -140,22 +140,6 @@ export const refreshToken = async () => {
   }
 };
 
-/**
- * Forgot password (send reset email).
- * @param {Object} payload - e.g. { email: 'user@example.com' }
- */
-export const forgotPassword = async (payload) => {
-  try {
-  const response = await api.post(
-      `${API_BASE_URL}/auth/forgot-password`,
-      payload
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Failed to initiate forgot password:", error);
-    throw error.response?.data || error;
-  }
-};
 
 /**
  * Redis connectivity check (test API).

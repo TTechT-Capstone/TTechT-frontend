@@ -1,18 +1,30 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { forgotPassword } from "@/app/apis/auth.api";
+import SuccessPopUp from "@/app/components/pop-up/SuccessPopUp";
+import ErrorPopUp from "@/app/components/pop-up/ErrorPopUp";
+import { forgotPassword } from "@/app/apis/user.api";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!email) {
       setError("Please enter your email address.");
+      setShowError(true);
+      return;
+    }
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address.");
+      setShowError(true);
       return;
     }
 
@@ -20,9 +32,11 @@ export default function ForgotPasswordPage() {
       setError("");
       await forgotPassword({ email });
       setSent(true);
+      setShowSuccess(true);
     } catch (err) {
       const message = err?.message || "Failed to send reset link.";
       setError(message);
+      setShowError(true);
     }
   };
 
@@ -39,15 +53,23 @@ export default function ForgotPasswordPage() {
           Forgot Password
         </h2>
 
-        {sent ? (
-          <p className="text-green-600 text-center font-medium">
-            ✅ A password reset link has been sent to your email.
-          </p>
-        ) : (
+        {sent && showSuccess && (
+          <SuccessPopUp
+            message="A password reset link has been sent to your email."
+            onClose={() => setShowSuccess(false)}
+          />
+        )}
+        {showError && error && (
+          <ErrorPopUp
+            message={error}
+            onClose={() => setShowError(false)}
+          />
+        )}
+        {!sent && (
           <form onSubmit={handleSubmit} className="space-y-5 text-sm sm:text-md font-inter">
             <div>
               <label htmlFor="email" className="block mb-2 font-medium">
-                Email Address
+                Email Address <span className="text-red-500">*</span>
               </label>
               <input
                 id="email"
@@ -59,13 +81,10 @@ export default function ForgotPasswordPage() {
               />
             </div>
 
-            {error && (
-              <p className="text-red-500 text-sm sm:text-md text-center">{error}</p>
-            )}
-
             <button
               type="submit"
-              className="w-full py-3 text-sm sm:text-md bg-secondary text-white font-bold rounded-lg hover:bg-secondary-dark transition"
+              className="w-full py-3 text-sm sm:text-md bg-secondary text-white font-bold rounded-lg hover:bg-secondary-dark transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+              disabled={!email}
             >
               Send Reset Link
             </button>

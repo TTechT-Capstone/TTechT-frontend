@@ -130,6 +130,20 @@ export const updateOrderStatusAPI = async (orderId, newStatus) => {
   }
 };
 
+//get Cancel Reason
+export const getCancelReasonAPI = async () => {
+  try{
+    const response = await axios.get(
+      `${API_BASE_URL}/orders/cancellation-reasons/customer`,
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error fetching cancel reasons:', error.response?.data || error.message);
+    throw new Error('Unable to retrieve cancel reasons. Please try again.');
+  }
+};
+
 /**
  * Cancel an order.
  * @param {string|number} orderId

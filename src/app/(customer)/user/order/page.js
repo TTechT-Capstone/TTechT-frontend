@@ -32,7 +32,7 @@ export default function MyOrder() {
       try {
         const data = await getOrdersByUserIdAPI(user.id);
         setOrders(data.result || []);
-        console.log(data);
+        //console.log(data);
       } catch (error) {
         console.error("❌ Error fetching orders:", error);
         setOrders([]);

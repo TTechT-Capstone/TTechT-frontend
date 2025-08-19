@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const NotFound = () => {
   return (
-    <div className="flex flex-col min-h-screen font-inter">
+    <div className="bg-white flex flex-col min-h-screen font-inter">
       {/* Main content grows to take remaining space */}
       <div className="flex flex-col flex-1 items-center justify-center px-4">
         <div className="text-xl sm:text-3xl font-playfair font-bold text-black mb-4">
