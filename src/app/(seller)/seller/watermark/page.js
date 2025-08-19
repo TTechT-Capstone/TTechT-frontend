@@ -1,9 +1,9 @@
 "use client";
 
 import useAuth from "@/app/hooks/useAuth";
-import { getSellerById } from "@/app/apis/seller.api";
 import { useEffect, useRef, useState } from "react";
 import { createWatermarkAPI } from "@/app/apis/watermark.api";
+import { getSellerByUserId } from "@/app/apis/seller.api";
 
 export default function SellerWatermarkImageGenerator() {
   const { idToken, user } = useAuth();
@@ -16,7 +16,7 @@ export default function SellerWatermarkImageGenerator() {
     const fetchSeller = async () => {
       if (user?.id) {
         try {
-          const sellerData = await getSellerById(user.id);
+          const sellerData = await getSellerByUserId(user.id);
           setStoreName(sellerData.storeName);
         } catch (err) {
           console.error("Failed to fetch store name:", err);
