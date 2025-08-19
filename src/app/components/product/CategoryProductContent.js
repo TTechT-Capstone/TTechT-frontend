@@ -8,6 +8,7 @@ import ProductCard from "@/app/components/product/ProductCard";
 import {
   getProductsByCategoryAPI,
 } from "@/app/apis/product.api";
+import Loading from "../common/Loading";
 
 export default function CategoryProductContent({ categoryId }) {
   const router = useRouter();
@@ -39,7 +40,7 @@ useEffect(() => {
     <div className="w-full">
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6 w-full">
         {loading ? (
-          <p>Loading...</p>
+          <Loading />
         ) : products && products.length === 0 ?  (
           <p className="text-secondary font-inter">No products found.</p>
         ) : (

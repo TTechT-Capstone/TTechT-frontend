@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "@/app/apis/axios";
 
 const API_BASE_URL = "https://ttecht-backend.onrender.com/api";
 
@@ -18,7 +18,7 @@ const getAuthHeaders = () => {
 
 export const getAllProducts = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/products/all`);
+  const response = await api.get(`${API_BASE_URL}/products/all`);
     return response.data;
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -29,7 +29,7 @@ export const getAllProducts = async () => {
 
 export const getAllProductsByUser = async (userId) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/products/user/${userId}`);
+  const response = await api.get(`${API_BASE_URL}/products/user/${userId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -44,7 +44,7 @@ export const getAllProductsByUser = async (userId) => {
  */
 export const getAllProductsAPI = async (page = 0, limit = 10) => {
   try {
-    const response = await axios.get(
+    const response = await api.get(
       `${API_BASE_URL}/products?page=${page}&limit=${limit}`
     );
     return response.data;
@@ -62,7 +62,7 @@ export const getAllProductsAPI = async (page = 0, limit = 10) => {
  */
 export const getProductByIdAPI = async (productId) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/products/${productId}`);
+  const response = await api.get(`${API_BASE_URL}/products/${productId}`);
     //console.log("Product data:", response.data);
     return response.data;
   } catch (error) {
@@ -77,7 +77,7 @@ export const getProductByIdAPI = async (productId) => {
  */
 export const createProductAPI = async (productData) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/products`, productData, {
+    const response = await api.post(`${API_BASE_URL}/products`, productData, {
       headers: getAuthHeaders(),
     });
     return response.data;
@@ -109,7 +109,7 @@ export const createProductAPI = async (productData) => {
  */
 export const updateProductAPI = async (productId, updatedData) => {
   try {
-    const response = await axios.put(
+    const response = await api.put(
       `${API_BASE_URL}/products/${productId}`,
       updatedData,
       {
@@ -129,7 +129,7 @@ export const updateProductAPI = async (productId, updatedData) => {
  */
 export const deleteProductAPI = async (productId) => {
   try {
-    const response = await axios.delete(
+    const response = await api.delete(
       `${API_BASE_URL}/products/${productId}`,
       {
         headers: getAuthHeaders(),
@@ -148,7 +148,7 @@ export const deleteProductAPI = async (productId) => {
  */
 export const getProductsByCategoryAPI = async (categoryId) => {
   try {
-    const response = await axios.get(
+    const response = await api.get(
       `${API_BASE_URL}/products/category/${categoryId}`
     );
     return response.data;
@@ -164,7 +164,7 @@ export const getProductsByCategoryAPI = async (categoryId) => {
  */
 export const searchProductsByNameAPI = async (name, page = 0, limit = 10) => {
   try {
-    const response = await axios.get(
+    const response = await api.get(
       `${API_BASE_URL}/products/search?name=${encodeURIComponent(name)}&page=${page}&limit=${limit}`
     );
     return response.data;
@@ -180,7 +180,7 @@ export const searchProductsByNameAPI = async (name, page = 0, limit = 10) => {
  */
 export const getProductsByPriceRangeAPI = async (min, max) => {
   try {
-    const response = await axios.get(
+    const response = await api.get(
       `${API_BASE_URL}/products/price?min=${min}&max=${max}`
     );
     return response.data;
@@ -199,7 +199,7 @@ export const getProductsByPriceRangeAPI = async (min, max) => {
  */
 export const getProductsByStoreNameAPI = async (storeName) => {
   try {
-    const response = await axios.get(
+    const response = await api.get(
       `${API_BASE_URL}/products/store/${storeName}`
     );
     return response.data;
@@ -215,7 +215,7 @@ export const getProductsByStoreNameAPI = async (storeName) => {
  */
 export const updateProductStockAPI = async (productId, stock) => {
   try {
-    const response = await axios.patch(
+    const response = await api.patch(
       `${API_BASE_URL}/products/${productId}/stock`,
       {
         stock: stock,
@@ -237,7 +237,7 @@ export const updateProductStockAPI = async (productId, stock) => {
  */
 export const getBestSellingProductsAPI = async () => {
   try {
-    const response = await axios.get(
+    const response = await api.get(
       `${API_BASE_URL}/products/best-sellers`
     );
     return response.data;
@@ -254,7 +254,7 @@ export const getBestSellingProductsAPI = async () => {
 
 export const getBestSellersByCategoryAPI = async (categoryId, limit = 4) => {
   try {
-    const response = await axios.get(
+    const response = await api.get(
       `${API_BASE_URL}/products/best-sellers/category/${categoryId}?limit=${limit}`
     );
     return response.data;
@@ -274,7 +274,7 @@ export const getBestSellersByCategoryAPI = async (categoryId, limit = 4) => {
 
 export const getBestNewArrivalsAPI = async () => {
   try {
-    const response = await axios.get(
+    const response = await api.get(
       `${API_BASE_URL}/products/new-arrivals`
     );
     return response.data;
@@ -287,7 +287,7 @@ export const getBestNewArrivalsAPI = async () => {
 
 export const getBestNewArrivalsAPILimit = async (limit = 4) => {
   try {
-    const response = await axios.get(
+    const response = await api.get(
       `${API_BASE_URL}/products/new-arrivals?limit=${limit}`
     );
     return response.data;

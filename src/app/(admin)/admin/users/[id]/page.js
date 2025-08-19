@@ -9,9 +9,13 @@ import { useParams, useSearchParams } from "next/navigation";
 import { getUserByIdAPI } from "@/app/apis/user.api";
 import { updateUser } from "@/app/apis/auth.api";
 import EditUser from "@/app/components/profile/EditUser";
+import Loading from "@/app/components/common/Loading";
+import useMediaQuery from "@/app/hooks/useMediaQuery";
 
 export default function AdminEditUser() {
   const { idToken, user, isAuthenticated, loading } = useAuth();
+
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   const [users, setUsers] = useState({
     id: "",
@@ -51,38 +55,64 @@ export default function AdminEditUser() {
   }, [userId, idToken]);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!users.username || !users.roles?.[0]?.name) {
-    alert("Please fill in all required fields.");
-    return;
-  }
+    if (!users.username || !users.roles?.[0]?.name) {
+      alert("Please fill in all required fields.");
+      return;
+    }
 
-  const payload = {
-    ...users,
-    roles: [users.roles[0].name], // send as array of strings
+    const payload = {
+      ...users,
+      roles: [users.roles[0].name], // send as array of strings
+    };
+
+    try {
+      await updateUser(users.id, payload, idToken);
+      alert("User updated successfully!");
+    } catch (error) {
+      console.error("Error updating user:", error);
+      alert(error.message || "Failed to update user.");
+    }
   };
 
-  try {
-    await updateUser(users.id, payload, idToken);
-    alert("User updated successfully!");
-  } catch (error) {
-    console.error("Error updating user:", error);
-    alert(error.message || "Failed to update user.");
+  if (loadingUser) {
+    return <Loading />;
   }
-};
 
-
-  return (
+  return !isMobile ? (
     <main className="min-h-screen p-8 font-roboto">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Edit User</h1>
+        <h1 className="font-playfair text-3xl font-bold text-gray-800">
+          Edit User
+        </h1>
         <Link href="/admin/users">
           <div className="flex items-center text-secondary cursor-pointer text-sm hover:underline">
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to user list
           </div>
         </Link>
+      </div>
+      <EditUser
+        users={users}
+        setUsers={setUsers}
+        handleSubmit={handleSubmit}
+        loadingUser={loadingUser}
+      />
+    </main>
+  ) : (
+    <main className="min-h-screen p-8 font-roboto">
+      <div className="flex flex-col space-y-5 items-left mb-5">
+        <Link href="/admin/users">
+          <div className="flex items-center text-secondary cursor-pointer text-sm hover:underline">
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back to user list
+          </div>
+        </Link>
+
+        <h1 className="font-playfair text-xl font-bold text-gray-800">
+          Edit User
+        </h1>
       </div>
       <EditUser
         users={users}

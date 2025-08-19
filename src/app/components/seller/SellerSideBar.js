@@ -5,7 +5,7 @@ import { Box, ShoppingCart, Ticket } from "lucide-react";
 const sidebarItems = [
   { icon: <ShoppingCart />, label: "Product Management", path: "/seller/products" },
   { icon: <Box />, label: "Order Management", path: "/seller/orders" },
-  { icon: <Ticket />, label: "Promotion Codes", path: "/seller/promotion-codes" },
+  // { icon: <Ticket />, label: "Promotion Codes", path: "/seller/promotion-codes" },
 ];
 
 export default function SellerSidebar() {

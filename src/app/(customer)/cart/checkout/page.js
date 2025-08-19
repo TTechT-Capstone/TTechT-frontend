@@ -243,7 +243,7 @@ export default function CheckoutPage() {
   };
 
   return !isMobile ? (
-    <div className="mt-5 min-h-screen w-full bg-[#f5f5f5] text-primary py-10 px-4 font-inter">
+    <div className="pt-15 min-h-screen w-full bg-[#f5f5f5] text-primary py-10 px-4 font-inter">
       <h1 className="text-3xl text-black font-bold font-playfair text-center mb-10">
         CHECKOUT
       </h1>

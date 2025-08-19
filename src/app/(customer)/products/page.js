@@ -20,6 +20,7 @@ import {
 import useMediaQuery from "@/app/hooks/useMediaQuery";
 import BestSellerSlider from "@/app/components/product/BestSellerSlider";
 import FilterDrawer from "@/app/components/filter/FilterDrawer";
+import Loading from "@/app/components/common/Loading";
 
 export default function ProductPage() {
   const router = useRouter();
@@ -107,6 +108,10 @@ export default function ProductPage() {
     fetchBestSellers();
     fetchAvailableFilters();
   }, []);
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <main className="min-h-screen bg-white">

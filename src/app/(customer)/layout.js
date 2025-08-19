@@ -1,11 +1,10 @@
+"use client";
 import Header from "@/app/components/common/Header";
-import SubHeader from "@/app/components/common/SubHeader";
 import Footer from '@/app/components/common/Footer';
-
-
-import "@/app/globals.css";
+import useAuth from "@/app/hooks/useAuth";
 
 export default function CustomerLayout({ children }) {
+  const { loading, isAuthenticated, userRole } = useAuth();
   return (
     <>
       <Header />

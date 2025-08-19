@@ -9,7 +9,7 @@ const sidebarItems = [
   { icon: Box, label: "Order Management", path: "/admin/orders" },
   { icon: User, label: "User Management", path: "/admin/users" },
   { icon: Aperture, label: "Watermark Analysis", path: "/admin/watermark" },
-  { icon: Ticket, label: "Promotion Codes", path: "/admin/promotion-codes" },
+  // { icon: Ticket, label: "Promotion Codes", path: "/admin/promotion-codes" },
 ];
 
 export default function AdminSidebarMobile({ open, onClose }) {

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import useAuth from "@/app/hooks/useAuth";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
+import Loading from "../common/Loading";
 
 export default function ViewDetailProduct({
   product,
@@ -20,9 +21,7 @@ export default function ViewDetailProduct({
   return !isMobile ? (
     <>
       {loadingProduct ? (
-        <p className="font-roboto text-lg text-gray-600 text-center">
-          Loading product...
-        </p>
+        <Loading />
       ) : (
         <>
           <form
@@ -187,9 +186,7 @@ export default function ViewDetailProduct({
   ) : (
     <>
       {loadingProduct ? (
-        <p className="font-roboto text-lg text-gray-600 text-center">
-          Loading product...
-        </p>
+        <Loading />
       ) : (
         <>
           <form

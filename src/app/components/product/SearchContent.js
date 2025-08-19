@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import SearchingProductResult from "@/app/components/product/SearchingProductResult";
 import { searchProductsByNameAPI } from "@/app/apis/product.api";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
+import Loading from "../common/Loading";
 
 export default function SearchContent() {
   const searchParams = useSearchParams();
@@ -36,6 +37,9 @@ export default function SearchContent() {
     fetchSearchResults();
   }, [searchTerm]);
 
+  if (loading) {
+    return <Loading />;
+  }
   return (
     <>
       <section className="flex px-8 py-8 font-playfair text-black flex-col">
@@ -45,7 +49,7 @@ export default function SearchContent() {
         <p className="mt-2 text-2xl sm:text-3xl font-bold">{searchTerm}</p>
 
         {!loading && searchResults?.length === 0 && (
-          <p className="mt-4 text-gray-500 text-sm sm:text-base">
+          <p className="font-inter mt-4 text-gray-500 text-sm sm:text-base">
             We found no results. Please try again with a different word.
           </p>
         )}

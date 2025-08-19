@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { ChevronDown, Search, Pencil, Trash2, SquarePen, Eye } from "lucide-react";
 import { deleteProductAPI, getAllProducts } from "@/app/apis/product.api";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
+import Loading from "@/app/components/common/Loading";
 
 export default function AdminProducts() {
   const router = useRouter();
@@ -93,6 +94,10 @@ export default function AdminProducts() {
 
     return filtered;
   }, [products, searchTerm, sortBy, sortProduct]);
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return !isMobile ? (
     <main className="font-inter p-4 min-h-screen">

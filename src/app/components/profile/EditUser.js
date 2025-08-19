@@ -20,11 +20,6 @@ export default function EditUser({
 
   return (
     <>
-      {loadingUser ? (
-        <p className="font-roboto text-lg text-gray-600 text-center">
-          Loading user...
-        </p>
-      ) : (
         <form
           onSubmit={handleSubmit}
           className="flex flex-col md:flex-row gap-6"
@@ -169,7 +164,6 @@ export default function EditUser({
             </div>
           </div>
         </form>
-      )}
     </>
   );
 }

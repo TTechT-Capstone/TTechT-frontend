@@ -8,6 +8,7 @@ import ProductCard from "@/app/components/product/ProductCard";
 
 import { getProductsByCategoryAPI } from "@/app/apis/product.api";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
+import Loading from "../common/Loading";
 
 export default function ProductsByCategory({ setCategory }) {
   const router = useRouter();
@@ -48,7 +49,7 @@ export default function ProductsByCategory({ setCategory }) {
       {/* Product Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6 w-full">
         {loading ? (
-          <p>Loading...</p>
+          <Loading />
         ) : products.length === 0 ? (
           <p className="text-secondary font-roboto">No products found.</p>
         ) : (
