@@ -5,9 +5,9 @@ import { Suspense } from "react";
 export default function SearchProductPage() {
   return (
     <main className="pt-8 sm:pt-10 min-h-screen bg-white">
-      {/* <Suspense fallback={<Loading />}> */}
+      <Suspense>
         <SearchContent />
-      {/* </Suspense> */}
+      </Suspense>
     </main>
   );
 }
