@@ -6,6 +6,7 @@ import { getAllOrdersAPI } from "@/app/apis/order.api";
 import useAuth from "@/app/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
+import Loading from "@/app/components/common/Loading";
 
 export default function AdminOrders() {
   const router = useRouter();
@@ -89,6 +90,10 @@ export default function AdminOrders() {
 
     return filtered;
   }, [orders, searchTerm, sortBy, sortOrder]);
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return !isMobile ? (
     <main className="font-inter p-4 min-h-screen">

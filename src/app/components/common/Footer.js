@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <footer className="bg-primary font-inter font-semibold text-white py-6">
@@ -13,7 +15,7 @@ export default function Footer() {
         {/* Company Section */}
         <div>
           <p className="text-lg mb-3">OUR COMPANY</p>
-          <p className="text-sm font-normal hover:underline cursor-pointer">About Us</p>
+          <Link href={"/about-us"}>About Us</Link>
         </div>
 
         {/* Support Section

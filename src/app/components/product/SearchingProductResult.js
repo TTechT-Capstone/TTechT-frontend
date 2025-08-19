@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import ProductCard from "@/app/components/product/ProductCard";
+import Loading from "../common/Loading";
 
 // This component is now a pure presentational component.
 export default function SearchingProductResult({ products, loading }) {
@@ -16,9 +17,7 @@ export default function SearchingProductResult({ products, loading }) {
       {/* Product Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6 w-full">
         {loading ? (
-          <p>Loading...</p>
-        ) : !products || products.length === 0 ? (
-          <p className="text-secondary font-roboto">No products found.</p>
+          <Loading />
         ) : (
           products.map((product) => (
             <ProductCard

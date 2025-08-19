@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "@/app/apis/axios";
 
 const API_BASE_URL = "https://ttecht-backend.onrender.com/api/v1";
 
@@ -23,7 +23,7 @@ const getAuthHeaders = () => {
  */
 export const loginAsUser = async (credentials) => {
   try {
-    const response = await axios.post(
+  const response = await api.post(
       `${API_BASE_URL}/auth/token`,
       credentials
     );
@@ -42,7 +42,7 @@ export const loginAsUser = async (credentials) => {
 export const registerUser = async (userInfo) => {
   try {
     //console.log("Registering user with info:", userInfo);
-    const response = await axios.post(`${API_BASE_URL}/users`, userInfo);
+  const response = await api.post(`${API_BASE_URL}/users`, userInfo);
     return response.data;
   } catch (error) {
     console.error("Registration failed:", error);
@@ -56,7 +56,7 @@ export const registerUser = async (userInfo) => {
  */
 export const createRoles = async () => {
   try {
-    const response = await axios.post(
+  const response = await api.post(
       `${API_BASE_URL}/roles`,
       {},
       { headers: getAuthHeaders() }
@@ -74,7 +74,7 @@ export const createRoles = async () => {
  */
 export const getRoles = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/roles/all`, {
+  const response = await api.get(`${API_BASE_URL}/roles/all`, {
       headers: getAuthHeaders(),
     });
     return response.data;
@@ -90,7 +90,7 @@ export const getRoles = async () => {
  */
 export const getProfile = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/users/my-info`, {
+  const response = await api.get(`${API_BASE_URL}/users/my-info`, {
       headers: getAuthHeaders(),
     });
     return response.data;
@@ -107,7 +107,7 @@ export const getProfile = async () => {
  */
 export const updateUser = async (userId, userInfo) => {
   try {
-    const response = await axios.put(
+  const response = await api.put(
       `${API_BASE_URL}/users/${userId}`,
       userInfo,
       {
@@ -126,7 +126,7 @@ export const updateUser = async (userId, userInfo) => {
  */
 export const refreshToken = async () => {
   try {
-    const response = await axios.post(
+  const response = await api.post(
       `${API_BASE_URL}/auth/refresh`,
       {},
       {
@@ -146,7 +146,7 @@ export const refreshToken = async () => {
  */
 export const forgotPassword = async (payload) => {
   try {
-    const response = await axios.post(
+  const response = await api.post(
       `${API_BASE_URL}/auth/forgot-password`,
       payload
     );
@@ -162,7 +162,7 @@ export const forgotPassword = async (payload) => {
  */
 export const redisCheck = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/test/redis`, {
+  const response = await api.get(`${API_BASE_URL}/test/redis`, {
       headers: getAuthHeaders(),
     });
     return response.data;
@@ -177,7 +177,7 @@ export const redisCheck = async () => {
  */
 export const validateToken = async (token) => {
   try {
-    const response = await axios.get(
+  const response = await api.get(
       `${API_BASE_URL}/auth/validate-reset-token?token=${token}`
     );
     return response.data;
@@ -198,7 +198,7 @@ export const validateToken = async (token) => {
  */
 export const updatePassword = async (userId, payload) => {
   try {
-    const response = await axios.put(
+  const response = await api.put(
       `${API_BASE_URL}/users/update-password/${userId}`,
       payload,
       { headers: getAuthHeaders() }
@@ -221,7 +221,7 @@ export const updatePassword = async (userId, payload) => {
  */
 export const resetPassword = async (payload) => {
   try {
-    const response = await axios.post(
+  const response = await api.post(
       `${API_BASE_URL}/auth/reset-password`,
       payload
     );

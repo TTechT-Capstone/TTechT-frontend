@@ -1,17 +1,38 @@
 "use client";
 
+import { getUserByIdAPI } from "@/app/apis/user.api";
+import Loading from "@/app/components/common/Loading";
 import ChangePasswordForm from "@/app/components/profile/ChangePasswordForm";
-import { useState } from "react";
+import useAuth from "@/app/hooks/useAuth";
+import { useEffect, useState } from "react";
 
 export default function AdminProfile() {
+  const { idToken, user, isAuthenticated, loading } = useAuth();
   const [profile, setProfile] = useState({
-    userName: "admin_user",
-    role: "Admin",
-    oldPassword: "",
-    newPassword: "",
+    username: "",
+    role: ""
   });
-
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAdmin = async () => {
+      if (!user || !user.id) return;
+      try {
+        const response = await getUserByIdAPI(user.id);
+        setProfile({
+          username: response.result.username || "",
+          role: response.result.roles?.[0]?.name || "",
+        });
+      } catch (error) {
+        console.error("Error fetching admin profile:", error);
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+
+    fetchAdmin();
+  }, [user]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -19,33 +40,9 @@ export default function AdminProfile() {
     // TODO: Send profile data to backend
   };
 
-  const handleChangePassword = (e) => {
-    e.preventDefault();
-
-    if (!profile.oldPassword || !profile.newPassword) {
-      setError("Please fill in both password fields.");
-      return;
-    }
-
-    if (profile.newPassword.length < 6) {
-      setError("New password must be at least 6 characters.");
-      return;
-    }
-
-    // TODO: Send password update request to backend
-    console.log("Changing password...", {
-      oldPassword: profile.oldPassword,
-      newPassword: profile.newPassword,
-    });
-
-    // Reset fields
-    setProfile({
-      ...profile,
-      oldPassword: "",
-      newPassword: "",
-    });
-    setError(null);
-  };
+  if (loadingProfile) {
+    return <Loading />;
+  }
 
   return (
     <>
@@ -62,7 +59,7 @@ export default function AdminProfile() {
             {/* Username (readonly) */}
             <div>
               <label
-                htmlFor="userName"
+                htmlFor="username"
                 className="block text-sm font-medium text-gray-700"
               >
                 Username
@@ -71,7 +68,7 @@ export default function AdminProfile() {
                 type="text"
                 id="userName"
                 className="input-field"
-                value={profile.userName}
+                value={profile.username}
                 readOnly
               />
             </div>
@@ -94,16 +91,6 @@ export default function AdminProfile() {
             </div>
           </div>
         </form>
-      </section>
-
-      {/* Change Password Section */}
-      <section className="font-inter mt-6 rounded-md">
-        <ChangePasswordForm
-          profile={profile}
-          setProfile={setProfile}
-          error={error}
-          handleChangePassword={handleChangePassword}
-        />
       </section>
     </>
   );

@@ -20,6 +20,7 @@ import ProductContent from "@/app/components/product/ProductContent";
 import FilterDrawer from "@/app/components/filter/FilterDrawer";
 import { getCategoryByIdAPI } from "@/app/apis/category.api";
 import CategoryProductContent from "@/app/components/product/CategoryProductContent";
+import Loading from "@/app/components/common/Loading";
 
 export default function CategoryProductPage() {
   const router = useRouter();
@@ -77,7 +78,7 @@ export default function CategoryProductPage() {
       <section className="bg-cream flex px-8 py-8 items-center justify-center font-playfair text-black">
         <h1 className="font-semibold text-black text-lg sm:text-3xl uppercase">
           {/* Display the category name */}
-          {category ? category.name : "Loading..."}
+          {category ? category.name : <Loading />}
         </h1>
       </section>
 
@@ -85,7 +86,7 @@ export default function CategoryProductPage() {
       <div className="my-4 border-t border-black opacity-80 mx-8"></div> */}
 
       <section className="flex flex-row px-8 py-4 pb-15 items-start">
-        <Suspense fallback={<p>Loading products...</p>}>
+        <Suspense fallback={<Loading />}>
           <CategoryProductContent categoryId={categoryId} />{" "}
         </Suspense>
       </section>

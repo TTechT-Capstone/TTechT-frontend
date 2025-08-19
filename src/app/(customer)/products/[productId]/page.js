@@ -9,6 +9,8 @@ import { getProductByIdAPI } from "@/app/apis/product.api";
 import useCartStore from "@/app/stores/cartStore";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
 import ImageSlider from "@/app/components/product/ImageSlider";
+import Loading from "@/app/components/common/Loading";
+import { ArrowLeft } from "lucide-react";
 
 export default function ProductDetail() {
   const { isAuthenticated } = useAuth();
@@ -90,7 +92,7 @@ export default function ProductDetail() {
     }
   };
 
-  if (!product) return <div>Loading product...</div>;
+  if (!product) return <Loading />
 
   return !isMobile ? (
     <div className="mt-5 mx-auto px-8 py-12 bg-white text-primary">
@@ -131,7 +133,7 @@ export default function ProductDetail() {
             {product.storeName}
           </span>
 
-          <h1 className="font-playfair text-3xl font-bold text-gray-900 font-urbanist">
+          <h1 className="font-playfair text-3xl font-bold text-gray-900 font-playfair">
             {product.name}
           </h1>
 
@@ -251,43 +253,6 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      {/* Similar Products */}
-      <section className="mt-20">
-        <h2 className="text-2xl font-bold text-center mb-8 font-urbanist">
-          You May Also Like
-        </h2>
-        {/* <div className="py-2 grid grid-cols-2 md:grid-cols-4 gap-6">
-          <ProductCard
-            name="White T-Shirt"
-            price="150,000 VND"
-            img="/product.jpg"
-          />
-          <ProductCard
-            name="Summer Hat"
-            price="80,000 VND"
-            img="/product2.jpg"
-          />
-          <ProductCard
-            name="Summer Glasses"
-            price="150,000 VND"
-            img="/product3.jpg"
-          />
-          <ProductCard
-            name="Casual Jeans"
-            price="290,000 VND"
-            img="/product.jpg"
-          />
-        </div> */}
-
-        <div className="flex justify-center mt-6">
-          <Link href="/products">
-            <button className="bg-primary text-white font-urbanist px-6 py-2 hover:bg-[#5d6c78] border border-primary transition">
-              VIEW MORE
-            </button>
-          </Link>
-        </div>
-      </section>
-
       {/* Modal */}
       {isLoginModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
@@ -308,7 +273,7 @@ export default function ProductDetail() {
                 </svg>
               </button>
             </div>
-            <h2 className="text-xl font-semibold text-center mb-4 font-urbanist">
+            <h2 className="text-xl font-semibold text-center mb-4 font-inter">
               Please Log In
             </h2>
             <p className="text-sm text-gray-600 text-center mb-4">
@@ -376,6 +341,13 @@ export default function ProductDetail() {
 
         {/* Product Info */}
         <div className="flex flex-col font-inter gap-6">
+          <Link href="/products">
+          <div className="flex items-center text-secondary cursor-pointer text-sm hover:underline">
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back to product list
+          </div>
+        </Link>
+        
           {/* Store Name */}
           <span className=" bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full w-fit font-semibold">
             {product.storeName}
@@ -503,8 +475,8 @@ export default function ProductDetail() {
 
       {/* Modal */}
       {isLoginModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-md">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-150 flex items-center justify-center">
+          <div className="font-inter bg-white rounded-lg p-6 max-w-sm w-full shadow-md">
             <div className="flex justify-end">
               <button
                 onClick={() => setIsLoginModalOpen(false)}
@@ -521,7 +493,7 @@ export default function ProductDetail() {
                 </svg>
               </button>
             </div>
-            <h2 className="text-xl font-semibold text-center mb-4 font-urbanist">
+            <h2 className="text-xl font-semibold text-center mb-4 font-playfair">
               Please Log In
             </h2>
             <p className="text-sm text-gray-600 text-center mb-4">

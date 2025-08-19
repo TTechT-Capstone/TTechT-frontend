@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
@@ -6,6 +7,7 @@ import useAuth from "@/app/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { ChevronDown, Search, Pencil, Trash2, SquarePen } from "lucide-react";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
+import Loading from "@/app/components/common/Loading";
 
 export default function AdminUsers() {
   const router = useRouter();
@@ -83,10 +85,6 @@ export default function AdminUsers() {
     return filtered;
   }, [users, searchTerm, sortBy, sortUser]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   const handleEditUser = (user) => {
     router.push(`/admin/users/${user.id}`);
   };
@@ -99,6 +97,10 @@ export default function AdminUsers() {
       console.error("Error deleting user:", error.message);
     }
   };
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return !isMobile ? (
     <main className="font-inter p-4 min-h-screen">
