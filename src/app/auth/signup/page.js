@@ -8,6 +8,33 @@ import { createSeller } from "@/app/apis/seller.api";
 import useUserStore from "@/app/stores/userStore";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
 import ErrorPopup from "@/app/components/pop-up/ErrorPopUp";
+import { createWatermarkAPI } from "@/app/apis/watermark.api";
+
+const generateWatermarkImage = (storeName) => {
+  return new Promise((resolve) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const width = 400;
+    const height = 200;
+    canvas.width = width;
+    canvas.height = height;
+
+    // Background
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, width, height);
+
+    // Text
+    ctx.fillStyle = "#333";
+    ctx.font = "bold 32px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(storeName, width / 2, height / 2);
+
+    // Export and resolve
+    const url = canvas.toDataURL("image/png");
+    resolve(url);
+  });
+};
 
 export default function SignUp() {
   const [errors, setErrors] = useState({});
@@ -129,7 +156,26 @@ export default function SignUp() {
 
       let response;
       if (role === "Seller") {
+        console.log("Attempting to create a new seller account.");
         response = await createSeller(payload);
+        console.log("✅ Seller account created successfully:", response);
+
+        // Generate the watermark image and get the Base64 data URL
+        console.log("Initiating watermark image generation...");
+        const watermarkUrl = await generateWatermarkImage(storeName);
+        console.log("✅ Watermark image generated as Base64 URL (truncated for brevity):", watermarkUrl.substring(0, 50) + "...");
+
+        const watermarkPayload = {
+          store_name: storeName,
+          watermark_url_image: watermarkUrl,
+        };
+        console.log("Prepared watermark payload:", watermarkPayload);
+
+        // Call the API to save the watermark.
+        console.log("Attempting to send watermark data to API...");
+        await createWatermarkAPI(watermarkPayload);
+        console.log("✅ Watermark data sent to API successfully.");
+
       } else {
         response = await registerUser(payload);
       }
@@ -417,7 +463,7 @@ export default function SignUp() {
 
           <div className="text-sm sm:text-md">
             <label htmlFor="role" className="block font-medium mb-2">
-              Role:
+              Role: 
             </label>
             <div className="grid grid-cols-2 gap-4 text-sm sm:text-md">
               {["Customer", "Seller"].map((roleType) => (
@@ -441,7 +487,7 @@ export default function SignUp() {
           <div className="grid grid-cols-2 gap-6 text-sm sm:text-md">
             <div>
               <label htmlFor="firstName" className="block font-medium mb-2">
-                First Name:
+                First Name: <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -454,7 +500,7 @@ export default function SignUp() {
             </div>
             <div>
               <label htmlFor="lastName" className="block font-medium mb-2">
-                Last Name:
+                Last Name: <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -470,7 +516,7 @@ export default function SignUp() {
           <div className="grid grid-cols-2 gap-6 text-sm sm:text-md">
             <div>
               <label htmlFor="phoneNumber" className="block font-medium mb-2">
-                Phone Number:
+                Phone Number: <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -484,7 +530,7 @@ export default function SignUp() {
 
             <div>
               <label htmlFor="email" className="block font-medium mb-2">
-                Email:
+                Email: <span className="text-red-500">*</span>
               </label>
               <input
                 type="email"
