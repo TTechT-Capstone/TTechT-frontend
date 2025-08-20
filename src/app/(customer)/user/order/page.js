@@ -51,8 +51,8 @@ export default function MyOrder() {
     }
 
     try {
-      await cancelOrderAPI(orderId, cancelReason);
-      alert("Order canceled successfully!");
+      await cancelOrderAPI(user.id, orderId, cancelReason);
+      //alert("Order canceled successfully!");
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
           order.id === orderId ? { ...order, status: "cancelled" } : order

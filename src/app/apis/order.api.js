@@ -149,11 +149,11 @@ export const getCancelReasonAPI = async () => {
  * @param {string|number} orderId
  * @returns {Promise<Object>}
  */
-export const cancelOrderAPI = async (orderId) => {
+export const cancelOrderAPI = async (userId, orderId, cancellationReason) => {
   try {
     const response = await axios.put(
-      `${API_BASE_URL}/orders/${orderId}/cancel`,
-      {},
+      `${API_BASE_URL}/orders/${userId}/${orderId}/cancel`,
+      { cancellationReason },
       { headers: getAuthHeaders() }
     );
     return response.data;
