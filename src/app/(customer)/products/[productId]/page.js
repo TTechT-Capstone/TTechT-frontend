@@ -160,7 +160,7 @@ export default function ProductDetail() {
               </p>
             )}
             {/* Colors */}
-            {product.colors && (
+            {product.colors && product.colors.length > 0 && (
               <div>
                 <span className="font-medium text-gray-700 mb-2 block">
                   Color:
@@ -186,7 +186,7 @@ export default function ProductDetail() {
             )}
 
             {/* Sizes */}
-            {product.sizes && (
+            {product.sizes && product.sizes.length > 0 &&(
               <div>
                 <span className="font-medium text-gray-700 mb-2 block">
                   Size:
@@ -376,7 +376,7 @@ export default function ProductDetail() {
               </p>
             )}
             {/* Colors */}
-            {product.colors && (
+            {product.colors && product.colors.length > 0 &&(
               <div>
                 <span className="font-medium text-gray-700 mb-2 block">
                   Color:
@@ -402,7 +402,7 @@ export default function ProductDetail() {
             )}
 
             {/* Sizes */}
-            {product.sizes && (
+            {product.sizes && product.sizes.length > 0 &&(
               <div>
                 <span className="font-medium text-gray-700 mb-2 block">
                   Size:
