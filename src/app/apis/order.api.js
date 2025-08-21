@@ -74,6 +74,20 @@ export const getOrdersAPI = async () => {
   }
 };
 
+//Get seller order
+export const getSellerOrdersAPI = async (sellerId) => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/orders/seller/${sellerId}`,
+      { headers: getAuthHeaders() }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error fetching seller orders:', error.response?.data || error.message);
+    throw new Error('Unable to retrieve seller orders. Please try again.');
+  }
+}
+
 /**
  * Get all orders for a user.
  * @param {string|number} userId
