@@ -6,8 +6,10 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { updateOrderStatusAPI, getOrderByIdAPI } from "@/app/apis/order.api";
 import { useParams, useSearchParams } from "next/navigation";
+import ViewOrderDetail from "@/app/components/order/ViewOrderDetail";
+import useMediaQuery from "@/app/hooks/useMediaQuery";
 
-export default function SellerEditOrder() {
+export default function SellerViewOrder() {
   const { idToken, user, isAuthenticated, loading } = useAuth();
   const [order, setOrder] = useState({
     contactName: "",
@@ -28,6 +30,7 @@ export default function SellerEditOrder() {
   const [error, setError] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loadingOrder, setLoadingOrder] = useState(true);
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -36,7 +39,7 @@ export default function SellerEditOrder() {
       try {
         const response = await getOrderByIdAPI(orderId, idToken);
         //console.log(response.result);
-        setOrder(response.result); 
+        setOrder(response.result);
       } catch (err) {
         setError("Failed to fetch order");
         console.error(err);
@@ -48,32 +51,12 @@ export default function SellerEditOrder() {
     fetchOrder();
   }, [orderId, idToken]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!order.contactEmail || !order.contactName || !order.deliveryAddress) {
-      alert("Please fill in all required fields.");
-      return;
-    }
-
-    if (!user || !user.id) {
-      alert("User not found or not authenticated.");
-      return;
-    }
-
-    try {
-      await updateOrderStatusAPI(order.id, order.orderStatus);
-
-      alert("Order status updated successfully!");
-    } catch (error) {
-      console.error("Error updating order status:", error);
-      alert(error.message || "Failed to update order status.");
-    }
-  };
-
-  return (
+  return !isMobile ? (
     <main className="min-h-screen p-8 font-roboto">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Edit Order</h1>
+        <h1 className="text-3xl font-bold text-gray-800 font-playfair">
+          View Order Detail
+        </h1>
         <Link href="/seller/orders">
           <div className="flex items-center text-secondary cursor-pointer text-sm hover:underline">
             <ArrowLeft className="h-4 w-4 mr-1" />
@@ -81,10 +64,28 @@ export default function SellerEditOrder() {
           </div>
         </Link>
       </div>
-      <EditOrder
+      <ViewOrderDetail
         order={order}
         setOrder={setOrder}
-        handleSubmit={handleSubmit}
+        loadingOrder={loadingOrder}
+      />
+    </main>
+  ) : (
+    <main className="min-h-screen p-8 font-roboto">
+      <div className="flex flex-col space-y-5 items-left mb-5">
+        <Link href="/seller/orders">
+          <div className="flex items-center text-secondary cursor-pointer text-sm hover:underline">
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back to order list
+          </div>
+        </Link>
+        <h1 className="text-xl font-bold text-gray-800 font-playfair">
+          View Order Detail
+        </h1>
+      </div>
+      <ViewOrderDetail
+        order={order}
+        setOrder={setOrder}
         loadingOrder={loadingOrder}
       />
     </main>

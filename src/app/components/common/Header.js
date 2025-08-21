@@ -133,16 +133,16 @@ export default function Header() {
                   <div className="relative group">
                     <User className="h-6 w-6 cursor-pointer hover:text-primary transition-colors" />
 
-                    <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 font-bold rounded-lg shadow-md z-50 opacity-0 group-hover:opacity-100 group-hover:visible invisible transition-all duration-200">
+                    <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 font-semibold rounded-lg shadow-md z-50 opacity-0 group-hover:opacity-100 group-hover:visible invisible transition-all duration-200">
                       <Link href="/user/account/profile">
-                        <button className="w-full px-4 py-2 text-xs sm:text-sm text-left hover:bg-gray-100">
+                        <button className="font-inter w-full px-4 py-2 text-xs sm:text-sm text-left hover:bg-gray-100">
                           My Profile
                         </button>
                       </Link>
 
                       <button
                         onClick={logoutAccount}
-                        className="w-full px-4 py-2 text-xs sm:text-sm text-left hover:bg-gray-100"
+                        className="font-inter w-full px-4 py-2 text-xs sm:text-sm text-left hover:bg-gray-100"
                       >
                         Logout
                       </button>

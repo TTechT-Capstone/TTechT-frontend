@@ -35,7 +35,7 @@ export default function ProductDetail() {
       try {
         setLoading(true);
         const productData = await getProductByIdAPI(productId);
-        console.log("Fetched product data:", productData);
+        //console.log("Fetched product data:", productData);
 
         if (productData?.images?.length > 0) {
           setMainImage(productData.images[0]);
@@ -79,7 +79,7 @@ export default function ProductDetail() {
 
     try {
       await addToCart(newItem);
-      console.log("Item added to cart:", newItem);
+      //console.log("Item added to cart:", newItem);
 
       setAddedProductInfo(newItem);
       setSuccessModalOpen(true);
@@ -92,7 +92,12 @@ export default function ProductDetail() {
     }
   };
 
-  if (!product) return <Loading />
+  if (!product) return <Loading />;
+
+  const hasColors = product.colors?.length > 0;
+  const hasSizes = product.sizes?.length > 0;
+  const isSelectionRequired =
+    (hasColors && !selectedColor) || (hasSizes && !selectedSize);
 
   return !isMobile ? (
     <div className="mt-5 mx-auto px-8 py-12 bg-white text-primary">
@@ -155,7 +160,7 @@ export default function ProductDetail() {
               </p>
             )}
             {/* Colors */}
-            {product.colors && (
+            {product.colors && product.colors.length > 0 && (
               <div>
                 <span className="font-medium text-gray-700 mb-2 block">
                   Color:
@@ -181,7 +186,7 @@ export default function ProductDetail() {
             )}
 
             {/* Sizes */}
-            {product.sizes && (
+            {product.sizes && product.sizes.length > 0 &&(
               <div>
                 <span className="font-medium text-gray-700 mb-2 block">
                   Size:
@@ -233,18 +238,15 @@ export default function ProductDetail() {
           {/* Add to Cart */}
           <button
             onClick={handleAddToCart}
-            disabled={!selectedColor || !selectedSize}
-            className={`py-3 px-6 shadow transition duration-300
-            ${
-              !selectedColor || !selectedSize
+            disabled={isSelectionRequired}
+            className={`py-3 px-6 shadow transition duration-300 ${
+              isSelectionRequired
                 ? "bg-gray-300 cursor-not-allowed"
                 : "bg-primary text-white hover:bg-[#6C7A84]"
-            }
-                `}
+            }`}
           >
             Add to Cart
           </button>
-
           {/* Description */}
           <div className="text-sm text-gray-700 leading-relaxed">
             <h3 className="font-semibold mb-2">Product Description</h3>
@@ -335,20 +337,18 @@ export default function ProductDetail() {
     </div>
   ) : (
     <div className="mt-5 mx-auto px-8 py-12 bg-white text-primary">
-       <Link href="/products">
-          <div className="mb-4 flex items-center text-secondary cursor-pointer text-sm hover:underline">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to product list
-          </div>
-        </Link>
+      <Link href="/products">
+        <div className="mb-4 flex items-center text-secondary cursor-pointer text-sm hover:underline">
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back to product list
+        </div>
+      </Link>
       {/* Product Section */}
       <div className="grid grid-cols-1 gap-12">
         <ImageSlider images={product.imageUrls} />
 
         {/* Product Info */}
         <div className="flex flex-col font-inter gap-6">
-         
-
           {/* Store Name */}
           <span className=" bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full w-fit font-semibold">
             {product.storeName}
@@ -376,7 +376,7 @@ export default function ProductDetail() {
               </p>
             )}
             {/* Colors */}
-            {product.colors && (
+            {product.colors && product.colors.length > 0 &&(
               <div>
                 <span className="font-medium text-gray-700 mb-2 block">
                   Color:
@@ -402,7 +402,7 @@ export default function ProductDetail() {
             )}
 
             {/* Sizes */}
-            {product.sizes && (
+            {product.sizes && product.sizes.length > 0 &&(
               <div>
                 <span className="font-medium text-gray-700 mb-2 block">
                   Size:
@@ -454,14 +454,12 @@ export default function ProductDetail() {
           {/* Add to Cart */}
           <button
             onClick={handleAddToCart}
-            disabled={!selectedColor || !selectedSize}
-            className={`py-3 px-6 shadow transition duration-300
-          ${
-            !selectedColor || !selectedSize
-              ? "bg-gray-300 cursor-not-allowed"
-              : "bg-primary text-white hover:bg-[#6C7A84]"
-          }
-              `}
+            disabled={isSelectionRequired}
+            className={`py-3 px-6 shadow transition duration-300 ${
+              isSelectionRequired
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-primary text-white hover:bg-[#6C7A84]"
+            }`}
           >
             Add to Cart
           </button>

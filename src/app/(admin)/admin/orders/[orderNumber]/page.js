@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { updateOrderStatusAPI, getOrderByIdAPI } from "@/app/apis/order.api";
 import { useParams, useSearchParams } from "next/navigation";
+import useMediaQuery from "@/app/hooks/useMediaQuery";
 
 export default function AdminEditOrder() {
   const { idToken, user, isAuthenticated, loading } = useAuth();
@@ -28,6 +29,7 @@ export default function AdminEditOrder() {
   const [error, setError] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loadingOrder, setLoadingOrder] = useState(true);
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -36,7 +38,7 @@ export default function AdminEditOrder() {
       try {
         const response = await getOrderByIdAPI(orderId, idToken);
         //console.log(response.result);
-        setOrder(response.result); 
+        setOrder(response.result);
       } catch (err) {
         setError("Failed to fetch order");
         console.error(err);
@@ -70,16 +72,39 @@ export default function AdminEditOrder() {
     }
   };
 
-  return (
-    <main className="min-h-screen p-8 font-roboto">
+  return !isMobile ? (
+    <main className="min-h-screen p-4 font-inter">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Edit Order</h1>
-        <Link href="/seller/orders">
+        <h1 className="text-3xl font-bold text-gray-800 font-playfair">
+          Edit Order
+        </h1>
+        <Link href="/admin/orders">
           <div className="flex items-center text-secondary cursor-pointer text-sm hover:underline">
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to order list
           </div>
         </Link>
+      </div>
+      <EditOrder
+        order={order}
+        setOrder={setOrder}
+        handleSubmit={handleSubmit}
+        loadingOrder={loadingOrder}
+      />
+    </main>
+  ) : (
+    <main className="min-h-screen p-4 font-inter">
+      <div className="flex flex-col space-y-5 items-left mb-5">
+        <Link href="/admin/orders">
+          <div className="flex items-center text-secondary cursor-pointer text-sm hover:underline">
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back to order list
+          </div>
+        </Link>
+
+        <h1 className="text-xl font-bold text-gray-800 font-playfair">
+          Edit Order
+        </h1>
       </div>
       <EditOrder
         order={order}

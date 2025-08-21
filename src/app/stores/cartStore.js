@@ -305,7 +305,7 @@ const useCartStore = create(
             localStorage.removeItem("cartId");
           }
 
-          console.log("✅ Cart submitted successfully:", response);
+          //console.log("✅ Cart submitted successfully:", response);
           return response;
         } catch (err) {
           console.error("❌ Failed to submit cart:", err);
@@ -316,7 +316,7 @@ const useCartStore = create(
 
       // Clear cart
       clearCart: () => {
-        console.log("🧹 Clearing cart...");
+        //console.log("🧹 Clearing cart...");
         localStorage.removeItem("cartId");
         set({
           cart: [],

@@ -488,21 +488,6 @@ export default function EditProduct({
         </div>
       )}
 
-      {successMessage && (
-        <div className="border border-green-300 bg-green-50 flex flex-row px-2 py-4 text-center">
-          <CircleCheck className="text-green-400 inline-block mr-2" />
-          <div className="text-black">{successMessage}</div>
-        </div>
-      )}
-
-      {/* Error Message */}
-      {editError && (
-        <div className="border border-red-300 bg-red-50 flex flex-row px-2 py-4 text-center">
-          <CircleX className="text-red-400 inline-block mr-2" />
-          <div className="text-black">{editError}</div>
-        </div>
-      )}
-
       {loadingProduct ? (
         <p className="font-roboto text-lg text-gray-600 text-center">
           Loading product...

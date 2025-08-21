@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { ChevronDown, Search, Pencil, Trash2, SquarePen } from "lucide-react";
-import { getOrdersByUserIdAPI } from "@/app/apis/order.api";
+import { getSellerOrdersAPI } from "@/app/apis/order.api";
 import useAuth from "@/app/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
@@ -22,7 +22,7 @@ export default function SellerOrders() {
 
     const fetchOrders = async () => {
       try {
-        const data = await getOrdersByUserIdAPI(user.id);
+        const data = await getSellerOrdersAPI(user.id);
         setOrders(data.result || []);
         //console.log(data.result);
       } catch (error) {
@@ -157,7 +157,7 @@ export default function SellerOrders() {
             >
               <div className="col-span-2 font-medium">{order.orderNumber}</div>
               <div>{order.contactName}</div>
-              <div>{order.orderItems?.length || 0}</div>
+              <div>{order.sellerOrderItems?.length || 0}</div>
               <div>{new Date(order.createdAt).toLocaleDateString()}</div>
               <div>{order.orderStatus}</div>
               <div className="flex space-x-3">
