@@ -62,10 +62,10 @@ export default function ProductDetail() {
       return;
     }
 
-    if (!selectedColor || !selectedSize) {
-      alert("Please select a color and size before adding to cart.");
-      return;
-    }
+    // if (!selectedColor || !selectedSize) {
+    //   alert("Please select a color and size before adding to cart.");
+    //   return;
+    // }
 
     const newItem = {
       productId: Number(productId),

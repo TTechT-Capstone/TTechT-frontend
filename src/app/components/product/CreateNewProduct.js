@@ -556,27 +556,6 @@ export default function CreateNewProduct() {
     </>
   ) : (
     <>
-      {isLoading && (
-        <div className="text-center text-blue-600 font-medium mb-4">
-          Creating product, please wait...
-        </div>
-      )}
-
-      {successMessage && (
-        <div className="border border-green-300 bg-green-50 flex flex-row px-2 py-4 text-center">
-          <CircleCheck className="text-green-400 inline-block mr-2" />
-          <div className="text-black">{successMessage}</div>
-        </div>
-      )}
-
-      {/* Error Message */}
-      {createError && (
-        <div className="border border-red-300 bg-red-50 flex flex-row px-2 py-4 text-center">
-          <CircleX className="text-red-400 inline-block mr-2" />
-          <div className="text-black">{createError}</div>
-        </div>
-      )}
-
       <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6">
         {/* Left Side */}
         <div className="w-full md:w-2/3 bg-[#F4F4F4] p-6 rounded-2xl shadow space-y-6">
@@ -855,6 +834,12 @@ export default function CreateNewProduct() {
           </div>
         </div>
       </form>
+      {isLoading && (
+        <div className="text-center text-blue-600 font-medium mt-4">
+          Creating product, please wait...
+        </div>
+      )}
+
       {/* Popups for mobile */}
       {isMobile && showSuccessPopup && (
         <SuccessPopUp

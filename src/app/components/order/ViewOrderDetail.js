@@ -13,18 +13,6 @@ export default function ViewOrderDetail({ order, setOrder, loadingOrder }) {
   const [isLoading, setIsLoading] = useState(false);
   const isMobile = useMediaQuery("(max-width: 767px)");
 
-  const handleCancel = () => {
-    const role = user?.roles?.[0]?.name || "UNKNOWN";
-
-    if (role === "ADMIN") {
-      router.push("/admin/orders");
-    } else if (role === "SELLER") {
-      router.push("/seller/orders");
-    } else {
-      console.warn("Unknown role or not logged in");
-    }
-  };
-
   return (
     <>
       {loadingOrder ? (
@@ -175,16 +163,6 @@ export default function ViewOrderDetail({ order, setOrder, loadingOrder }) {
                   </tbody>
                 </table>
               </div>
-            </div>
-
-            <div className="flex justify-center gap-4">
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="w-full px-6 py-2 bg-[#FFFFFD] text-gray-700 rounded-xl"
-              >
-                Cancel
-              </button>
             </div>
           </div>
         </form>

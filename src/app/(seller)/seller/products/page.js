@@ -179,7 +179,7 @@ export default function SellerProducts() {
       {filteredAndSortedProducts.map((product, index) => (
         <div
           key={index}
-          className={`grid grid-cols-6 justify-items-center items-center px-4 py-3 ${
+          className={`grid grid-cols-6 justify-items-center items-center text-xs sm:text-sm px-4 py-3 ${
             index % 2 === 0 ? "bg-white" : "bg-gray-50"
           }`}
         >
@@ -268,7 +268,7 @@ export default function SellerProducts() {
       {filteredAndSortedProducts.map((product, index) => (
         <div
           key={index}
-          className={`grid grid-cols-4 justify-items-center items-center px-4 py-3 ${
+          className={`grid grid-cols-4 justify-items-center items-center text-xs sm:text-sm px-4 py-3 ${
             index % 2 === 0 ? "bg-white" : "bg-gray-50"
           }`}
         >
