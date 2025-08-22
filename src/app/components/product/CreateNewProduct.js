@@ -17,6 +17,7 @@ import { getSellerByUserId } from "@/app/apis/seller.api";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
 import SuccessPopUp from "../pop-up/SuccessPopUp";
 import ErrorPopup from "../pop-up/ErrorPopUp";
+import ProgressIndicator from "../progress/ProgressIndicator";
 
 export default function CreateNewProduct() {
   const { idToken, user, userId, isAuthenticated } = useAuth();
@@ -33,6 +34,7 @@ export default function CreateNewProduct() {
   const [createError, setCreateError] = useState("");
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [processingStep, setProcessingStep] = useState(0);
 
   // Show error popup on mobile
   useEffect(() => {
@@ -94,13 +96,8 @@ export default function CreateNewProduct() {
           console.error("Missing userId in localStorage");
           return;
         }
-
-        console.log("Fetching seller for user ID:", userId);
-
         const sellerData = await getSellerByUserId(userId);
         setSeller(sellerData);
-
-        console.log("Fetched seller:", sellerData);
       } catch (error) {
         console.error("Failed to fetch seller:", error);
       }
@@ -108,6 +105,16 @@ export default function CreateNewProduct() {
 
     fetchSellers();
   }, []);
+
+  useEffect(()=> {
+    const fetchWatermarkImage = async () => {
+      try {
+
+      } catch (error) {
+        
+      }
+    }
+  })
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -202,31 +209,94 @@ export default function CreateNewProduct() {
       return;
     }
 
+    if (!seller?.watermarkUrl) {
+      setCreateError("Missing seller watermark. Please contact support.");
+      return;
+    }
+
+    if (formData.images.length === 0) {
+      setCreateError("Please upload at least one product image.");
+      return;
+    }
     setIsLoading(true);
     setSuccessMessage("");
 
-    const finalData = {
-      ...formData,
-      storeName: seller.storeName,
-      price: parseFloat(Number(formData.price).toFixed(2)),
-      stockQuantity: parseInt(formData.stockQuantity),
-    };
+    const sellerWatermarkUrl = seller.watermarkUrl;
 
     try {
-      console.log("Submitting product:", finalData);
-      await createProductAPI(finalData);
-      setSuccessMessage("✅ Product created successfully!");
+      // Start progress
+      setProcessingStep(1);
 
+      // Step 1 & 2: Process each image for extraction and detection
+      console.log("Step 1 & 2: Checking all images for existing watermarks...");
+      for (const image of formData.images) {
+        const extractResponse = await extractWatermarkAPI({
+          suspect_image: image,
+        });
+
+        // If a watermark is extracted, check if it's the seller's
+        if (extractResponse.extracted_watermark_url) {
+          const detectResponse = await detectWatermarkAPI({
+            original_watermark: sellerWatermarkUrl,
+            extracted_watermark: extractResponse.extracted_watermark_url,
+          });
+
+          if (detectResponse.is_match) {
+            console.error(
+              "❌ An image you uploaded already has your watermark."
+            );
+            setCreateError(
+              "An image you uploaded already contains your watermark. Please upload an original image without a watermark."
+            );
+            setIsLoading(false);
+            setProcessingStep(0);
+            return; // Stop the entire process
+          }
+        }
+      }
+      console.log("✅ All images passed the watermark detection check.");
+
+      // Step 3: Embed the seller's watermark onto all images
+      setProcessingStep(2);
+      console.log("Step 3: Embedding seller's watermark onto all images...");
+      const embeddedImages = await Promise.all(
+        formData.images.map(async (image) => {
+          const embedResponse = await embedWatermarkAPI({
+            original_image: image,
+            watermark_image: sellerWatermarkUrl,
+          });
+          return embedResponse.watermarked_image_url;
+        })
+      );
+      console.log("✅ Watermark embedded on all images.");
+
+      setProcessingStep(3);
+
+      // Step 4: Create the product with the newly watermarked images
+      console.log("Step 4: All checks passed. Creating the product...");
+      const finalData = {
+        ...formData,
+        storeName: seller.storeName,
+        price: parseFloat(Number(formData.price).toFixed(2)),
+        stockQuantity: parseInt(formData.stockQuantity),
+        images: embeddedImages,
+      };
+
+      const productResponse = await createProductAPI(finalData);
+      console.log("✅ Product created successfully!", productResponse);
+      setSuccessMessage("✅ Product created successfully!");
+      setProcessingStep(0);
       // Redirect after a short delay
       setTimeout(() => {
-        if (user?.role === "ADMIN") {
-          router.push("/admin/products");
-        } else {
-          router.push("/seller/products");
-        }
+        // if (user?.role === "ADMIN") {
+        //   router.push("/admin/products");
+        // } else {
+        router.push("/seller/products");
+        //}
       }, 1500);
     } catch (error) {
       console.error("Failed to create product:", error);
+      setProcessingStep(0);
       alert("❌ Failed to create product.");
     } finally {
       setIsLoading(false);
@@ -236,13 +306,21 @@ export default function CreateNewProduct() {
   return !isMobile ? (
     <>
       {isLoading && (
-        <div className="text-center text-blue-600 font-medium mb-4">
-          Creating product, please wait...
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+          <div
+            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+            role="status"
+          >
+            {/* <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+              Creating product, please wait...
+            </span> */}
+            <ProgressIndicator step={processingStep} />
+          </div>
         </div>
       )}
 
       {successMessage && (
-        <div className="border border-green-300 bg-green-50 flex flex-row px-2 py-4 text-center">
+        <div className="mb-5 border border-green-300 bg-green-50 flex flex-row px-2 py-4 text-center">
           <CircleCheck className="text-green-400 inline-block mr-2" />
           <div className="text-black">{successMessage}</div>
         </div>
@@ -250,7 +328,7 @@ export default function CreateNewProduct() {
 
       {/* Error Message */}
       {createError && (
-        <div className="border border-red-300 bg-red-50 flex flex-row px-2 py-4 text-center">
+        <div className="mb-5 border border-red-300 bg-red-50 flex flex-row px-2 py-4 text-center">
           <CircleX className="text-red-400 inline-block mr-2" />
           <div className="text-black">{createError}</div>
         </div>
@@ -556,6 +634,19 @@ export default function CreateNewProduct() {
     </>
   ) : (
     <>
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+          <div
+            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+            role="status"
+          >
+            {/* <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+              Creating product, please wait...
+            </span> */}
+            <ProgressIndicator step={processingStep} />
+          </div>
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6">
         {/* Left Side */}
         <div className="w-full md:w-2/3 bg-[#F4F4F4] p-6 rounded-2xl shadow space-y-6">
@@ -774,7 +865,10 @@ export default function CreateNewProduct() {
 
             <div className="flex flex-wrap gap-3">
               {formData.images.map((src, idx) => (
-                <div key={idx} className="relative flex flex-col items-center space-y-1">
+                <div
+                  key={idx}
+                  className="relative flex flex-col items-center space-y-1"
+                >
                   <img src={src} className="w-16 h-16 object-cover rounded" />
                   <button
                     onClick={() => removeImage(idx)}
