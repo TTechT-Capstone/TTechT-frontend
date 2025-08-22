@@ -39,18 +39,6 @@ export default function AdminOrders() {
     router.push(`/admin/orders/${order.id}`);
   };
 
-  const handleDeleteOrder = async (orderId) => {
-    if (!window.confirm("Are you sure you want to delete this order?")) return;
-
-    try {
-      //await deleteOrderAPI(orderId);
-      setOrders((prevOrders) =>
-        prevOrders.filter((order) => order.id !== orderId)
-      );
-    } catch (error) {
-      console.error("Error deleting order:", error.message);
-    }
-  };
 
   const filteredAndSortedOrders = useMemo(() => {
     let filtered = [...orders];
@@ -166,11 +154,11 @@ export default function AdminOrders() {
         filteredAndSortedOrders.map((order, index) => (
           <div
             key={order.id}
-            className={`grid grid-cols-7 justify-items-center items-center px-4 py-3 ${
+            className={`grid grid-cols-7 justify-items-center items-center text-xs sm:text-sm px-4 py-3 ${
               index % 2 === 0 ? "bg-white" : "bg-gray-50"
             }`}
           >
-            <div className="col-span-2 font-medium">{order.orderNumber}</div>
+            <div className="col-span-2 font-medium break-all">{order.orderNumber}</div>
             <div>{order.contactName}</div>
             <div>{order.orderItems?.length || 0}</div>
             <div>{new Date(order.createdAt).toLocaleDateString()}</div>
@@ -179,10 +167,6 @@ export default function AdminOrders() {
               <SquarePen
                 className="text-gray-600 hover:text-primary cursor-pointer"
                 onClick={() => handleEditOrder(order)}
-              />
-              <Trash2
-                className="text-red-600 hover:text-red-800 cursor-pointer"
-                onClick={() => handleDeleteOrder(order.id)}
               />
             </div>
           </div>
@@ -260,7 +244,7 @@ export default function AdminOrders() {
         filteredAndSortedOrders.map((order, index) => (
           <div
             key={order.id}
-            className={`grid grid-cols-4 justify-items-center items-center font-inter text-xs font-semibold px-4 py-3 ${
+            className={`grid grid-cols-4 justify-items-center items-center font-inter text-xs sm:text-sm font-semibold px-4 py-3 ${
               index % 2 === 0 ? "bg-white" : "bg-gray-50"
             }`}
           >
@@ -274,10 +258,6 @@ export default function AdminOrders() {
               <SquarePen
                 className="text-gray-600 hover:text-primary cursor-pointer"
                 onClick={() => handleEditOrder(order)}
-              />
-              <Trash2
-                className="text-red-600 hover:text-red-800 cursor-pointer"
-                onClick={() => handleDeleteOrder(order.id)}
               />
             </div>
           </div>

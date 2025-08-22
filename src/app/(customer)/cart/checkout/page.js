@@ -171,13 +171,13 @@ export default function CheckoutPage() {
         const statusResponse = await getPaymentStatusAPI(sessionId);
         const status = statusResponse?.result?.status;
 
-        console.log(`Payment status check ${pollCount}:`, status);
+        //console.log(`Payment status check ${pollCount}:`, status);
 
         if (status === "SUCCEEDED") {
           clearInterval(pollInterval);
           setPaymentCompleted(true);
           //setPaymentStatus("Payment completed successfully!");
-          console.log("Payment completed successfully!");
+          //console.log("Payment completed successfully!");
         } else if (status === "FAILED") {
           clearInterval(pollInterval);
           setPaymentError("Payment failed. Please try again.");
@@ -651,19 +651,19 @@ export default function CheckoutPage() {
           {selectedCartItems.map((item) => (
             <div
               key={item.id}
-              className="flex items-left px-2 py-4 text-sm w-full"
+              className="flex items-left space-x-4 px-2 py-4 text-sm w-full"
             >
               {/* Product image */}
               <div className="flex items-left gap-4">
                 <img
                   src={item.image}
                   alt={item.productName}
-                  className="w-24 h-24 object-cover rounded"
+                  className="w-20 h-20 object-cover rounded"
                 />
               </div>
 
               {/* Product details */}
-              <div className="flex flex-col w-full justify-between">
+              <div className="flex flex-col w-full justify-end">
                 {/* Product name */}
                 <div className="flex flex-col">
                   <p className="font-medium">{item.productName}</p>
