@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { ChevronDown, Search, Pencil, Trash2, SquarePen } from "lucide-react";
-import { getOrdersByUserIdAPI } from "@/app/apis/order.api";
+import { ChevronDown, Search, Pencil, Trash2, SquarePen, Eye } from "lucide-react";
+import { getSellerOrders } from "@/app/apis/seller.api";
 import useAuth from "@/app/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
@@ -22,7 +22,7 @@ export default function SellerOrders() {
 
     const fetchOrders = async () => {
       try {
-        const data = await getOrdersByUserIdAPI(user.id);
+        const data = await getSellerOrders(user.id);
         setOrders(data.result || []);
         //console.log(data.result);
       } catch (error) {
@@ -36,8 +36,8 @@ export default function SellerOrders() {
     fetchOrders();
   }, [user?.id]);
 
-  const handleEditOrder = (order) => {
-    router.push(`/seller/orders/${order.id}`);
+  const handleViewOrder = (order) => {
+    router.push(`/seller/orders/${order.orderId}`);
   };
 
   const filteredAndSortedOrders = useMemo(() => {
@@ -151,23 +151,19 @@ export default function SellerOrders() {
           filteredAndSortedOrders.map((order, index) => (
             <div
               key={order.id}
-              className={`grid grid-cols-7 justify-items-center items-center px-4 py-3 ${
+              className={`grid grid-cols-7 justify-items-center items-center text-xs sm:text-sm px-4 py-3 ${
                 index % 2 === 0 ? "bg-white" : "bg-gray-50"
               }`}
             >
               <div className="col-span-2 font-medium">{order.orderNumber}</div>
               <div>{order.contactName}</div>
-              <div>{order.orderItems?.length || 0}</div>
+              <div>{order.sellerOrderItems?.length || 0}</div>
               <div>{new Date(order.createdAt).toLocaleDateString()}</div>
               <div>{order.orderStatus}</div>
               <div className="flex space-x-3">
-                <SquarePen
+                <Eye
                   className="text-gray-600 hover:text-primary cursor-pointer"
-                  onClick={() => handleEditOrder(order)}
-                />
-                <Trash2
-                  className="text-red-600 hover:text-red-800 cursor-pointer"
-                  onClick={() => handleDeleteOrder(order.id)}
+                  onClick={() => handleViewOrder(order.orderId)}
                 />
               </div>
             </div>
@@ -256,13 +252,9 @@ export default function SellerOrders() {
               <div>{new Date(order.createdAt).toLocaleDateString()}</div>
               <div>{order.orderStatus}</div>
               <div className="flex space-x-3">
-                <SquarePen
+                <Eye
                   className="text-gray-600 hover:text-primary cursor-pointer"
-                  onClick={() => handleEditOrder(order)}
-                />
-                <Trash2
-                  className="text-red-600 hover:text-red-800 cursor-pointer"
-                  onClick={() => handleDeleteOrder(order.id)}
+                  onClick={() => handleViewOrder(order)}
                 />
               </div>
             </div>

@@ -647,8 +647,6 @@ export default function CreateNewProduct() {
           </div>
         </div>
       )}
-
-
       <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6">
         {/* Left Side */}
         <div className="w-full md:w-2/3 bg-[#F4F4F4] p-6 rounded-2xl shadow space-y-6">
@@ -930,6 +928,12 @@ export default function CreateNewProduct() {
           </div>
         </div>
       </form>
+      {isLoading && (
+        <div className="text-center text-blue-600 font-medium mt-4">
+          Creating product, please wait...
+        </div>
+      )}
+
       {/* Popups for mobile */}
       {isMobile && showSuccessPopup && (
         <SuccessPopUp

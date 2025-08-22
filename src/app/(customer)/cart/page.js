@@ -325,7 +325,7 @@ export default function ShoppingCartPage() {
                   <div>
                     <span
                       onClick={() => handleProductClick(item.productId)}
-                      className="font-semibold text-sm sm:text-xs"
+                      className="font-semibold text-xs"
                     >
                       {item.productName}
                     </span>
@@ -402,7 +402,7 @@ export default function ShoppingCartPage() {
                   }
                 />
               </div>
-              <button className="px-3 py-2 bg-black text-white rounded-md text-sm font-semibold hover:bg-gray-800 transition">
+
                 <button
                   className="px-3 py-2 bg-black text-white rounded-md text-sm font-semibold hover:bg-gray-800 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
                   type="button"
@@ -417,7 +417,6 @@ export default function ShoppingCartPage() {
                     onClose={() => setShowPromoError(false)}
                   />
                 )}
-              </button>
             </div>
 
             {/* Cart Summary */}

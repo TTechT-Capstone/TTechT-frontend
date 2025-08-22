@@ -25,7 +25,7 @@ export default function SellerHeader() {
   };
 
   return (
-    <header className="flex justify-between items-center  px-6 py-4 bg-[#F4F4F4] text-secondary font-urbanist border-b border-gray-300">
+    <header className="flex justify-between items-center font-inter px-6 py-4 bg-[#F4F4F4] text-secondary font-urbanist border-b border-gray-300">
       {/* Left Logo */}
       <Link href="/seller">
         <h1 className="font-playfair text-xl sm:text-4xl font-bold">Origity</h1>
@@ -41,12 +41,6 @@ export default function SellerHeader() {
               <Link href="/seller/profile">
                 <button className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100">
                   My Profile
-                </button>
-              </Link>
-
-              <Link href="/seller/watermark">
-                <button className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100">
-                  Watermark Image
                 </button>
               </Link>
 

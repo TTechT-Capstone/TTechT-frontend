@@ -1,101 +1,25 @@
 "use client";
 
-import useAuth from "@/app/hooks/useAuth";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import SuccessPopUp from "../pop-up/SuccessPopUp";
-import ErrorPopup from "../pop-up/ErrorPopUp";
-import { use, useState } from "react";
+import useAuth from "@/app/hooks/useAuth";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
+import Loading from "../common/Loading";
 
-export default function EditOrder({
-  order,
-  setOrder,
-  handleSubmit,
-  loadingOrder,
-}) {
+export default function ViewOrderDetail({ order, setOrder, loadingOrder }) {
   const router = useRouter();
-  const { user } = useAuth();
-  const [successMessage, setSuccessMessage] = useState("");
-  const [editError, setEditError] = useState("");
-  const [showErrorPopup, setShowErrorPopup] = useState(false);
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const { idToken, user, userId, isAuthenticated } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const isMobile = useMediaQuery("(max-width: 767px)");
-
-  const handleEditSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await handleSubmit(e); // Call the passed-in handleSubmit
-
-      // Redirect after successful submission
-      const role = user?.roles?.[0]?.name || "UNKNOWN";
-      if (role === "ADMIN") {
-        router.push("/admin/orders");
-      } else if (role === "SELLER") {
-        router.push("/seller/orders");
-      } else {
-        console.warn("Unknown role or not logged in");
-      }
-    } catch (error) {
-      console.error("Error submitting the form:", error);
-    }
-  };
-
-  const handleCancel = () => {
-    const role = user?.roles?.[0]?.name || "UNKNOWN";
-
-    if (role === "ADMIN") {
-      router.push("/admin/orders");
-    } else if (role === "SELLER") {
-      router.push("/seller/orders");
-    } else {
-      console.warn("Unknown role or not logged in");
-    }
-  };
 
   return (
     <>
-      {!isMobile && successMessage && (
-        <div className="border border-green-300 bg-green-50 flex flex-row px-2 py-4 text-center">
-          <CircleCheck className="text-green-400 inline-block mr-2" />
-          <div className="text-black">{successMessage}</div>
-        </div>
-      )}
-
-      {/* Error Message */}
-      {!isMobile && editError && (
-        <div className="border border-red-300 bg-red-50 flex flex-row px-2 py-4 text-center">
-          <CircleX className="text-red-400 inline-block mr-2" />
-          <div className="text-black">{editError}</div>
-        </div>
-      )}
-
-      {isMobile && showSuccessPopup && (
-        <SuccessPopUp
-          message={successMessage}
-          onClose={() => {
-            setShowSuccessPopup(false);
-            setSuccessMessage("");
-          }}
-        />
-      )}
-      {isMobile && showErrorPopup && (
-        <ErrorPopup
-          message={editError}
-          onClose={() => {
-            setShowPopup(false);
-            setEditError("");
-          }}
-        />
-      )}
-
       {loadingOrder ? (
-        <p className="font-roboto text-lg text-gray-600 text-center">
-          Loading order...
-        </p>
+        <Loading />
       ) : (
         <form
-          onSubmit={handleEditSubmit}
+          //onSubmit={handleEditSubmit}
           className="flex flex-col md:flex-row gap-6"
         >
           <div className="w-full bg-[#F4F4F4] p-6 rounded-2xl shadow space-y-6">
@@ -155,19 +79,12 @@ export default function EditOrder({
               <label className="block text-gray-700 font-medium mb-1">
                 Order Status
               </label>
-              <select
+              <input
                 name="orderStatus"
                 value={order.orderStatus}
-                onChange={(e) =>
-                  setOrder({ ...order, orderStatus: e.target.value })
-                }
                 className="input-field"
-              >
-                <option value="NEW">New</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="CANCELLED">Cancelled</option>
-                <option value="REJECTED">Rejected</option>
-              </select>
+                readOnly
+              />
             </div>
 
             <div className="flex flex-col md:flex-row gap-4">
@@ -240,28 +157,12 @@ export default function EditOrder({
                         <td className="px-4 py-2 border">{idx + 1}</td>
                         <td className="px-4 py-2 border">{item.productName}</td>
                         <td className="px-4 py-2 border">{item.quantity}</td>
-                        <td className="px-4 py-2 border">{item.price}</td>
+                        <td className="px-4 py-2 border">{item.unitPrice}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            </div>
-
-            <div className="flex justify-center gap-4">
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="w-full px-6 py-2 bg-[#FFFFFD] text-gray-700 rounded-xl"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="w-full px-6 py-2 bg-secondary text-white rounded-xl"
-              >
-                Edit Order
-              </button>
             </div>
           </div>
         </form>
