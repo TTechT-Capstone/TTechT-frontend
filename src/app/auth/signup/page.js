@@ -8,10 +8,10 @@ import { createSeller } from "@/app/apis/seller.api";
 import useUserStore from "@/app/stores/userStore";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
 import ErrorPopup from "@/app/components/pop-up/ErrorPopUp";
-import { createWatermarkAPI } from "@/app/apis/watermark.api";
+import { createWatermarkAPI, uploadImageAPI } from "@/app/apis/watermark.api";
 
 const generateWatermarkImage = (storeName) => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
@@ -28,15 +28,26 @@ const generateWatermarkImage = (storeName) => {
     ctx.fillStyle = "#333";
     ctx.font = "bold 32px sans-serif";
     ctx.textAlign = "center";
+    ctx.textBaseline = "middle"; // Center text vertically
     ctx.fillText(storeName, width / 2, height / 2);
 
-    // Export and resolve
-    const url = canvas.toDataURL("image/png");
-    resolve(url);
+    // Convert the canvas to a Blob, then to a File object
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        reject(new Error("Canvas to blob conversion failed."));
+        return;
+      }
+      // Create a File object from the blob
+      const file = new File([blob], `${storeName}_watermark.png`, {
+        type: "image/png",
+      });
+      resolve(file);
+    }, "image/png");
   });
 };
 
 export default function SignUp() {
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [role, setRole] = useState("Customer");
   const [firstName, setFirstName] = useState("");
@@ -140,6 +151,7 @@ export default function SignUp() {
     }
 
     try {
+      setIsLoading(true);
       setErrors({});
       setSignUpError("");
 
@@ -156,25 +168,29 @@ export default function SignUp() {
 
       let response;
       if (role === "Seller") {
-        console.log("Attempting to create a new seller account.");
+        //console.log("Attempting to create a new seller account.");
         response = await createSeller(payload);
-        console.log("✅ Seller account created successfully:", response);
+        //console.log("✅ Seller account created successfully:", response);
 
         // Generate the watermark image and get the Base64 data URL
-        console.log("Initiating watermark image generation...");
-        const watermarkUrl = await generateWatermarkImage(storeName);
-        console.log("✅ Watermark image generated as Base64 URL (truncated for brevity):", watermarkUrl.substring(0, 50) + "...");
+        //console.log("Initiating watermark image generation...");
+        const watermarkImage = await generateWatermarkImage(storeName);
+        //console.log("✅ Watermark image generated:", watermarkImage);
+
+        const uploadResponseURL = await uploadImageAPI(watermarkImage);
+        const watermarkCloudinaryUrl = uploadResponseURL.data.url;
+        //console.log("✅ Watermark image uploaded to Cloudinary:", watermarkCloudinaryUrl);
 
         const watermarkPayload = {
           store_name: storeName,
-          watermark_url_image: watermarkUrl,
+          watermark_url_image: watermarkCloudinaryUrl,
         };
-        console.log("Prepared watermark payload:", watermarkPayload);
+        //console.log("Prepared watermark payload:", watermarkPayload);
 
         // Call the API to save the watermark.
-        console.log("Attempting to send watermark data to API...");
+        //console.log("Attempting to send watermark data to API...");
         await createWatermarkAPI(watermarkPayload);
-        console.log("✅ Watermark data sent to API successfully.");
+        //console.log("✅ Watermark data sent to API successfully.");
 
       } else {
         response = await registerUser(payload);
@@ -188,6 +204,8 @@ export default function SignUp() {
         error?.message ||
         "Signup failed. Please try again.";
       setSignUpError(errorMsg); // Will show popup on mobile
+    } finally {
+      setIsLoading(false); 
     }
   };
 
@@ -411,7 +429,7 @@ export default function SignUp() {
                 : "bg-secondary hover:bg-[#6C7A84]"
             }`}
           >
-            Create Account
+            {isLoading ? "Creating Account..." : "Create Account"}
           </button>
 
           <p className="text-center text-gray-600 font-inter text-sm sm:text-md ">
@@ -646,7 +664,7 @@ export default function SignUp() {
                 : "bg-secondary hover:bg-[#6C7A84]"
             }`}
           >
-            Create Account
+            {isLoading ? "Creating Account..." : "Create Account"}
           </button>
 
           <p className="text-center text-gray-600 text-sm sm:text-md">

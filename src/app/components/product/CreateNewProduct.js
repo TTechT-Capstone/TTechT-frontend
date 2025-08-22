@@ -106,6 +106,16 @@ export default function CreateNewProduct() {
     fetchSellers();
   }, []);
 
+  useEffect(()=> {
+    const fetchWatermarkImage = async () => {
+      try {
+
+      } catch (error) {
+        
+      }
+    }
+  })
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {

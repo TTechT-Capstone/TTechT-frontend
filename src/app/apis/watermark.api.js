@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = 'https://ttecht-watermark-service.onrender.com';
+const API_BASE_URL = "https://ttecht-watermark-service.onrender.com";
 
 /**
  * Get Authorization headers with Bearer token.
@@ -8,9 +8,9 @@ const API_BASE_URL = 'https://ttecht-watermark-service.onrender.com';
  * @returns {Object} - HTTP headers with Authorization token
  */
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('idToken');
+  const token = localStorage.getItem("idToken");
   if (!token) {
-    throw new Error('Authorization token is missing');
+    throw new Error("Authorization token is missing");
   }
   return {
     Authorization: `Bearer ${token}`,
@@ -20,14 +20,78 @@ const getAuthHeaders = () => {
 /**
  * Upload watermark images.
  * Endpoint: POST /api/images/upload
- * Example: https://ttecht-watermark-service.onrender.com/api/images/upload
+ * @param {File} file - The image file to upload.
+ * @returns {Promise<Object>} - The uploaded image metadata.
  */
+// A helper function to convert a File object to a Base64 string
+const fileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
+// Updated uploadImageAPI
+export const uploadImageAPI = async (file) => {
+  try {
+    // 1. Convert the file to a Base64 string
+    const base64Image = await fileToBase64(file);
+
+    // 2. Prepare the JSON payload
+    const payload = {
+      image: base64Image,
+    };
+
+    // 3. Send the request with the JSON payload
+    const response = await axios.post(
+      `${API_BASE_URL}/api/images/upload`,
+      payload, // send the JSON payload
+      {
+        headers: {
+          // No need to manually set Content-Type; Axios does it for JSON
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error(
+      "❌ Error uploading image:",
+      error.response?.data || error.message
+    );
+    throw new Error("Unable to upload image. Please try again.");
+  }
+};
 
 /**
- * Get watermark image info by unique ID.
+ * Get upload watermark image info.
  * Endpoint: GET /api/images/watermark_app/:id/info
- * Example: https://ttecht-watermark-service.onrender.com/api/images/watermark_app/ujn5pxt0sfjo7d5tkdsg/info
+ * @param {string} publicId - The public_id of the image (e.g., "watermark_app/ujn5pxt0sfjo7d5tkdsg").
+ * @returns {Promise<Object>} - The image metadata.
  */
+export const getImageInfoAPI = async (publicId) => {
+  try {
+    // The publicId should be 'watermark_app/id'. The API endpoint only needs the 'id' part.
+    const imageId = publicId.split("/").pop();
+
+    const response = await axios.get(
+      `${API_BASE_URL}/api/images/watermark_app/${imageId}/info`,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error(
+      "❌ Error fetching image info:",
+      error.response?.data || error.message
+    );
+    throw new Error("Unable to retrieve image details. Please try again.");
+  }
+};
 
 /**
  * Get all watermarks.
@@ -41,8 +105,11 @@ export const getAllWatermarksAPI = async () => {
     });
     return response.data;
   } catch (error) {
-    console.error('❌ Error fetching watermarks:', error.response?.data || error.message);
-    throw new Error('Unable to retrieve watermark details. Please try again.');
+    console.error(
+      "❌ Error fetching watermarks:",
+      error.response?.data || error.message
+    );
+    throw new Error("Unable to retrieve watermark details. Please try again.");
   }
 };
 
@@ -59,8 +126,11 @@ export const getWatermarkByIdAPI = async (id) => {
     });
     return response.data;
   } catch (error) {
-    console.error('❌ Error fetching watermark by ID:', error.response?.data || error.message);
-    throw new Error('Unable to retrieve watermark details. Please try again.');
+    console.error(
+      "❌ Error fetching watermark by ID:",
+      error.response?.data || error.message
+    );
+    throw new Error("Unable to retrieve watermark details. Please try again.");
   }
 };
 
@@ -80,13 +150,20 @@ export const getWatermarkByIdAPI = async (id) => {
  */
 export const createWatermarkAPI = async (watermarkData) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/watermarks`, watermarkData, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.post(
+      `${API_BASE_URL}/api/watermarks/`,
+      watermarkData,
+      {
+        //headers: getAuthHeaders(),
+      }
+    );
     return response.data;
   } catch (error) {
-    console.error('❌ Error creating watermark:', error.response?.data || error.message);
-    throw new Error('Unable to create watermark. Please try again.');
+    console.error(
+      "❌ Error creating watermark:",
+      error.response?.data || error.message
+    );
+    throw new Error("Unable to create watermark. Please try again.");
   }
 };
 
@@ -101,13 +178,20 @@ export const createWatermarkAPI = async (watermarkData) => {
  */
 export const embedWatermarkAPI = async (payload) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/images/embed-watermark`, payload, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.post(
+      `${API_BASE_URL}/api/images/embed-watermark`,
+      payload,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
     return response.data;
   } catch (error) {
-    console.error('❌ Error embedding watermark:', error.response?.data || error.message);
-    throw new Error('Unable to embed watermark. Please try again.');
+    console.error(
+      "❌ Error embedding watermark:",
+      error.response?.data || error.message
+    );
+    throw new Error("Unable to embed watermark. Please try again.");
   }
 };
 
@@ -121,13 +205,20 @@ export const embedWatermarkAPI = async (payload) => {
  */
 export const extractWatermarkAPI = async (payload) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/images/extract-watermark`, payload, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.post(
+      `${API_BASE_URL}/api/images/extract-watermark`,
+      payload,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
     return response.data;
   } catch (error) {
-    console.error('❌ Error extracting watermark:', error.response?.data || error.message);
-    throw new Error('Unable to extract watermark. Please try again.');
+    console.error(
+      "❌ Error extracting watermark:",
+      error.response?.data || error.message
+    );
+    throw new Error("Unable to extract watermark. Please try again.");
   }
 };
 
@@ -144,12 +235,19 @@ export const extractWatermarkAPI = async (payload) => {
  */
 export const detectWatermarkAPI = async (payload) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/api/images/detect-watermark`, payload, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.post(
+      `${API_BASE_URL}/api/images/detect-watermark`,
+      payload,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
     return response.data;
   } catch (error) {
-    console.error('❌ Error detecting watermark:', error.response?.data || error.message);
-    throw new Error('Unable to detect watermark. Please try again.');
+    console.error(
+      "❌ Error detecting watermark:",
+      error.response?.data || error.message
+    );
+    throw new Error("Unable to detect watermark. Please try again.");
   }
 };
