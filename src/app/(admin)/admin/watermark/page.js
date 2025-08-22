@@ -1,34 +1,50 @@
 "use client";
 
-import { ChevronDown, Search } from "lucide-react";
-
-const watermarks = [
-  {
-    date: "2025-07-06",
-    imageId: "IMG123",
-    shopId: "SHOP001",
-    productId: "PROD1001",
-  },
-  {
-    date: "2025-07-05",
-    imageId: "IMG456",
-    shopId: "SHOP002",
-    productId: "PROD1002",
-  },
-  {
-    date: "2025-07-04",
-    imageId: "IMG789",
-    shopId: "SHOP003",
-    productId: "PROD1003",
-  },
-];
+import React, { useEffect, useMemo, useState } from "react";
+import { ChevronDown, Search, Pencil, Trash2, SquarePen } from "lucide-react";
+import useAuth from "@/app/hooks/useAuth";
+import { useRouter } from "next/navigation";
+import useMediaQuery from "@/app/hooks/useMediaQuery";
+import Loading from "@/app/components/common/Loading";
+import { getAllWatermarksAPI } from "@/app/apis/watermark.api";
 
 export default function AdminWatermarkAnalysis() {
+  const router = useRouter();
+  const [watermarks, setWatermarks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { idToken, user, isAuthenticated } = useAuth();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortWatermark, setSortWatermark] = useState("desc");
+  const isMobile = useMediaQuery("(max-width: 767px)");
+
+  useEffect(() => {
+    const fetchWatermarks = async () => {
+      setLoading(true);
+      try {
+        const response = await getAllWatermarksAPI();
+        console.log("Fetched watermarks:", response.data);
+        setWatermarks(response.data.watermarks);
+      } catch (error) {
+        console.error("Error fetching watermarks:", error);
+        setWatermarks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWatermarks();
+  }, []);
+
+  const handleViewWatermark = (watermark_id) => {
+    router.push(`/admin/watermark/${watermark_id}`);
+  };
+
   return (
-    <main className="font-roboto p-4 min-h-screen">
+    <main className="font-inter p-4 min-h-screen">
       {/* Header */}
       <div className="flex mb-4">
-        <h1 className="font-urbanist font-bold text-2xl">Watermark Analysis</h1>
+        <h1 className="font-playfair font-bold text-2xl">Watermark Analysis</h1>
       </div>
 
       {/* Sort and Search */}
@@ -45,10 +61,10 @@ export default function AdminWatermarkAnalysis() {
 
       {/* Table Header */}
       <div className="grid grid-cols-5 justify-items-center font-urbanist font-bold bg-gray-100 px-4 py-3 rounded-t-lg">
-        <div>Date</div>
-        <div>Image ID</div>
-        <div>Shop ID</div>
+        <div>Image "not wtm, product img, trả về URL"</div>
+        <div>Store name</div>
         <div>Product ID</div>
+        <div>Date Created</div>
         <div>Detected Info</div>
       </div>
 
@@ -60,12 +76,15 @@ export default function AdminWatermarkAnalysis() {
             index % 2 === 0 ? "bg-white" : "bg-gray-50"
           }`}
         >
+          <div>{watermark.watermark_id}</div>
           <div>{watermark.date}</div>
-          <div>{watermark.imageId}</div>
-          <div>{watermark.shopId}</div>
-          <div>{watermark.productId}</div>
+          <div>{watermark.store_name}</div>
+          <div>{watermark.watermark_url_image}</div>
           <div>
-            <button className="bg-secondary text-white px-2 py-1 rounded hover:bg-[#5d6c78] text-sm">
+            <button
+              className="bg-secondary text-white px-2 py-1 rounded hover:bg-[#5d6c78] text-sm"
+              onClick={() => handleViewWatermark(watermark.watermark_id)}
+            >
               View
             </button>
           </div>

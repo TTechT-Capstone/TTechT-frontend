@@ -18,6 +18,7 @@ import useMediaQuery from "@/app/hooks/useMediaQuery";
 import SuccessPopUp from "../pop-up/SuccessPopUp";
 import ErrorPopup from "../pop-up/ErrorPopUp";
 import ProgressIndicator from "../progress/ProgressIndicator";
+import { getWatermarkByIdAPI } from "@/app/apis/watermark.api";
 
 export default function CreateNewProduct() {
   const { idToken, user, userId, isAuthenticated } = useAuth();
@@ -35,24 +36,27 @@ export default function CreateNewProduct() {
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [processingStep, setProcessingStep] = useState(0);
+  const [watermarkURL, setWatermarkURL] = useState("");
 
   // Show error popup on mobile
   useEffect(() => {
-    if (isMobile && createError) {
-      setShowErrorPopup(true);
+    if (isMobile) {
+      if (createError) {
+        setShowErrorPopup(true);
+      } else {
+        setShowErrorPopup(false);
+      }
+
+      if (successMessage) {
+        setShowSuccessPopup(true);
+      } else {
+        setShowSuccessPopup(false);
+      }
     } else {
       setShowErrorPopup(false);
-    }
-  }, [createError, isMobile]);
-
-  // Show success popup on mobile
-  useEffect(() => {
-    if (isMobile && successMessage) {
-      setShowSuccessPopup(true);
-    } else {
       setShowSuccessPopup(false);
     }
-  }, [successMessage, isMobile]);
+  }, [createError, successMessage, isMobile]);
 
   // Auto-hide error popup
   useEffect(() => {
@@ -106,15 +110,24 @@ export default function CreateNewProduct() {
     fetchSellers();
   }, []);
 
-  useEffect(()=> {
+  useEffect(() => {
     const fetchWatermarkImage = async () => {
       try {
-
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          console.error("Missing userId in localStorage");
+          return;
+        }
+        const watermarkData = await getWatermarkByIdAPI(userId);
+        console.log("Fetched watermark:", watermarkData);
+        setWatermarkURL(watermarkData.watermark_url_image);
+        console.log("Fetched watermark URL:", watermarkData.watermark_url_image);
       } catch (error) {
-        
+        console.error("Failed to fetch watermark:", error);
       }
-    }
-  })
+    };
+    fetchWatermarkImage();
+  }, []);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -209,7 +222,7 @@ export default function CreateNewProduct() {
       return;
     }
 
-    if (!seller?.watermarkUrl) {
+    if (!watermarkURL) {
       setCreateError("Missing seller watermark. Please contact support.");
       return;
     }

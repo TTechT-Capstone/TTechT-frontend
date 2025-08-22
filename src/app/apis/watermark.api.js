@@ -100,7 +100,7 @@ export const getImageInfoAPI = async (publicId) => {
  */
 export const getAllWatermarksAPI = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/watermarks`, {
+    const response = await axios.get(`${API_BASE_URL}/api/watermarks/`, {
       headers: getAuthHeaders(),
     });
     return response.data;
@@ -121,7 +121,7 @@ export const getAllWatermarksAPI = async () => {
  */
 export const getWatermarkByIdAPI = async (id) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/watermarks/${id}`, {
+    const response = await axios.get(`${API_BASE_URL}/api/watermarks/${id}`, {
       headers: getAuthHeaders(),
     });
     return response.data;
