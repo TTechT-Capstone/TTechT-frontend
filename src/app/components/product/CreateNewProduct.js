@@ -19,6 +19,7 @@ import SuccessPopUp from "../pop-up/SuccessPopUp";
 import ErrorPopup from "../pop-up/ErrorPopUp";
 import ProgressIndicator from "../progress/ProgressIndicator";
 import { getWatermarkByIdAPI } from "@/app/apis/watermark.api";
+import WarningWtmPopUp from "../watermark/WarningWtmPopUp";
 
 export default function CreateNewProduct() {
   const { idToken, user, userId, isAuthenticated } = useAuth();
@@ -37,6 +38,7 @@ export default function CreateNewProduct() {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [processingStep, setProcessingStep] = useState(0);
   const [watermarkURL, setWatermarkURL] = useState("");
+  const [showWarning, setShowWarning] = useState(false);
 
   // Show error popup on mobile
   useEffect(() => {
@@ -660,6 +662,7 @@ export default function CreateNewProduct() {
           </div>
         </div>
       )}
+
       <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6">
         {/* Left Side */}
         <div className="w-full md:w-2/3 bg-[#F4F4F4] p-6 rounded-2xl shadow space-y-6">
