@@ -61,7 +61,7 @@ export default function AdminWatermarkAnalysis() {
 
       {/* Table Header */}
       <div className="grid grid-cols-5 justify-items-center font-urbanist font-bold bg-gray-100 px-4 py-3 rounded-t-lg">
-        <div>Image "not wtm, product img, trả về URL"</div>
+        <div>Image</div>
         <div>Store name</div>
         <div>Product ID</div>
         <div>Date Created</div>

@@ -20,6 +20,7 @@ import ErrorPopup from "../pop-up/ErrorPopUp";
 import ProgressIndicator from "../progress/ProgressIndicator";
 import { getWatermarkByIdAPI } from "@/app/apis/watermark.api";
 import WarningWtmPopUp from "../watermark/WarningWtmPopUp";
+import SuccessWtmPopUp from "../watermark/SuccessWtmPopUp";
 
 export default function CreateNewProduct() {
   const { idToken, user, userId, isAuthenticated } = useAuth();
@@ -36,7 +37,6 @@ export default function CreateNewProduct() {
   const [createError, setCreateError] = useState("");
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  const [processingStep, setProcessingStep] = useState(0);
   const [watermarkURL, setWatermarkURL] = useState("");
   const [showWarning, setShowWarning] = useState(false);
 
@@ -110,25 +110,6 @@ export default function CreateNewProduct() {
     };
 
     fetchSellers();
-  }, []);
-
-  useEffect(() => {
-    const fetchWatermarkImage = async () => {
-      try {
-        const userId = localStorage.getItem("userId");
-        if (!userId) {
-          console.error("Missing userId in localStorage");
-          return;
-        }
-        const watermarkData = await getWatermarkByIdAPI(userId);
-        console.log("Fetched watermark:", watermarkData);
-        setWatermarkURL(watermarkData.watermark_url_image);
-        console.log("Fetched watermark URL:", watermarkData.watermark_url_image);
-      } catch (error) {
-        console.error("Failed to fetch watermark:", error);
-      }
-    };
-    fetchWatermarkImage();
   }, []);
 
   useEffect(() => {
@@ -224,11 +205,6 @@ export default function CreateNewProduct() {
       return;
     }
 
-    if (!watermarkURL) {
-      setCreateError("Missing seller watermark. Please contact support.");
-      return;
-    }
-
     if (formData.images.length === 0) {
       setCreateError("Please upload at least one product image.");
       return;
@@ -236,79 +212,19 @@ export default function CreateNewProduct() {
     setIsLoading(true);
     setSuccessMessage("");
 
-    const sellerWatermarkUrl = seller.watermarkUrl;
+    const finalData = {
+      ...formData,
+      storeName: seller.storeName,
+      price: parseFloat(Number(formData.price).toFixed(2)),
+      stockQuantity: parseInt(formData.stockQuantity),
+    };
 
     try {
-      // Start progress
-      setProcessingStep(1);
-
-      // Step 1 & 2: Process each image for extraction and detection
-      console.log("Step 1 & 2: Checking all images for existing watermarks...");
-      for (const image of formData.images) {
-        const extractResponse = await extractWatermarkAPI({
-          suspect_image: image,
-        });
-
-        // If a watermark is extracted, check if it's the seller's
-        if (extractResponse.extracted_watermark_url) {
-          const detectResponse = await detectWatermarkAPI({
-            original_watermark: sellerWatermarkUrl,
-            extracted_watermark: extractResponse.extracted_watermark_url,
-          });
-
-          if (detectResponse.is_match) {
-            console.error(
-              "❌ An image you uploaded already has your watermark."
-            );
-            setCreateError(
-              "An image you uploaded already contains your watermark. Please upload an original image without a watermark."
-            );
-            setIsLoading(false);
-            setProcessingStep(0);
-            return; // Stop the entire process
-          }
-        }
-      }
-      console.log("✅ All images passed the watermark detection check.");
-
-      // Step 3: Embed the seller's watermark onto all images
-      setProcessingStep(2);
-      console.log("Step 3: Embedding seller's watermark onto all images...");
-      const embeddedImages = await Promise.all(
-        formData.images.map(async (image) => {
-          const embedResponse = await embedWatermarkAPI({
-            original_image: image,
-            watermark_image: sellerWatermarkUrl,
-          });
-          return embedResponse.watermarked_image_url;
-        })
-      );
-      console.log("✅ Watermark embedded on all images.");
-
-      setProcessingStep(3);
-
-      // Step 4: Create the product with the newly watermarked images
-      console.log("Step 4: All checks passed. Creating the product...");
-      const finalData = {
-        ...formData,
-        storeName: seller.storeName,
-        price: parseFloat(Number(formData.price).toFixed(2)),
-        stockQuantity: parseInt(formData.stockQuantity),
-        images: embeddedImages,
-      };
-
-      const productResponse = await createProductAPI(finalData);
-      console.log("✅ Product created successfully!", productResponse);
-      setSuccessMessage("✅ Product created successfully!");
-      setProcessingStep(0);
-      // Redirect after a short delay
+      await createProductAPI(finalData);
+      //setSuccessMessage("✅ Product created successfully!");
       setTimeout(() => {
-        // if (user?.role === "ADMIN") {
-        //   router.push("/admin/products");
-        // } else {
         router.push("/seller/products");
-        //}
-      }, 1500);
+      }, 1000);
     } catch (error) {
       console.error("Failed to create product:", error);
       setProcessingStep(0);
@@ -326,19 +242,20 @@ export default function CreateNewProduct() {
             className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
             role="status"
           >
-            {/* <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+            <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
               Creating product, please wait...
-            </span> */}
-            <ProgressIndicator step={processingStep} />
+            </span>
           </div>
         </div>
       )}
-
+{/* <WarningWtmPopUp/> */}
+{/* <SuccessWtmPopUp /> */}
       {successMessage && (
-        <div className="mb-5 border border-green-300 bg-green-50 flex flex-row px-2 py-4 text-center">
-          <CircleCheck className="text-green-400 inline-block mr-2" />
-          <div className="text-black">{successMessage}</div>
-        </div>
+        // <div className="mb-5 border border-green-300 bg-green-50 flex flex-row px-2 py-4 text-center">
+        //   <CircleCheck className="text-green-400 inline-block mr-2" />
+        //   <div className="text-black">{successMessage}</div>
+        // </div>
+        <SuccessWtmPopUp />
       )}
 
       {/* Error Message */}
@@ -655,10 +572,10 @@ export default function CreateNewProduct() {
             className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
             role="status"
           >
-            {/* <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+            <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
               Creating product, please wait...
-            </span> */}
-            <ProgressIndicator step={processingStep} />
+            </span>
+          
           </div>
         </div>
       )}
