@@ -42,7 +42,7 @@ export default function AdminWatermarkDetail() {
         <Link href="/admin/watermark">
           <div className="flex items-center text-secondary cursor-pointer text-sm hover:underline">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to watermark list
+            Back to analysis list
           </div>
         </Link>
 

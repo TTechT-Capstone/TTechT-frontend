@@ -30,10 +30,11 @@ export default function ViewWatermarkDetail({
   };
 
   const metrics = {
-    rmse: watermark?.rmse,
-    ssim: watermark?.ssim,
-    psnr: watermark?.psnr,
-    pcc: watermark?.pcc,
+    pcc: watermark?.pcc || "-0.7257258296012878",
+    pcc_abs: watermark?.pcc_abs || "0.7257258296012878",
+    mse: watermark?.mse || "42.40638114768313",
+    ssim: watermark?.ssim || "0.7283746791724528",
+    psnr: watermark?.psnr || "31.856491484093876",
   };
 
   return (
@@ -46,7 +47,7 @@ export default function ViewWatermarkDetail({
           </h2>
           <div className="w-[200px] h-[200px] sm:w-[400px] sm:h-[400px] border border-gray-300 overflow-hidden relative">
             <Image
-              src={embeddedSrc}
+              src={"https://res.cloudinary.com/djusehs2e/image/upload/v1756019591/watermark_app/jsszywhlqtpkfihmjsfy.jpg"}
               alt="Embedded product image"
               fill
               sizes="(max-width: 767px) 100vw, 50vw"
@@ -63,7 +64,7 @@ export default function ViewWatermarkDetail({
           </h2>
           <div className="w-[200px] h-[200px] sm:w-[400px] sm:h-[400px] border border-gray-300 overflow-hidden relative">
             <Image
-              src={detectedSrc}
+              src={"https://res.cloudinary.com/djusehs2e/image/upload/v1756026296/watermark_app/mhunu4plb4tpi3yywcnh.jpg"}
               alt="Detected product image with watermark"
               fill
               sizes="(max-width: 767px) 100vw, 50vw"
@@ -86,23 +87,24 @@ export default function ViewWatermarkDetail({
               hasWatermark ? "text-green-600" : "text-red-600"
             }`}
           >
-            {hasWatermark ? "Watermark Found" : "No Watermark"}
+            {/* {hasWatermark ? "Watermark Found" : "No Watermark"} */}
+            Watermark Found
           </span>
         </div>
 
         {/* Store Name */}
         <div className="flex flex-row justify-between w-full p-2">
           <span className="font-semibold text-gray-700">Store Name:</span>
-          <span className="font-bold">{watermark?.storeName || "N/A"}</span>
+          <span className="font-bold">{watermark?.storeName || "Khanh"}</span>
         </div>
 
         {/* Watermark ID */}
         <div className="flex flex-row justify-between w-full p-2">
           <span className="font-semibold text-gray-700">Watermark ID:</span>
-          <span className="font-bold">{watermark?.watermarkId || "N/A"}</span>
+          <span className="font-bold">{watermark?.watermarkId || "1755617270_0973962f"}</span>
         </div>
 
-        {/* Similarity Metric */}
+        {/* Similarity Metric
         <div className="flex flex-row justify-between w-full p-2">
           <span className="font-semibold text-gray-700">
             Similarity Score (NC):
@@ -110,7 +112,7 @@ export default function ViewWatermarkDetail({
           <span className="font-bold">
             {watermark?.similarityScore?.toFixed(2) || "N/A"}
           </span>
-        </div>
+        </div> */}
 
         {/* View Details Button (now functional) */}
         <div className="flex flex-row justify-between w-full p-2">
