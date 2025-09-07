@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useState, useEffect } from "react";
 import useAuth from "@/app/hooks/useAuth";
@@ -9,13 +9,13 @@ import { useParams, useSearchParams } from "next/navigation";
 import ViewWatermarkDetail from "@/app/components/watermark/ViewWatermarkDetail";
 
 export default function AdminWatermarkDetail() {
-    const { idToken, user, isAuthenticated, loading } = useAuth();
+  const { idToken, user, isAuthenticated, loading } = useAuth();
   const params = useParams();
-  const watermarkId = params.watermark_id;
-    const [error, setError] = useState(null);
-    const [loadingWatermark, setLoadingWatermark] = useState(true);
-    const [watermark, setWatermark] = useState(null);
-    const isMobile = useMediaQuery("(max-width: 767px)");
+  const watermarkId = params.detectionId;
+  const [error, setError] = useState(null);
+  const [loadingWatermark, setLoadingWatermark] = useState(true);
+  const [watermark, setWatermark] = useState(null);
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   return !isMobile ? (
     <main className="min-h-screen p-4 font-inter">
@@ -36,7 +36,7 @@ export default function AdminWatermarkDetail() {
         loadingWatermark={loadingWatermark}
       />
     </main>
-  ):(
+  ) : (
     <main className="min-h-screen p-4 font-inter">
       <div className="flex flex-col space-y-5 items-left mb-5">
         <Link href="/admin/watermark">

@@ -10,6 +10,7 @@ import Image from "next/image";
 import DetectionDetailPopup from "./DetectionDetailPopup";
 import { ArrowBigRight, ArrowRight } from "lucide-react";
 import ArrowWithText from "./ArrowWithText";
+import { getWatermarkDetailAPI } from "@/app/apis/watermark.api";
 
 export default function ViewWatermarkDetail({
   watermark,
@@ -21,9 +22,31 @@ export default function ViewWatermarkDetail({
   const [isLoading, setIsLoading] = useState(false);
   const isMobile = useMediaQuery("(max-width: 767px)");
   const [showPopup, setShowPopup] = useState(false);
-  const embeddedSrc = watermark?.imageUrl || "/product.jpg";
-  const detectedSrc = watermark?.detectedImageUrl || "/product.jpg";
-  const hasWatermark = watermark?.detectionStatus;
+
+  const toBase64Image = (base64) =>
+    base64 ? `data:image/png;base64,${base64}` : "/product.jpg";
+
+  const embeddedSrc = toBase64Image(watermark?.watermarkBase64);
+  const detectedSrc = toBase64Image(watermark?.detectedImageBase64);
+  const hasWatermark = watermark?.detectStatus;
+
+  
+
+// useEffect(() => {
+//   const fetchDetail = async () => {
+//     setLoadingWatermark(true);
+//     try {
+//       const res = await getWatermarkDetailAPI(watermarkId);
+//       setWatermark(res);
+//     } catch (err) {
+//       setError("Failed to fetch watermark detail");
+//     } finally {
+//       setLoadingWatermark(false);
+//     }
+//   };
+//   if (watermarkId) fetchDetail();
+// }, [watermarkId]);
+
 
   const handleViewDetails = () => {
     setShowPopup(true);
@@ -47,7 +70,7 @@ export default function ViewWatermarkDetail({
           </h2>
           <div className="w-[200px] h-[200px] sm:w-[400px] sm:h-[400px] border border-gray-300 overflow-hidden relative">
             <Image
-              src={"https://res.cloudinary.com/djusehs2e/image/upload/v1756019591/watermark_app/jsszywhlqtpkfihmjsfy.jpg"}
+              src={embeddedSrc}
               alt="Embedded product image"
               fill
               sizes="(max-width: 767px) 100vw, 50vw"
@@ -64,7 +87,7 @@ export default function ViewWatermarkDetail({
           </h2>
           <div className="w-[200px] h-[200px] sm:w-[400px] sm:h-[400px] border border-gray-300 overflow-hidden relative">
             <Image
-              src={"https://res.cloudinary.com/djusehs2e/image/upload/v1756026296/watermark_app/mhunu4plb4tpi3yywcnh.jpg"}
+              src={detectedSrc}
               alt="Detected product image with watermark"
               fill
               sizes="(max-width: 767px) 100vw, 50vw"
@@ -82,26 +105,19 @@ export default function ViewWatermarkDetail({
         {/* Detection Status */}
         <div className="flex flex-row justify-between w-full p-2">
           <span className="font-semibold text-gray-700">Detection Status:</span>
-          <span
-            className={`font-bold ${
-              hasWatermark ? "text-green-600" : "text-red-600"
-            }`}
-          >
-            {/* {hasWatermark ? "Watermark Found" : "No Watermark"} */}
-            Watermark Found
-          </span>
+          <span className="font-bold">{watermark?.detectStatus}</span>
         </div>
 
         {/* Store Name */}
         <div className="flex flex-row justify-between w-full p-2">
           <span className="font-semibold text-gray-700">Store Name:</span>
-          <span className="font-bold">{watermark?.storeName || "Khanh"}</span>
+          <span className="font-bold">{watermark?.storeName}</span>
         </div>
 
         {/* Watermark ID */}
         <div className="flex flex-row justify-between w-full p-2">
           <span className="font-semibold text-gray-700">Watermark ID:</span>
-          <span className="font-bold">{watermark?.watermarkId || "1755617270_0973962f"}</span>
+          <span className="font-bold">{watermark?.watermarkId}</span>
         </div>
 
         {/* Similarity Metric
@@ -115,7 +131,7 @@ export default function ViewWatermarkDetail({
         </div> */}
 
         {/* View Details Button (now functional) */}
-        <div className="flex flex-row justify-between w-full p-2">
+        <div className="flex flex-row justify-between w-full">
           <span className="font-semibold text-gray-700">Detailed Report:</span>
           <button
             className="bg-secondary px-4 py-2 font-bold text-white rounded-xl hover:bg-secondary-dark transition-colors"

@@ -12,13 +12,13 @@ import {
 } from "lucide-react";
 import { getAllCategoriesAPI } from "@/app/apis/category.api";
 import { createProductAPI } from "@/app/apis/product.api";
+
 import useAuth from "@/app/hooks/useAuth";
 import { getSellerByUserId } from "@/app/apis/seller.api";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
 import SuccessPopUp from "../pop-up/SuccessPopUp";
 import ErrorPopup from "../pop-up/ErrorPopUp";
-import ProgressIndicator from "../progress/ProgressIndicator";
-import { getWatermarkByIdAPI } from "@/app/apis/watermark.api";
+import { getWatermarkByIdAPI, getWatermarkImgByStoreName } from "@/app/apis/watermark.api";
 import WarningWtmPopUp from "../watermark/WarningWtmPopUp";
 import SuccessWtmPopUp from "../watermark/SuccessWtmPopUp";
 
@@ -113,6 +113,28 @@ export default function CreateNewProduct() {
   }, []);
 
   useEffect(() => {
+    const fetchWatermarkImage = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          console.error("Missing userId in localStorage");
+          return;
+        }
+        const watermarkData = await getWatermarkImgByStoreName(seller.storeName);
+        console.log("Fetched watermark image:", watermarkData.data.watermark_url_image);
+        setWatermarkURL(watermarkData.data.watermark_url_image);
+      } catch (error) {
+        console.error("Failed to fetch watermark image:", error);
+      }
+    };
+
+    if (seller) {
+      fetchWatermarkImage();
+    }
+  }, [seller]);
+
+
+  useEffect(() => {
     const fetchCategories = async () => {
       try {
         const data = await getAllCategoriesAPI(0, 50);
@@ -195,7 +217,9 @@ export default function CreateNewProduct() {
     !formData.stockQuantity ||
     !formData.categoryId ||
     !formData.brand ||
-    !formData.description;
+    !formData.description ||
+    !watermarkURL;
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -204,6 +228,12 @@ export default function CreateNewProduct() {
       alert("Missing store name.");
       return;
     }
+
+    if (!watermarkURL) {
+    setCreateError("Watermark image is still loading. Please wait a moment and try again.");
+    return;
+  }
+
 
     if (formData.images.length === 0) {
       setCreateError("Please upload at least one product image.");
@@ -215,6 +245,7 @@ export default function CreateNewProduct() {
     const finalData = {
       ...formData,
       storeName: seller.storeName,
+      watermarkURL,
       price: parseFloat(Number(formData.price).toFixed(2)),
       stockQuantity: parseInt(formData.stockQuantity),
     };
@@ -227,7 +258,6 @@ export default function CreateNewProduct() {
       }, 1000);
     } catch (error) {
       console.error("Failed to create product:", error);
-      setProcessingStep(0);
       alert("❌ Failed to create product.");
     } finally {
       setIsLoading(false);

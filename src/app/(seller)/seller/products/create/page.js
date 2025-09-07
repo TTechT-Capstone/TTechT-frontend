@@ -4,6 +4,7 @@ import useMediaQuery from "@/app/hooks/useMediaQuery";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
+
 export default function SellerCreateProduct() {
   const isMobile = useMediaQuery("(max-width: 767px)");
 

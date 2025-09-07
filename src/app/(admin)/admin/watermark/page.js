@@ -6,32 +6,14 @@ import useAuth from "@/app/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
 import Loading from "@/app/components/common/Loading";
-import { getAllWatermarksAPI } from "@/app/apis/watermark.api";
-
-const watermarks = [
-  {
-    date: "2025-07-06",
-    id: "1755617270_0973962f",
-    store_name: "Khanh",
-    productId: "1",
-  },
-  {
-    date: "2025-07-05",
-    id: "172535270_0973992f",
-    store_name: "Tien",
-    productId: "2",
-  },
-  {
-    date: "2025-07-04",
-    id: "1755627370_0973062f",
-    store_name: "Kiet",
-    productId: "3",
-  },
-];
+import {
+  getAllWatermarksAPI,
+  getWatermarkHistoryAPI,
+} from "@/app/apis/watermark.api";
 
 export default function AdminWatermarkAnalysis() {
   const router = useRouter();
-  // const [watermarks, setWatermarks] = useState([]);
+  const [watermarks, setWatermarks] = useState([]);
   const [loading, setLoading] = useState(true);
   const { idToken, user, isAuthenticated } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
@@ -39,26 +21,26 @@ export default function AdminWatermarkAnalysis() {
   const [sortWatermark, setSortWatermark] = useState("desc");
   const isMobile = useMediaQuery("(max-width: 767px)");
 
-  // useEffect(() => {
-  //   const fetchWatermarks = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const response = await getAllWatermarksAPI();
-  //       console.log("Fetched watermarks:", response.data);
-  //       setWatermarks(response.data.watermarks);
-  //     } catch (error) {
-  //       console.error("Error fetching watermarks:", error);
-  //       setWatermarks([]);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchWatermarks = async () => {
+      setLoading(true);
+      try {
+        const response = await getWatermarkHistoryAPI();
+        console.log("Fetched watermarks:", response);
+        setWatermarks(response);
+      } catch (error) {
+        console.error("Error fetching watermarks:", error);
+        setWatermarks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //   fetchWatermarks();
-  // }, []);
+    fetchWatermarks();
+  }, []);
 
-  const handleViewWatermark = (watermark_id) => {
-    router.push(`/admin/watermark/${watermark_id}`);
+  const handleViewWatermark = (detectionId) => {
+    router.push(`/admin/watermark/${detectionId}`);
   };
 
   return (
@@ -97,14 +79,24 @@ export default function AdminWatermarkAnalysis() {
             index % 2 === 0 ? "bg-white" : "bg-gray-50"
           }`}
         >
-          <div>{watermark.id}</div>
-          <div>{watermark.store_name}</div>
+          <div>{watermark.detectionId}</div>
+          <div>{watermark.storeName}</div>
           <div>{watermark.productId}</div>
-          <div>{watermark.date}</div>
+          <div>
+            {new Date(watermark.detectionTimestamp).toLocaleDateString(
+              "en-GB",
+              {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              }
+            )}
+          </div>
+
           <div>
             <button
               className="bg-secondary text-white px-2 py-1 rounded hover:bg-[#5d6c78] text-sm"
-              onClick={() => handleViewWatermark(watermark.watermark_id)}
+              onClick={() => handleViewWatermark(watermark.detectionId)}
             >
               View
             </button>

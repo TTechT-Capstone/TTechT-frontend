@@ -134,6 +134,21 @@ export const getWatermarkByIdAPI = async (id) => {
   }
 };
 
+export const getWatermarkImgByStoreName = async (storeName) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/watermarks/store/${storeName}`, {
+      //headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error(
+      "❌ Error fetching watermark by ID:",
+      error.response?.data || error.message
+    );
+    throw new Error("Unable to retrieve watermark details. Please try again.");
+  }
+};
+
 /**
  * Create a new watermark.
  * Endpoint: POST /watermarks
@@ -249,5 +264,21 @@ export const detectWatermarkAPI = async (payload) => {
       error.response?.data || error.message
     );
     throw new Error("Unable to detect watermark. Please try again.");
+  }
+};
+
+
+export const getWatermarkHistoryAPI = async () => {
+  try {
+    const { data } = await axios.get(
+      `https://ttecht-backend.onrender.com/api/watermark-history`,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch watermark history:", error);
+    throw error;
   }
 };
