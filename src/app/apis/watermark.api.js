@@ -282,3 +282,18 @@ export const getWatermarkHistoryAPI = async () => {
     throw error;
   }
 };
+
+export const getWatermarkHistoryByIdAPI = async (detectionId) => {
+  try {
+    const { data } = await axios.get(
+      `https://ttecht-backend.onrender.com/api/watermark-history/${detectionId}`,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch watermark history:", error);
+    throw error;
+  }
+};

@@ -6,12 +6,12 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
 import { useParams, useSearchParams } from "next/navigation";
-import ViewWatermarkDetail from "@/app/components/watermark/ViewWatermarkDetail";
+import ViewDetectionDetail from "@/app/components/watermark/ViewDetectionDetail";
 
 export default function AdminWatermarkDetail() {
   const { idToken, user, isAuthenticated, loading } = useAuth();
   const params = useParams();
-  const watermarkId = params.detectionId;
+  const detectionId = params.detectionId;
   const [error, setError] = useState(null);
   const [loadingWatermark, setLoadingWatermark] = useState(true);
   const [watermark, setWatermark] = useState(null);
@@ -21,19 +21,17 @@ export default function AdminWatermarkDetail() {
     <main className="min-h-screen p-4 font-inter">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-xl sm:text-3xl font-bold text-gray-800 font-playfair">
-          Watermark Analysis
+          Detection Analysis
         </h1>
         <Link href="/admin/watermark">
           <div className="flex items-center text-secondary cursor-pointer text-sm hover:underline">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to watermark list
+            Back to detection list
           </div>
         </Link>
       </div>
-      <ViewWatermarkDetail
-        watermark={watermark}
-        setWatermark={setWatermark}
-        loadingWatermark={loadingWatermark}
+      <ViewDetectionDetail
+        detectionId={detectionId}
       />
     </main>
   ) : (
@@ -42,18 +40,16 @@ export default function AdminWatermarkDetail() {
         <Link href="/admin/watermark">
           <div className="flex items-center text-secondary cursor-pointer text-sm hover:underline">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to analysis list
+            Back to detection list
           </div>
         </Link>
 
         <h1 className="text-xl sm:text-3xl font-bold text-gray-800 font-playfair">
-          Watermark Analysis
+          Detection Analysis
         </h1>
       </div>
-      <ViewWatermarkDetail
-        watermark={watermark}
-        setWatermark={setWatermark}
-        loadingWatermark={loadingWatermark}
+      <ViewDetectionDetail
+        detectionId={detectionId}
       />
     </main>
   );

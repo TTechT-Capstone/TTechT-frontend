@@ -249,7 +249,7 @@ export default function AdminUsers() {
       </div>
 
       {/* Table Header */}
-      <div className="grid grid-cols-4 justify-items-center font-urbanist font-bold bg-gray-100 px-4 py-3 rounded-t-lg">
+      <div className="text-sm grid grid-cols-4 justify-items-center font-urbanist font-bold bg-gray-100 px-4 py-3 rounded-t-lg">
         <div>User ID</div>
         <div>Username</div>
         <div>Role</div>
@@ -268,7 +268,7 @@ export default function AdminUsers() {
         filteredAndSortedUsers.map((user, index) => (
           <div
             key={index}
-            className={`grid grid-cols-4 justify-items-center items-center text-xs sm:text-sm px-4 py-3 ${
+            className={`text-sm grid grid-cols-4 justify-items-center items-center text-xs sm:text-sm px-4 py-3 ${
               index % 2 === 0 ? "bg-white" : "bg-gray-50"
             }`}
           >
