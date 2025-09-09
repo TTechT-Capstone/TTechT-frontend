@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useAuth from "@/app/hooks/useAuth";
@@ -120,6 +119,3 @@ export default function ViewDetectionDetail({ detectionId }) {
     </>
   );
 }
-
-
-
