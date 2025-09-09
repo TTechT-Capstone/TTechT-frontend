@@ -67,7 +67,7 @@ export default function LandingPage() {
         />
 
         <div className="absolute inset-0 bg-black/40 " />
-        <div className="absolute inset-0 flex flex-col items-center justify-end text-center text-white mb-6 sm:mb-10 sm:mr-10">
+        <div className="absolute inset-0 flex flex-col items-center justify-end text-center text-white mb-6 sm:mb-10">
           <h1 className="text-xl sm:text-3xl italic font-medium font-playfair mb-4 px-4">
             Original. Protected. Trusted.
           </h1>

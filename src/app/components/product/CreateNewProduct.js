@@ -12,11 +12,15 @@ import {
 } from "lucide-react";
 import { getAllCategoriesAPI } from "@/app/apis/category.api";
 import { createProductAPI } from "@/app/apis/product.api";
+
 import useAuth from "@/app/hooks/useAuth";
 import { getSellerByUserId } from "@/app/apis/seller.api";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
 import SuccessPopUp from "../pop-up/SuccessPopUp";
 import ErrorPopup from "../pop-up/ErrorPopUp";
+import { getWatermarkByIdAPI, getWatermarkImgByStoreName } from "@/app/apis/watermark.api";
+import WarningWtmPopUp from "../watermark/WarningWtmPopUp";
+import SuccessWtmPopUp from "../watermark/SuccessWtmPopUp";
 
 export default function CreateNewProduct() {
   const { idToken, user, userId, isAuthenticated } = useAuth();
@@ -33,24 +37,28 @@ export default function CreateNewProduct() {
   const [createError, setCreateError] = useState("");
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [watermarkURL, setWatermarkURL] = useState("");
+  const [showWarning, setShowWarning] = useState(false);
 
   // Show error popup on mobile
   useEffect(() => {
-    if (isMobile && createError) {
-      setShowErrorPopup(true);
+    if (isMobile) {
+      if (createError) {
+        setShowErrorPopup(true);
+      } else {
+        setShowErrorPopup(false);
+      }
+
+      if (successMessage) {
+        setShowSuccessPopup(true);
+      } else {
+        setShowSuccessPopup(false);
+      }
     } else {
       setShowErrorPopup(false);
-    }
-  }, [createError, isMobile]);
-
-  // Show success popup on mobile
-  useEffect(() => {
-    if (isMobile && successMessage) {
-      setShowSuccessPopup(true);
-    } else {
       setShowSuccessPopup(false);
     }
-  }, [successMessage, isMobile]);
+  }, [createError, successMessage, isMobile]);
 
   // Auto-hide error popup
   useEffect(() => {
@@ -94,13 +102,8 @@ export default function CreateNewProduct() {
           console.error("Missing userId in localStorage");
           return;
         }
-
-        console.log("Fetching seller for user ID:", userId);
-
         const sellerData = await getSellerByUserId(userId);
         setSeller(sellerData);
-
-        console.log("Fetched seller:", sellerData);
       } catch (error) {
         console.error("Failed to fetch seller:", error);
       }
@@ -108,6 +111,28 @@ export default function CreateNewProduct() {
 
     fetchSellers();
   }, []);
+
+  useEffect(() => {
+    const fetchWatermarkImage = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          console.error("Missing userId in localStorage");
+          return;
+        }
+        const watermarkData = await getWatermarkImgByStoreName(seller.storeName);
+        console.log("Fetched watermark image:", watermarkData.data.watermark_url_image);
+        setWatermarkURL(watermarkData.data.watermark_url_image);
+      } catch (error) {
+        console.error("Failed to fetch watermark image:", error);
+      }
+    };
+
+    if (seller) {
+      fetchWatermarkImage();
+    }
+  }, [seller]);
+
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -192,7 +217,9 @@ export default function CreateNewProduct() {
     !formData.stockQuantity ||
     !formData.categoryId ||
     !formData.brand ||
-    !formData.description;
+    !formData.description ||
+    !watermarkURL;
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -202,29 +229,33 @@ export default function CreateNewProduct() {
       return;
     }
 
+    if (!watermarkURL) {
+    setCreateError("Watermark image is still loading. Please wait a moment and try again.");
+    return;
+  }
+
+
+    if (formData.images.length === 0) {
+      setCreateError("Please upload at least one product image.");
+      return;
+    }
     setIsLoading(true);
     setSuccessMessage("");
 
     const finalData = {
       ...formData,
       storeName: seller.storeName,
+      watermarkURL,
       price: parseFloat(Number(formData.price).toFixed(2)),
       stockQuantity: parseInt(formData.stockQuantity),
     };
 
     try {
-      console.log("Submitting product:", finalData);
       await createProductAPI(finalData);
-      setSuccessMessage("✅ Product created successfully!");
-
-      // Redirect after a short delay
+      //setSuccessMessage("✅ Product created successfully!");
       setTimeout(() => {
-        if (user?.role === "ADMIN") {
-          router.push("/admin/products");
-        } else {
-          router.push("/seller/products");
-        }
-      }, 1500);
+        router.push("/seller/products");
+      }, 1000);
     } catch (error) {
       console.error("Failed to create product:", error);
       alert("❌ Failed to create product.");
@@ -236,21 +267,30 @@ export default function CreateNewProduct() {
   return !isMobile ? (
     <>
       {isLoading && (
-        <div className="text-center text-blue-600 font-medium mb-4">
-          Creating product, please wait...
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+          <div
+            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+            role="status"
+          >
+            <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+              Creating product, please wait...
+            </span>
+          </div>
         </div>
       )}
-
+{/* <WarningWtmPopUp/> */}
+{/* <SuccessWtmPopUp /> */}
       {successMessage && (
-        <div className="border border-green-300 bg-green-50 flex flex-row px-2 py-4 text-center">
-          <CircleCheck className="text-green-400 inline-block mr-2" />
-          <div className="text-black">{successMessage}</div>
-        </div>
+        // <div className="mb-5 border border-green-300 bg-green-50 flex flex-row px-2 py-4 text-center">
+        //   <CircleCheck className="text-green-400 inline-block mr-2" />
+        //   <div className="text-black">{successMessage}</div>
+        // </div>
+        <SuccessWtmPopUp />
       )}
 
       {/* Error Message */}
       {createError && (
-        <div className="border border-red-300 bg-red-50 flex flex-row px-2 py-4 text-center">
+        <div className="mb-5 border border-red-300 bg-red-50 flex flex-row px-2 py-4 text-center">
           <CircleX className="text-red-400 inline-block mr-2" />
           <div className="text-black">{createError}</div>
         </div>
@@ -556,6 +596,20 @@ export default function CreateNewProduct() {
     </>
   ) : (
     <>
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+          <div
+            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+            role="status"
+          >
+            <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+              Creating product, please wait...
+            </span>
+          
+          </div>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6">
         {/* Left Side */}
         <div className="w-full md:w-2/3 bg-[#F4F4F4] p-6 rounded-2xl shadow space-y-6">
@@ -774,7 +828,10 @@ export default function CreateNewProduct() {
 
             <div className="flex flex-wrap gap-3">
               {formData.images.map((src, idx) => (
-                <div key={idx} className="relative flex flex-col items-center space-y-1">
+                <div
+                  key={idx}
+                  className="relative flex flex-col items-center space-y-1"
+                >
                   <img src={src} className="w-16 h-16 object-cover rounded" />
                   <button
                     onClick={() => removeImage(idx)}

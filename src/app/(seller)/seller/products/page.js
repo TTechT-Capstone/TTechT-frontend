@@ -42,7 +42,7 @@ export default function SellerProducts() {
       try {
         setLoading(true);
         const data = await getAllProductsByUser(user.id);
-        console.log(data);
+        //console.log(data);
         setProducts(data|| []);
       } catch (error) {
         console.error("Error loading products:", error.message);

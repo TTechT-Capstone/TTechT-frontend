@@ -48,26 +48,6 @@ export default function AdminEditProduct() {
     fetchProduct();
   }, [productId]);
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   if (!product.name || !product.price || !product.categoryId) {
-  //     alert("Please fill in all required fields.");
-  //     return;
-  //   }
-  //   if (!user || !user.id) {
-  //     alert("User not found or not authenticated.");
-  //     return;
-  //   }
-  //   try {
-  //     const response = await updateProductAPI(productId, product, idToken);
-  //     console.log("Product updated successfully:", response);
-  //     alert("Product updated successfully!");
-  //   } catch (error) {
-  //     console.error("Error updating product:", error.message);
-  //     alert("Failed to update product. Please try again.");
-  //   }
-  // };
-
   return !isMobile ? (
     <main className="min-h-screen p-4 font-inter">
       <div className="flex justify-between items-center mb-8">
