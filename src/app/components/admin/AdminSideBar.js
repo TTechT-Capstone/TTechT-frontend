@@ -7,7 +7,7 @@ const sidebarItems = [
   { icon: <ShoppingCart />, label: "Product Management", path: "/admin/products" },
   { icon: <Box />, label: "Order Management", path: "/admin/orders" },
   { icon: <User />, label: "User Management", path: "/admin/users" },
-  { icon: <Aperture />, label: "Detection Analysis", path: "/admin/watermark" },
+  { icon: <Aperture />, label: "Watermark Analysis", path: "/admin/watermark" },
   // { icon: <Ticket />, label: "Promotion Codes", path: "/admin/promotion-codes" },
 ];
 
