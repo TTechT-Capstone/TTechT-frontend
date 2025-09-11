@@ -1,69 +1,55 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import useAuth from "@/app/hooks/useAuth";
-import { ArrowLeft, UploadCloud, Trash2 } from "lucide-react";
+import { UploadCloud, Trash2, CircleX, CircleCheck } from "lucide-react";
 import { getAllCategoriesAPI } from "@/app/apis/category.api";
 import { updateProductAPI } from "@/app/apis/product.api";
 import { getSellerByUserId } from "@/app/apis/seller.api";
 import ErrorPopUp from "../pop-up/ErrorPopUp";
 import SuccessPopUp from "../pop-up/SuccessPopUp";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
+import WarningWtmPopUp from "../watermark/WarningWtmPopUp";
+import SuccessWtmPopUp from "../watermark/SuccessWtmPopUp";
 
-export default function EditProduct({
-  product,
-  setProduct,
-  loadingProduct,
-  handleSubmit,
-}) {
+export default function EditProduct({ product, setProduct, loadingProduct }) {
   const router = useRouter();
-  const { idToken, user, userId, isAuthenticated } = useAuth();
+  const { user } = useAuth();
 
   const [sizeInput, setSizeInput] = useState("");
   const [colorInput, setColorInput] = useState("");
   const [categories, setCategories] = useState([]);
-  //const [selectedCategory, setSelectedCategory] = useState("");
+  const [seller, setSeller] = useState(null);
+
   const [isLoading, setIsLoading] = useState(false);
+  const [editError, setEditError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const [seller, setSeller] = useState(null);
-  const [editError, setEditError] = useState("");
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
+
   const isMobile = useMediaQuery("(max-width: 767px)");
 
   const handleCancel = () => {
     const role = user?.roles?.[0]?.name || "UNKNOWN";
-
-    if (role === "ADMIN") {
-      router.push("/admin/products");
-    } else if (role === "SELLER") {
-      router.push("/seller/products");
-    } else {
-      console.warn("Unknown role or not logged in");
-    }
+    if (role === "ADMIN") router.push("/admin/products");
+    else if (role === "SELLER") router.push("/seller/products");
+    else console.warn("Unknown role or not logged in");
   };
 
   useEffect(() => {
     const fetchSellers = async () => {
       try {
         const userId = localStorage.getItem("userId");
-        if (!userId) {
-          console.error("Missing userId in localStorage");
-          return;
-        }
-
+        if (!userId) return;
         const sellerData = await getSellerByUserId(userId);
         setSeller(sellerData);
-
-        console.log("Fetched seller:", sellerData);
       } catch (error) {
         console.error("Failed to fetch seller:", error);
       }
     };
-
     fetchSellers();
   }, []);
 
@@ -72,7 +58,6 @@ export default function EditProduct({
       try {
         const data = await getAllCategoriesAPI(0, 50);
         setCategories(data);
-        //console.log("Fetched categories:", data);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
       }
@@ -88,12 +73,7 @@ export default function EditProduct({
   const addToList = (type) => {
     const value = type === "sizes" ? sizeInput.trim() : colorInput.trim();
     if (!value || product[type].includes(value)) return;
-
-    setProduct((prev) => ({
-      ...prev,
-      [type]: [...prev[type], value],
-    }));
-
+    setProduct((prev) => ({ ...prev, [type]: [...prev[type], value] }));
     type === "sizes" ? setSizeInput("") : setColorInput("");
   };
 
@@ -106,15 +86,11 @@ export default function EditProduct({
 
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
-
-    // Check how many more images can be added
     const remainingSlots = 4 - (product.images?.length || 0);
     if (remainingSlots <= 0) return;
 
-    // Limit selected files to remaining slots
     const allowedFiles = files.slice(0, remainingSlots);
 
-    // Convert to base64
     const convertToBase64 = (file) =>
       new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -127,7 +103,6 @@ export default function EditProduct({
       const base64Images = await Promise.all(
         allowedFiles.map((file) => convertToBase64(file))
       );
-
       setProduct((prev) => ({
         ...prev,
         images: [...prev.images, ...base64Images],
@@ -144,6 +119,55 @@ export default function EditProduct({
     }));
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!seller?.storeName) {
+      alert("Missing store name.");
+      return;
+    }
+
+    if (product.images.length === 0) {
+      setEditError("Please upload at least one product image.");
+      setShowErrorPopup(true);
+      return;
+    }
+
+    setIsLoading(true);
+    setSuccessMessage("");
+    setShowWarning(false);
+
+    const finalData = {
+      ...product,
+      storeName: seller.storeName,
+      price: parseFloat(Number(product.price).toFixed(2)),
+      stockQuantity: parseInt(product.stockQuantity),
+    };
+
+    try {
+      await updateProductAPI(product.productId, finalData);
+
+      setShowWarning(false);
+      setSuccessMessage("✅ Product updated successfully!");
+      setShowSuccessPopup(true);
+
+      setTimeout(() => {
+        router.push("/seller/products");
+      }, 1500);
+    } catch (error) {
+      console.error("Failed to update product:", error);
+
+      if (error.response?.data?.errorCode === "WATERMARK_DETECTED") {
+        setShowWarning(true);
+      } else {
+        setEditError("❌ Failed to update product.");
+        setShowErrorPopup(true);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return !isMobile ? (
     <>
       {isLoading && (
@@ -151,6 +175,8 @@ export default function EditProduct({
           Updating product, please wait...
         </div>
       )}
+
+      {showWarning && <WarningWtmPopUp onClose={() => setShowWarning(false)} />}
 
       {successMessage && (
         <div className="border border-green-300 bg-green-50 flex flex-row px-2 py-4 text-center">
@@ -166,6 +192,7 @@ export default function EditProduct({
           <div className="text-black">{editError}</div>
         </div>
       )}
+
 
       {loadingProduct ? (
         <p className="font-roboto text-lg text-gray-600 text-center">
@@ -488,6 +515,28 @@ export default function EditProduct({
         </div>
       )}
 
+      {isMobile && showSuccessPopup && (
+        <SuccessPopUp
+          message={successMessage}
+          onClose={() => {
+            setShowSuccessPopup(false);
+            setSuccessMessage("");
+          }}
+        />
+      )}
+      {isMobile && showErrorPopup && (
+        <ErrorPopUp
+          message={editError}
+          onClose={() => {
+            setShowErrorPopup(false);
+            setEditError("");
+          }}
+        />
+      )}
+
+      {showWarning && <WarningWtmPopUp onClose={() => setShowWarning(false)} />}
+
+
       {loadingProduct ? (
         <p className="font-roboto text-lg text-gray-600 text-center">
           Loading product...
@@ -784,26 +833,6 @@ export default function EditProduct({
               </div>
             </div>
           </form>
-
-          {/* Popups for mobile */}
-          {isMobile && showSuccessPopup && (
-            <SuccessPopUp
-              message={successMessage}
-              onClose={() => {
-                setShowSuccessPopup(false);
-                setSuccessMessage("");
-              }}
-            />
-          )}
-          {isMobile && showErrorPopup && (
-            <ErrorPopUp
-              message={editError}
-              onClose={() => {
-                setShowPopup(false);
-                setEditError("");
-              }}
-            />
-          )}
         </>
       )}
     </>
