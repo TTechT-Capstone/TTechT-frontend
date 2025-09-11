@@ -17,8 +17,11 @@ import useAuth from "@/app/hooks/useAuth";
 import { getSellerByUserId } from "@/app/apis/seller.api";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
 import SuccessPopUp from "../pop-up/SuccessPopUp";
-import ErrorPopup from "../pop-up/ErrorPopUp";
-import { getWatermarkByIdAPI, getWatermarkImgByStoreName } from "@/app/apis/watermark.api";
+import ErrorPopUp from "../pop-up/ErrorPopUp";
+import {
+  getWatermarkByIdAPI,
+  getWatermarkImgByStoreName,
+} from "@/app/apis/watermark.api";
 import WarningWtmPopUp from "../watermark/WarningWtmPopUp";
 import SuccessWtmPopUp from "../watermark/SuccessWtmPopUp";
 
@@ -120,8 +123,13 @@ export default function CreateNewProduct() {
           console.error("Missing userId in localStorage");
           return;
         }
-        const watermarkData = await getWatermarkImgByStoreName(seller.storeName);
-        console.log("Fetched watermark image:", watermarkData.data.watermark_url_image);
+        const watermarkData = await getWatermarkImgByStoreName(
+          seller.storeName
+        );
+        console.log(
+          "Fetched watermark image:",
+          watermarkData.data.watermark_url_image
+        );
         setWatermarkURL(watermarkData.data.watermark_url_image);
       } catch (error) {
         console.error("Failed to fetch watermark image:", error);
@@ -132,7 +140,6 @@ export default function CreateNewProduct() {
       fetchWatermarkImage();
     }
   }, [seller]);
-
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -220,7 +227,6 @@ export default function CreateNewProduct() {
     !formData.description ||
     !watermarkURL;
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -230,10 +236,11 @@ export default function CreateNewProduct() {
     }
 
     if (!watermarkURL) {
-    setCreateError("Watermark image is still loading. Please wait a moment and try again.");
-    return;
-  }
-
+      setCreateError(
+        "Watermark image is still loading. Please wait a moment and try again."
+      );
+      return;
+    }
 
     if (formData.images.length === 0) {
       setCreateError("Please upload at least one product image.");
@@ -241,6 +248,7 @@ export default function CreateNewProduct() {
     }
     setIsLoading(true);
     setSuccessMessage("");
+    setShowWarning(false);
 
     const finalData = {
       ...formData,
@@ -252,13 +260,24 @@ export default function CreateNewProduct() {
 
     try {
       await createProductAPI(finalData);
-      //setSuccessMessage("✅ Product created successfully!");
+      setShowWarning(false);
+      setSuccessMessage("Product created successfully!");
       setTimeout(() => {
         router.push("/seller/products");
-      }, 1000);
+      }, 1500);
     } catch (error) {
-      console.error("Failed to create product:", error);
-      alert("❌ Failed to create product.");
+      const errorCode = error?.data?.errorCode;
+      console.log("Error code:", errorCode);
+
+      if (errorCode === "WATERMARK_DETECTED") {
+        setShowWarning(true);
+        console.warn("Watermark detected in the image.");
+        setCreateError("");
+        setShowErrorPopup(false);
+      } else {
+        setCreateError("Failed to create product.");
+        setShowErrorPopup(true);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -278,14 +297,16 @@ export default function CreateNewProduct() {
           </div>
         </div>
       )}
-{/* <WarningWtmPopUp/> */}
-{/* <SuccessWtmPopUp /> */}
+
+      {showWarning && <WarningWtmPopUp onClose={() => setShowWarning(false)} />}
+
       {successMessage && (
-        // <div className="mb-5 border border-green-300 bg-green-50 flex flex-row px-2 py-4 text-center">
-        //   <CircleCheck className="text-green-400 inline-block mr-2" />
-        //   <div className="text-black">{successMessage}</div>
-        // </div>
-        <SuccessWtmPopUp />
+        <SuccessWtmPopUp
+          message={successMessage}
+          onClose={() => {
+            setSuccessMessage("");
+          }}
+        />
       )}
 
       {/* Error Message */}
@@ -574,7 +595,32 @@ export default function CreateNewProduct() {
           </div>
         </div>
       </form>
-      {/* Popups for mobile */}
+    </>
+  ) : (
+    <>
+      {isLoading && (
+        <div className="h-full absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+          <div
+            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+            role="status"
+          >
+            <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+              Creating product, please wait...
+            </span>
+          </div>
+        </div>
+      )}
+
+      {showWarning && <WarningWtmPopUp onClose={() => setShowWarning(false)} />}
+      {isMobile && successMessage && (
+        <SuccessWtmPopUp
+          message={successMessage}
+          onClose={() => {
+            setSuccessMessage("");
+          }}
+        />
+      )}
+      {/* Popups for mobile
       {isMobile && showSuccessPopup && (
         <SuccessPopUp
           message={successMessage}
@@ -583,31 +629,15 @@ export default function CreateNewProduct() {
             setSuccessMessage("");
           }}
         />
-      )}
+      )} */}
       {isMobile && showErrorPopup && (
-        <ErrorPopup
+        <ErrorPopUp
           message={createError}
           onClose={() => {
             setShowPopup(false);
             setCreateError("");
           }}
         />
-      )}
-    </>
-  ) : (
-    <>
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
-          <div
-            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
-            role="status"
-          >
-            <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
-              Creating product, please wait...
-            </span>
-          
-          </div>
-        </div>
       )}
 
       <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6">
@@ -895,26 +925,6 @@ export default function CreateNewProduct() {
         <div className="text-center text-blue-600 font-medium mt-4">
           Creating product, please wait...
         </div>
-      )}
-
-      {/* Popups for mobile */}
-      {isMobile && showSuccessPopup && (
-        <SuccessPopUp
-          message={successMessage}
-          onClose={() => {
-            setShowSuccessPopup(false);
-            setSuccessMessage("");
-          }}
-        />
-      )}
-      {isMobile && showErrorPopup && (
-        <ErrorPopup
-          message={createError}
-          onClose={() => {
-            setShowPopup(false);
-            setCreateError("");
-          }}
-        />
       )}
     </>
   );

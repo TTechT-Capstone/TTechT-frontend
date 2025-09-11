@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 
-export default function DetectionDetailPopup({ metrics, onClose }) {
+export default function WatermarkDetailPopup({ metrics, onClose }) {
   const getPccResult = (pccAbs) => {
     if (pccAbs >= 0.9)
       return { text: "Very high similarity", color: "text-green-600" };

@@ -6,7 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
 import { useParams, useSearchParams } from "next/navigation";
-import ViewDetectionDetail from "@/app/components/watermark/ViewDetectionDetail";
+import ViewWatermarkDetail from "@/app/components/watermark/ViewWatermarkDetail";
 
 export default function AdminWatermarkDetail() {
   const { idToken, user, isAuthenticated, loading } = useAuth();
@@ -21,16 +21,16 @@ export default function AdminWatermarkDetail() {
     <main className="min-h-screen p-4 font-inter">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-xl sm:text-3xl font-bold text-gray-800 font-playfair">
-          Detection Analysis
+          Watermark Analysis
         </h1>
         <Link href="/admin/watermark">
           <div className="flex items-center text-secondary cursor-pointer text-sm hover:underline">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to detection list
+            Back to watermark list
           </div>
         </Link>
       </div>
-      <ViewDetectionDetail
+      <ViewWatermarkDetail
         detectionId={detectionId}
       />
     </main>
@@ -40,15 +40,15 @@ export default function AdminWatermarkDetail() {
         <Link href="/admin/watermark">
           <div className="flex items-center text-secondary cursor-pointer text-sm hover:underline">
             <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to detection list
+            Back to watermark list
           </div>
         </Link>
 
         <h1 className="text-xl sm:text-3xl font-bold text-gray-800 font-playfair">
-          Detection Analysis
+          Watermark Analysis
         </h1>
       </div>
-      <ViewDetectionDetail
+      <ViewWatermarkDetail
         detectionId={detectionId}
       />
     </main>

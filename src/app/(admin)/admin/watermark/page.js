@@ -92,7 +92,7 @@ export default function AdminWatermarkAnalysis() {
       {/* Header */}
       <div className="flex flex-row justify-between mb-4">
         <h1 className="font-playfair font-bold text-xl sm:text-2xl">
-          Detection Analysis
+          Watermark Analysis
         </h1>
       </div>
 
@@ -188,7 +188,7 @@ export default function AdminWatermarkAnalysis() {
       {/* Header */}
       <div className="flex mb-4">
         <h1 className="font-playfair font-bold text-xl sm:text-2xl">
-          Detection Analysis
+          Watermark Analysis
         </h1>
       </div>
 

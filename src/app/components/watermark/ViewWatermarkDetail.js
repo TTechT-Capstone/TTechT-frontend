@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation";
 import useAuth from "@/app/hooks/useAuth";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
 import Image from "next/image";
-import DetectionDetailPopup from "./DetectionDetailPopup";
+import DetectionDetailPopup from "./WatermarkDetailPopup";
 import ArrowWithText from "./ArrowWithText";
 import { getWatermarkHistoryByIdAPI } from "@/app/apis/watermark.api";
 
-export default function ViewDetectionDetail({ detectionId }) {
+export default function ViewWatermarkDetail({ detectionId }) {
   const router = useRouter();
   const { idToken, user, userId, isAuthenticated } = useAuth();
   const isMobile = useMediaQuery("(max-width: 767px)");
@@ -17,16 +17,16 @@ export default function ViewDetectionDetail({ detectionId }) {
   const [error, setError] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
 
-  const toBase64Image = (base64) =>
-    base64 ? `data:image/png;base64,${base64}` : "/product.jpg";
+  const toBase64Image = (base64) => {
+  if (!base64) return "/product.jpg";
+  return base64.startsWith("data:image") ? base64 : `data:image/png;base64,${base64}`;
+};
 
-  const embeddedSrc = watermark?.watermarkBase64
-  ? watermark.watermarkBase64.replace(/\s/g, "")
-  : "/product.jpg";
 
-  const detectedSrc = watermark?.detectedImageBase64
-  ? `data:image/jpeg;base64,${watermark.detectedImageBase64}`
-  : "/product.jpg";
+  const embeddedSrc = toBase64Image(watermark?.detectedImageBase64);
+  //const detectedSrc = (watermark?.detectedImageBase64);
+  const detectedSrc = toBase64Image(watermark?.extractedWatermarkBase64);
+
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -77,7 +77,7 @@ export default function ViewDetectionDetail({ detectionId }) {
         {/* Detected Image */}
         <div className="flex flex-col items-center space-y-4">
           <h2 className="bg-secondary text-white px-2 py-1 sm:px-4 sm:py-2 font-playfair text-md sm:text-xl text-center">
-            Detected Image
+            Extracted Image
           </h2>
           <div className="w-[200px] h-[200px] sm:w-[400px] sm:h-[400px] border border-gray-300 overflow-hidden relative">
             <Image src={detectedSrc} alt="Detected image" fill className="object-cover" />
