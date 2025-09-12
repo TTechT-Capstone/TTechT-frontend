@@ -11,11 +11,13 @@ import ErrorPopUp from "../pop-up/ErrorPopUp";
 import SuccessPopUp from "../pop-up/SuccessPopUp";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
 import WarningWtmPopUp from "../watermark/WarningWtmPopUp";
-import SuccessWtmPopUp from "../watermark/SuccessWtmPopUp";
+import isEqual from "lodash/isEqual";
 
 export default function EditProduct({ product, setProduct, loadingProduct }) {
   const router = useRouter();
   const { user } = useAuth();
+
+  const [originalProduct, setOriginalProduct] = useState(null);
 
   const [sizeInput, setSizeInput] = useState("");
   const [colorInput, setColorInput] = useState("");
@@ -32,11 +34,17 @@ export default function EditProduct({ product, setProduct, loadingProduct }) {
 
   const isMobile = useMediaQuery("(max-width: 767px)");
 
+  useEffect(() => {
+  if (!loadingProduct && product && originalProduct === null) {
+    setOriginalProduct(JSON.parse(JSON.stringify(product)));
+  }
+}, [loadingProduct, product]);
+
+
+  const hasChanges = originalProduct && !isEqual(product, originalProduct);
+
   const handleCancel = () => {
-    const role = user?.roles?.[0]?.name || "UNKNOWN";
-    if (role === "ADMIN") router.push("/admin/products");
-    else if (role === "SELLER") router.push("/seller/products");
-    else console.warn("Unknown role or not logged in");
+    router.push("/seller/products");
   };
 
   useEffect(() => {
@@ -148,19 +156,22 @@ export default function EditProduct({ product, setProduct, loadingProduct }) {
       await updateProductAPI(product.productId, finalData);
 
       setShowWarning(false);
-      setSuccessMessage("✅ Product updated successfully!");
+      setSuccessMessage("Product updated successfully!");
       setShowSuccessPopup(true);
 
       setTimeout(() => {
         router.push("/seller/products");
-      }, 1500);
+      }, 2000);
     } catch (error) {
-      console.error("Failed to update product:", error);
+      const errorCode = error?.data?.errorCode;
 
-      if (error.response?.data?.errorCode === "WATERMARK_DETECTED") {
+      if (errorCode === "WATERMARK_DETECTED") {
         setShowWarning(true);
+        //console.warn("Watermark detected in the image.");
+        setEditError("");
+        setShowErrorPopup(false);
       } else {
-        setEditError("❌ Failed to update product.");
+        setEditError("Failed to update product.");
         setShowErrorPopup(true);
       }
     } finally {
@@ -170,12 +181,17 @@ export default function EditProduct({ product, setProduct, loadingProduct }) {
 
   return !isMobile ? (
     <>
-      {isLoading && (
-        <div className="text-center text-blue-600 font-medium mb-4">
-          Updating product, please wait...
+{isLoading && (
+        <div className="fixed inset-0 w-screen h-screen flex flex-col items-center justify-center bg-white bg-opacity-75 z-50">
+          <div
+            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"
+            role="status"
+          />
+          <p className="mt-5 text-gray-700 font-medium">
+            Updating product, please wait while your image is embedding a watermark...
+          </p>
         </div>
       )}
-
       {showWarning && <WarningWtmPopUp onClose={() => setShowWarning(false)} />}
 
       {successMessage && (
@@ -192,7 +208,6 @@ export default function EditProduct({ product, setProduct, loadingProduct }) {
           <div className="text-black">{editError}</div>
         </div>
       )}
-
 
       {loadingProduct ? (
         <p className="font-roboto text-lg text-gray-600 text-center">
@@ -429,10 +444,10 @@ export default function EditProduct({ product, setProduct, loadingProduct }) {
 
                 <button
                   type="submit"
-                  disabled={product.images.length === 0}
+                  disabled={!hasChanges || product.images.length === 0}
                   className={`w-full px-6 py-2 rounded-xl transition 
                   ${
-                    product.images.length === 0
+                    !hasChanges || product.images.length === 0
                       ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                       : "bg-secondary text-white"
                   }
@@ -484,36 +499,25 @@ export default function EditProduct({ product, setProduct, loadingProduct }) {
               </div>
             </div>
           </form>
-
-          {/* Popups for mobile */}
-          {isMobile && showSuccessPopup && (
-            <SuccessPopUp
-              message={successMessage}
-              onClose={() => {
-                setShowSuccessPopup(false);
-                setSuccessMessage("");
-              }}
-            />
-          )}
-          {isMobile && showErrorPopup && (
-            <ErrorPopUp
-              message={editError}
-              onClose={() => {
-                setShowPopup(false);
-                setEditError("");
-              }}
-            />
-          )}
         </>
       )}
     </>
   ) : (
     <>
       {isLoading && (
-        <div className="text-center text-blue-600 font-medium mb-4">
-          Updating product, please wait...
+        <div className="fixed inset-0 w-screen h-screen flex flex-col items-center justify-center bg-white bg-opacity-75 z-50">
+          <div
+            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"
+            role="status"
+          />
+          <p className="text-gray-700 text-sm text-center font-medium p-5">
+            Updating product, please wait while your image is embedding a
+            watermark...
+          </p>
         </div>
       )}
+
+      {showWarning && <WarningWtmPopUp onClose={() => setShowWarning(false)} />}
 
       {isMobile && showSuccessPopup && (
         <SuccessPopUp
@@ -524,6 +528,7 @@ export default function EditProduct({ product, setProduct, loadingProduct }) {
           }}
         />
       )}
+
       {isMobile && showErrorPopup && (
         <ErrorPopUp
           message={editError}
@@ -535,7 +540,6 @@ export default function EditProduct({ product, setProduct, loadingProduct }) {
       )}
 
       {showWarning && <WarningWtmPopUp onClose={() => setShowWarning(false)} />}
-
 
       {loadingProduct ? (
         <p className="font-roboto text-lg text-gray-600 text-center">

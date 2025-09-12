@@ -16,7 +16,6 @@ import { createProductAPI } from "@/app/apis/product.api";
 import useAuth from "@/app/hooks/useAuth";
 import { getSellerByUserId } from "@/app/apis/seller.api";
 import useMediaQuery from "@/app/hooks/useMediaQuery";
-import SuccessPopUp from "../pop-up/SuccessPopUp";
 import ErrorPopUp from "../pop-up/ErrorPopUp";
 import {
   getWatermarkByIdAPI,
@@ -264,14 +263,14 @@ export default function CreateNewProduct() {
       setSuccessMessage("Product created successfully!");
       setTimeout(() => {
         router.push("/seller/products");
-      }, 1500);
+      }, 2000);
     } catch (error) {
       const errorCode = error?.data?.errorCode;
-      console.log("Error code:", errorCode);
+      //console.log("Error code:", errorCode);
 
       if (errorCode === "WATERMARK_DETECTED") {
         setShowWarning(true);
-        console.warn("Watermark detected in the image.");
+        //console.warn("Watermark detected in the image.");
         setCreateError("");
         setShowErrorPopup(false);
       } else {
@@ -286,15 +285,14 @@ export default function CreateNewProduct() {
   return !isMobile ? (
     <>
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+        <div className="fixed inset-0 w-screen h-screen flex flex-col items-center justify-center bg-white bg-opacity-75 z-50">
           <div
-            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"
             role="status"
-          >
-            <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
-              Creating product, please wait...
-            </span>
-          </div>
+          />
+          <p className="mt-5 text-gray-700 font-medium">
+            Creating product, please wait while your image is embedding a watermark...
+          </p>
         </div>
       )}
 
@@ -599,15 +597,15 @@ export default function CreateNewProduct() {
   ) : (
     <>
       {isLoading && (
-        <div className="h-full absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+        <div className="fixed inset-0 w-screen h-screen flex flex-col items-center justify-center bg-white bg-opacity-75 z-50">
           <div
-            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"
             role="status"
-          >
-            <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
-              Creating product, please wait...
-            </span>
-          </div>
+          />
+          <p className="text-gray-700 text-sm text-center font-medium p-5">
+            Creating product, please wait while your image is embedding a
+            watermark...
+          </p>
         </div>
       )}
 
@@ -620,16 +618,7 @@ export default function CreateNewProduct() {
           }}
         />
       )}
-      {/* Popups for mobile
-      {isMobile && showSuccessPopup && (
-        <SuccessPopUp
-          message={successMessage}
-          onClose={() => {
-            setShowSuccessPopup(false);
-            setSuccessMessage("");
-          }}
-        />
-      )} */}
+
       {isMobile && showErrorPopup && (
         <ErrorPopUp
           message={createError}
@@ -921,11 +910,6 @@ export default function CreateNewProduct() {
           </div>
         </div>
       </form>
-      {isLoading && (
-        <div className="text-center text-blue-600 font-medium mt-4">
-          Creating product, please wait...
-        </div>
-      )}
     </>
   );
 }
