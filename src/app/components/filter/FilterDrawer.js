@@ -15,7 +15,6 @@ export default function FilterDrawer({
   onApply,
   onClear,
 }) {
-  // State to manage the current view (main, colors, sizes, etc.)
   const [currentView, setCurrentView] = useState("main");
 
   if (!isOpen) {
