@@ -35,11 +35,10 @@ export default function EditProduct({ product, setProduct, loadingProduct }) {
   const isMobile = useMediaQuery("(max-width: 767px)");
 
   useEffect(() => {
-  if (!loadingProduct && product && originalProduct === null) {
-    setOriginalProduct(JSON.parse(JSON.stringify(product)));
-  }
-}, [loadingProduct, product]);
-
+    if (!loadingProduct && product && originalProduct === null) {
+      setOriginalProduct(JSON.parse(JSON.stringify(product)));
+    }
+  }, [loadingProduct, product]);
 
   const hasChanges = originalProduct && !isEqual(product, originalProduct);
 
@@ -181,14 +180,15 @@ export default function EditProduct({ product, setProduct, loadingProduct }) {
 
   return !isMobile ? (
     <>
-{isLoading && (
+      {isLoading && (
         <div className="fixed inset-0 w-screen h-screen flex flex-col items-center justify-center bg-white bg-opacity-75 z-50">
           <div
             className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"
             role="status"
           />
           <p className="mt-5 text-gray-700 font-medium">
-            Updating product, please wait while your image is embedding a watermark...
+            Updating product, please wait while your image is embedding a
+            watermark...
           </p>
         </div>
       )}
@@ -486,7 +486,7 @@ export default function EditProduct({ product, setProduct, loadingProduct }) {
                   </div>
                 ))}
 
-                <label className="w-16 h-16 border border-dashed border-gray-400 flex items-center justify-center rounded-lg cursor-pointer hover:border-gray-600">
+                {/* <label className="w-16 h-16 border border-dashed border-gray-400 flex items-center justify-center rounded-lg cursor-pointer hover:border-gray-600">
                   <UploadCloud className="w-5 h-5 text-gray-500" />
                   <input
                     type="file"
@@ -495,7 +495,19 @@ export default function EditProduct({ product, setProduct, loadingProduct }) {
                     onChange={handleImageUpload}
                     className="hidden"
                   />
-                </label>
+                </label> */}
+                {product.images.length < 4 && (
+                  <label className="w-16 h-16 border border-dashed border-gray-400 flex items-center justify-center rounded-lg cursor-pointer hover:border-gray-600">
+                    <UploadCloud className="w-5 h-5 text-gray-500" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </label>
+                )}
               </div>
             </div>
           </form>
@@ -798,16 +810,18 @@ export default function EditProduct({ product, setProduct, loadingProduct }) {
                     </div>
                   ))}
 
-                  <label className="w-16 h-16 border border-dashed border-gray-400 flex items-center justify-center rounded-lg cursor-pointer hover:border-gray-600">
-                    <UploadCloud className="w-5 h-5 text-gray-500" />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                  </label>
+                  {product.images.length < 4 && (
+                    <label className="w-16 h-16 border border-dashed border-gray-400 flex items-center justify-center rounded-lg cursor-pointer hover:border-gray-600">
+                      <UploadCloud className="w-5 h-5 text-gray-500" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
                 </div>
               </div>
 
