@@ -17,7 +17,7 @@ export default function AdminWatermarkAnalysis() {
   const [loading, setLoading] = useState(true);
   const { idToken, user, isAuthenticated } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortBy, setSortBy] = useState("detectionTimestamp");
   const [sortWatermark, setSortWatermark] = useState("desc");
   const isMobile = useMediaQuery("(max-width: 767px)");
 
@@ -52,15 +52,24 @@ export default function AdminWatermarkAnalysis() {
       );
     }
 
-    // 🔽 Sort
+    // 🔽 Sort logic
     filtered.sort((a, b) => {
       const valA = a[sortBy];
       const valB = b[sortBy];
+
+      if (valA == null) return 1;
+      if (valB == null) return -1;
 
       if (sortBy === "detectionTimestamp") {
         return sortWatermark === "asc"
           ? new Date(valA).getTime() - new Date(valB).getTime()
           : new Date(valB).getTime() - new Date(valA).getTime();
+      }
+
+      if (sortBy === "detectionId" || sortBy === "productId") {
+        return sortWatermark === "asc"
+          ? Number(valA) - Number(valB)
+          : Number(valB) - Number(valA);
       }
 
       if (typeof valA === "string" && typeof valB === "string") {
@@ -105,9 +114,10 @@ export default function AdminWatermarkAnalysis() {
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
           >
-            <option value="detectionTimestamp">Date Created</option>
-            <option value="storeName">Store Name</option>
+            <option value="detectionId">Detection ID</option>
             <option value="productId">Product ID</option>
+            <option value="storeName">Store Name</option>
+            <option value="detectionTimestamp">Date Created</option>
           </select>
           <button
             className="text-sm underline"
@@ -201,9 +211,10 @@ export default function AdminWatermarkAnalysis() {
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
           >
-            <option value="detectionTimestamp">Date Created</option>
-            <option value="storeName">Store Name</option>
+            <option value="detectionId">Detection ID</option>
             <option value="productId">Product ID</option>
+            <option value="storeName">Store Name</option>
+            <option value="detectionTimestamp">Date Created</option>
           </select>
           <button
             className="text-sm underline"
