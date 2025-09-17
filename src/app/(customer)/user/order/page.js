@@ -45,26 +45,31 @@ export default function MyOrder() {
   }, [idToken, user?.id]);
 
   const handleCancelOrder = async (orderId) => {
-    if (!cancelReason) {
-      alert("Please provide a reason for canceling the order.");
-      return;
-    }
+  if (!cancelReason) {
+    alert("Please provide a reason for canceling the order.");
+    return;
+  }
 
-    try {
-      await cancelOrderAPI(user.id, orderId, cancelReason);
-      //alert("Order canceled successfully!");
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order.id === orderId ? { ...order, status: "cancelled" } : order
-        )
-      );
-      setIsCancelModalOpen(false); // Close the modal after successful cancellation
-      setCancelReason(""); // Reset the reason
-    } catch (error) {
-      console.error("Error canceling order:", error);
-      alert("Failed to cancel order. Please try again later.");
-    }
-  };
+  try {
+    await cancelOrderAPI(user.id, orderId, cancelReason);
+
+    // ✅ force reload after cancel
+    window.location.href = window.location.href;
+
+    // (optional: you can remove the below updates if you reload)
+    // setOrders((prevOrders) =>
+    //   prevOrders.map((order) =>
+    //     order.id === orderId ? { ...order, status: "cancelled" } : order
+    //   )
+    // );
+    // setIsCancelModalOpen(false);
+    // setCancelReason("");
+  } catch (error) {
+    console.error("Error canceling order:", error);
+    alert("Failed to cancel order. Please try again later.");
+  }
+};
+
 
   const handleOrderClick = async (orderId) => {
     if (selectedOrderId === orderId) {

@@ -47,9 +47,10 @@ export default function AdminProducts() {
       return;
     try {
       await deleteProductAPI(productId);
-      setProducts((prevProducts) =>
-        prevProducts.filter((product) => product.id !== productId)
-      );
+      window.location.href = window.location.href;
+      // setProducts((prevProducts) =>
+      //   prevProducts.filter((product) => product.id !== productId)
+      // );
     } catch (error) {
       console.error("Error deleting product:", error.message);
     }
