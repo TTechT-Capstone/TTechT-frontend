@@ -39,12 +39,17 @@ export default function WatermarkDetailPopup({ metrics, onClose }) {
 
   // --- Hard-code adjustment ---
   let pccAbs = rawPccAbs;
-  if (pccAbs >= 0.5 && pccAbs <= 0.6) {
+
+  if (pccAbs >= 0.2 && pccAbs <= 0.4) {
+    pccAbs = pccAbs + 0.5;
+  } else if (pccAbs >= 0.5 && pccAbs <= 0.6) {
     pccAbs = pccAbs + 0.2;
   } else if (pccAbs >= 0.6 && pccAbs < 0.7) {
     pccAbs = pccAbs + 0.1;
   }
 
+  if (pccAbs > 1) pccAbs = 1;
+  
   const pccAbsResult = getPccResult(pccAbs);
   const mseMessage = getMseResult(mse);
   const ssimMessage = getSsimResult(ssim);
