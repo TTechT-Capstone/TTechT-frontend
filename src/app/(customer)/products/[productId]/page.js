@@ -100,7 +100,7 @@ export default function ProductDetail() {
     (hasColors && !selectedColor) || (hasSizes && !selectedSize);
 
   return !isMobile ? (
-    <div className="mt-5 mx-auto px-8 py-12 bg-white text-primary">
+    <div className="min-h-screen mt-5 mx-auto px-8 py-12 bg-white text-primary">
       {/* Product Section */}
       <div className="grid grid-cols-2 gap-12">
         {/* Image Gallery */}
@@ -336,7 +336,7 @@ export default function ProductDetail() {
       )}
     </div>
   ) : (
-    <div className="mt-5 mx-auto px-8 py-12 bg-white text-primary">
+    <div className="min-h-screen mt-5 mx-auto px-8 py-12 bg-white text-primary">
       <Link href="/products">
         <div className="mb-4 flex items-center text-secondary cursor-pointer text-sm hover:underline">
           <ArrowLeft className="h-4 w-4 mr-1" />
