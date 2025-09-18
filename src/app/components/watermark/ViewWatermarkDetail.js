@@ -95,7 +95,7 @@ export default function ViewWatermarkDetail({ detectionId }) {
         </div>
 
         <div className="flex justify-between w-full p-2">
-          <span className="font-semibold text-gray-700">Store Name:</span>
+          <span className="font-semibold text-gray-700">Unauthorized Store:</span>
           <span className="text-right font-bold">{watermark.storeName}</span>
         </div>
 
