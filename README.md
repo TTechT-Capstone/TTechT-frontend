@@ -2,7 +2,7 @@
 
 ## 🌐 Hosted Link:
 
-- **Hosted Domain URL**: [https://origity.vercel.app/](https://origity.vercel.app/)
+- **Hosted Domain URL**: [https://www.origity.store/](origity.store/)
 
 ---
 ## 🛒 Introduction (chinh lai)
